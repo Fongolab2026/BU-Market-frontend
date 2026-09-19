@@ -1,19 +1,23 @@
-import React from 'react'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext.jsx'
 import { publicRoutes } from './Users/routes/PublicRoutes.jsx'
 import { protectedRoutes } from './Users/routes/ProtectedRoutes.jsx'
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <Outlet />,
     children: [
       ...publicRoutes,
-      ...protectedRoutes
-    ]
-  }
+      ...protectedRoutes,
+    ],
+  },
 ])
 
 export default function App() {
-  return <RouterProvider router={router} />
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  )
 }
