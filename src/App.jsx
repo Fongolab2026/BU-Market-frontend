@@ -1,14 +1,19 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import CardProducts from './Users/products/ui/cardProduct'
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
+import { publicRoutes } from './Users/routes/PublicRoutes.jsx'
+import { protectedRoutes } from './Users/routes/ProtectedRoutes.jsx'
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Outlet />,
+    children: [
+      ...publicRoutes,
+      ...protectedRoutes
+    ]
+  }
+])
 
 export default function App() {
-  return (
-   <div>
-    <h1>C'est mon application React !</h1>
-    <Link to="/inscription">Inscription</Link>
-    <CardProducts />
-   </div>
-  )
+  return <RouterProvider router={router} />
 }
-
