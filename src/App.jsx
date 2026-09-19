@@ -1,5 +1,7 @@
 import React from 'react'
 import { createBrowserRouter, Link, Outlet, RouterProvider } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext.jsx'
+
 import { publicRoutes } from './Users/routes/PublicRoutes.jsx'
 import { protectedRoutes } from './Users/routes/ProtectedRoutes.jsx'
 
@@ -15,16 +17,23 @@ function NotFound() {
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <Outlet />,
     children: [
       ...publicRoutes,
       ...protectedRoutes,
+      ...publicRoutes,
+      ...protectedRoutes,
       { path: "*", element: <NotFound /> }
     ]
-  }
+  },
+
 ])
 
 export default function App() {
-  return <RouterProvider router={router} />
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  )
 }

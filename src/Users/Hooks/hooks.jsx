@@ -1,5 +1,5 @@
 import { useState,useEffect } from "react"
-import {api} from "../../data/api"
+import api from '../../services/api'
 
 export default function useProducts(url ){
     const [loading,setLoading]=useState(false)
@@ -9,6 +9,7 @@ export default function useProducts(url ){
         const fetchData = async ()=>{
             setLoading(true)
             try{
+                
                 const rep = await api.get(url)
                 if(rep.status!==200){
                     throw new Error(`echec de chargement statut ${rep.status}`)

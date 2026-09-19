@@ -1,6 +1,6 @@
-
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
+
 export default function Inscription() {
   const {handleSubmit, register,formState: {errors}} = useForm();
   const onSubmit = (data) => {
