@@ -30,7 +30,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-let refreshPromise = null
+let refreshRequest = null
 
 api.interceptors.response.use(
   (response) => response,
@@ -38,39 +38,36 @@ api.interceptors.response.use(
     const { config, response } = error
     const isAuthUrl = config?.url?.includes('/login/') || config?.url?.includes('/refresh/')
     if (!response || response.status !== 401 || isAuthUrl || config._retried) {
-      return Promise.reject(error)
+      throw error
     }
 
     const refreshToken = getRefreshToken()
     if (!refreshToken) {
       clearTokens()
-      return Promise.reject(error)
+      throw error
     }
 
     config._retried = true
-    if (!refreshPromise) {
-      refreshPromise = axios
-        .post(`${API_URL}/api/auth/refresh/`, { refresh: refreshToken })
-        .then(({ data }) => {
-          setTokens(data)
-          return data.access
-        })
-        .catch((err) => {
-          clearTokens()
-          throw err
-        })
-        .finally(() => {
-          refreshPromise = null
-        })
+
+    const refreshAccessToken = async () => {
+      try {
+        const { data } = await axios.post(
+          `${API_URL}/api/auth/refresh/`,
+          { refresh: refreshToken },
+        )
+        setTokens(data)
+        return data.access
+      } catch (err) {
+        clearTokens()
+        throw err
+      } finally {
+        refreshRequest = null
+      }
     }
 
-    try {
-      const access = await refreshPromise
-      config.headers.Authorization = `Bearer ${access}`
-      return api(config)
-    } catch (err) {
-      return Promise.reject(err)
-    }
+    const access = await (refreshRequest || (refreshRequest = refreshAccessToken()))
+    config.headers.Authorization = `Bearer ${access}`
+    return api(config)
   },
 )
 
