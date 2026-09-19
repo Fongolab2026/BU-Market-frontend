@@ -22,12 +22,9 @@ const router = createBrowserRouter([
     children: [
       ...publicRoutes,
       ...protectedRoutes,
-      ...publicRoutes,
-      ...protectedRoutes,
-      { path: "*", element: <NotFound /> }
+      { path: '*', element: <NotFound /> }
     ]
-  },
-
+  }
 ])
 
 export default function App() {
