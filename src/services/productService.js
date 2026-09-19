@@ -1,10 +1,10 @@
 import api from './api'
 
 export const productApi = {
-  list: (params) => api.get('/products/produit/', { params }),
-  detail: (id) => api.get(`/products/produit/${id}/`),
-  create: (data) => api.post('/products/produit/', data),
-  update: (id, data) => api.put(`/products/produit/${id}/`, data),
-  partialUpdate: (id, data) => api.patch(`/products/produit/${id}/`, data),
-  remove: (id) => api.delete(`/products/produit/${id}/`),
+  list: (params) => api.get('/api/products/', { params }),
+  detail: (id) => api.get(`/api/products/${id}/`),
+  create: (data) => api.post('/api/products/', data),
+  update: (id, data) => api.put(`/api/products/${id}/`, data),
+  partialUpdate: (id, data) => api.patch(`/api/products/${id}/`, data),
+  remove: (id) => api.delete(`/api/products/${id}/`),
 }
