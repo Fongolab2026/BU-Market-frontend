@@ -8,12 +8,12 @@ export default function Connexion() {
             <h1 className='text-center text-[1.8rem] text-gray-600 font-bold '>Se connecter</h1>
           <form className='flex flex-col'>
             <div className='mb-5 flex flex-col'>
-              <label className='text-[0.9rem] mb-2 font-bold text-base-content'>Email :</label>
-              <input className='input input-lg w-85' type="email" placeholder='Tapez votre mail...' />
+              <label className='text-[0.9rem] mb-2 font-bold text-gray-600'>Email :</label>
+              <input className='input input-lg w-85 outline-0 border-gray-300' type="email" placeholder='Tapez votre mail...' />
             </div>
             <div className='mb-3 flex flex-col'>
-              <label className='text-[0.9rem] font-bold mb-2 text-base-content'>Mot de passe :</label>
-              <input className='input input-lg w-85' type="password" placeholder='Mot de passe...' />
+              <label className='text-[0.9rem] font-bold mb-2 text-gray-600'>Mot de passe :</label>
+              <input className='input input-lg w-85 outline-0 border-gray-300' type="password" placeholder='Mot de passe...' />
             </div>
             <div className='flex justify-end mb-4'>
               <a className='text-[0.85rem] text-primary font-semibold' href="">Mot de passe oublié ?</a>

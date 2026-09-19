@@ -1,13 +1,16 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import CardProducts from '../products/ui/cardProduct'
+import NavBar from '../Composants/nav'
 
 export default function Home() {
   return (
-    <div>
-      <h1>C'est mon application React !</h1>
-      <Link to="/inscription">Inscription</Link>
-      <CardProducts />
+    <div className='min-h-screen bg-base-100'>
+      <NavBar />
+      <div className='mx-auto max-w-7xl p-6'>
+        <Link to="/inscription" className='text-primary'>Inscription</Link>
+        <CardProducts />
+      </div>
     </div>
   )
 }

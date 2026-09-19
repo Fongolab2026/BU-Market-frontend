@@ -1,13 +1,17 @@
 
 import { Link } from 'react-router-dom'
-
+import { useForm } from 'react-hook-form'
 export default function Inscription() {
-  
+  const {handleSubmit, register,formState: {errors}} = useForm();
+  const onSubmit = (data) => {
+    console.log(data);
+  }
+
   return (
     <div className='flex justify-center min-h-screen p-4 items-center bg-base-100'>
         <div className='card w-105 gap-3 flex flex-col p-10'>
           <h1 className='text-center text-[1.8rem] text-gray-600 font-bold '>Créer un compte</h1>
-          <form className='flex flex-col'>
+          <form className='flex flex-col' onSubmit={handleSubmit(onSubmit)}>
             <div className='mb-5 flex flex-col'>
               <label className='mb-2 text-[0.9rem] font-bold text-gray-600'>Nom complet :</label>
               <input className='input input-lg w-85 outline-0 border-gray-300'  type="text" placeholder='Tapez votre nom...' />
