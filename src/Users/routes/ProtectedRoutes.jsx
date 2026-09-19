@@ -1,26 +1,26 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { isAuthenticated } from "../../services/api.js";
-import Crud_Users from "../../Admin/Crud_Users.jsx";
-import Detail from "../../Admin/Approuver_Demande.jsx";
-import Liste from "../../Admin/Liste_Produit.jsx";
-
-const ProtectedRoute = () => {
-    const location = useLocation();
-
-    if (!isAuthenticated()) {
-        return <Navigate to="/connexion" replace state={{ from: location }} />;
-    }
-
-    return <Outlet />;
-};
+import { Navigate } from 'react-router-dom'
+import { AdminLayout } from '../../Admin/components/AdminLayout.jsx'
+import { ProtectedRoute } from '../../Admin/components/ProtectedRoute.jsx'
+import { DashboardPage } from '../../Admin/pages/DashboardPage.jsx'
+import { MerchantDetailPage } from '../../Admin/pages/MerchantDetailPage.jsx'
+import { SettingsPage } from '../../Admin/pages/SettingsPage.jsx'
+import { UsersPage } from '../../Admin/pages/UsersPage.jsx'
 
 export const protectedRoutes = [
-    {
-        element: <ProtectedRoute />,
+  {
+    element: <ProtectedRoute allowedRoles={['admin']} />,
+    children: [
+      {
+        path: 'admin',
+        element: <AdminLayout />,
         children: [
-            { path: "admin", element: <Crud_Users /> },
-            { path: "approbation-demandes", element: <Detail /> },
-            { path: "liste-produits", element: <Liste /> }
-        ]
-    }
-];
+          { index: true, element: <Navigate to="tableau-de-bord" replace /> },
+          { path: 'tableau-de-bord', element: <DashboardPage /> },
+          { path: 'utilisateurs', element: <UsersPage /> },
+          { path: 'utilisateurs/:userId', element: <MerchantDetailPage /> },
+          { path: 'parametres', element: <SettingsPage /> },
+        ],
+      },
+    ],
+  },
+]

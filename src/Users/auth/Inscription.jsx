@@ -1,4 +1,3 @@
-
 export default function Inscription() {
   return (
     <div className='flex justify-center min-h-screen p-4 items-center bg-base-100'>
