@@ -50,7 +50,7 @@ api.interceptors.response.use(
     config._retried = true
     if (!refreshPromise) {
       refreshPromise = axios
-        .post(`${API_URL}/users/refresh/`, { refresh: refreshToken })
+        .post(`${API_URL}/api/auth/refresh/`, { refresh: refreshToken })
         .then(({ data }) => {
           setTokens(data)
           return data.access
