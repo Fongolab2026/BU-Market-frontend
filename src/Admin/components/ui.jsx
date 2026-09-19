@@ -1,9 +1,9 @@
 import { ArrowDownRight, ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react'
 
-const statusStyles = { active: 'bg-emerald-50 text-emerald-700 ring-emerald-600/10', pending: 'bg-amber-50 text-amber-700 ring-amber-600/10', suspended: 'bg-rose-50 text-rose-700 ring-rose-600/10', hidden: 'bg-base-200 text-base-content/60 ring-base-300', validated: 'bg-brand/10 text-brand ring-brand/15' }
-const statusLabels = { active: 'Actif', pending: 'En attente', suspended: 'Suspendu', hidden: 'Masqué', validated: 'Validé' }
+const statusStyles = { active: 'bg-emerald-50 text-emerald-700 ring-emerald-600/10', pending: 'bg-amber-50 text-amber-700 ring-amber-600/10', suspended: 'bg-rose-50 text-rose-700 ring-rose-600/10', hidden: 'bg-base-200 text-base-content/60 ring-base-300', validated: 'bg-brand/10 text-brand ring-brand/15', visible: 'bg-emerald-50 text-emerald-700 ring-emerald-600/10', inactive: 'bg-base-200 text-base-content/60 ring-base-300', approved: 'bg-emerald-50 text-emerald-700 ring-emerald-600/10', rejected: 'bg-rose-50 text-rose-700 ring-rose-600/10' }
+const statusLabels = { active: 'Actif', pending: 'En attente', suspended: 'Suspendu', hidden: 'Masqué', validated: 'Validé', visible: 'Visible', inactive: 'Inactive', approved: 'Approuvé', rejected: 'Rejeté' }
 
-export function StatusBadge({ status }) { return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset ${statusStyles[status] || statusStyles.hidden}`}>{statusLabels[status] || status}</span> }
+export function StatusBadge({ status, label }) { return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset ${statusStyles[status] || statusStyles.hidden}`}>{label || statusLabels[status] || status}</span> }
 
 export function PageHeader({ eyebrow, title, description, action }) {
   return <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div>{eyebrow && <p className="text-xs font-semibold tracking-wide text-accent">{eyebrow}</p>}<h1 className={`${eyebrow ? 'mt-1' : ''} text-2xl font-bold tracking-tight text-base-content`}>{title}</h1>{description && <p className="mt-1 text-sm leading-5 text-base-content/60">{description}</p>}</div>{action}</div>
