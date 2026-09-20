@@ -2,18 +2,16 @@ import { createContext, useContext, useMemo, useState } from 'react'
 
 const AuthContext = createContext(null)
 const SESSION_KEY = 'vima_demo_session'
-const demoAdmin = { id: 'usr-admin-001', firstName: 'Aline', lastName: 'Morel', email: 'aline.morel@bumarket.app', role: 'admin', initials: 'AM' }
+const demoAdmin = { id: 'usr-admin-001', firstName: 'Julien', lastName: 'Faure', email: 'julien.faure@bumarket.app', role: 'admin', initials: 'JF' }
 
 function readSession() {
-  const storedSession = localStorage.getItem(SESSION_KEY)
-  if (storedSession) {
-    try { return JSON.parse(storedSession) } catch { localStorage.removeItem(SESSION_KEY) }
-  }
-  // Le formulaire d'authentification sera branché ultérieurement. En attendant,
-  // une session locale permet de valider les pages protégées.
   if (import.meta.env.VITE_ENABLE_DEMO_ADMIN !== 'false') {
     localStorage.setItem(SESSION_KEY, JSON.stringify(demoAdmin))
     return demoAdmin
+  }
+  const storedSession = localStorage.getItem(SESSION_KEY)
+  if (storedSession) {
+    try { return JSON.parse(storedSession) } catch { localStorage.removeItem(SESSION_KEY) }
   }
   return null
 }
