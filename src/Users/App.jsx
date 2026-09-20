@@ -3,7 +3,7 @@ import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { AuthProvider } from '../context/AuthContext.jsx'
 import { publicRoutes } from './routes/PublicRoutes.jsx'
 import { protectedRoutes } from './routes/ProtectedRoutes.jsx'
-import LoadingPage from './pages/LoadingPage.jsx'
+import LoadingPage from './Pages/LoadingPage.jsx'
 
 const router = createBrowserRouter([
   {

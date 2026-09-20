@@ -1,4 +1,4 @@
-import Home from "../pages/Home.jsx";
+import Home from "../Pages/Home.jsx";
 import Inscription from "../auth/Inscription.jsx";
 import Connexion from "../auth/Connexion.jsx";
 import PageErreur from "../Pages/PageErreur.jsx";
