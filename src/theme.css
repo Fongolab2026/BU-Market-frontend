@@ -121,10 +121,19 @@
 :root,
 [data-theme="bumarket"] {
   --surface: #ffffff;
+  --hero-start: #481965;
+  --hero-end: #6d3b94;
+  --hero-content: #ffffff;
 }
 
 [data-theme="bumarket-dark"] {
   --surface: #201c29;
+  --color-brand: #c49aef;
+  --color-brand-soft: #d7b8f5;
+  --color-surface: #201c29;
+  --hero-start: #21132f;
+  --hero-end: #392052;
+  --hero-content: #ffffff;
 }
 
 @layer base {
@@ -146,6 +155,38 @@
 }
 
 @layer components {
+  .home-hero {
+    background: linear-gradient(135deg, var(--hero-start), var(--hero-end));
+    color: var(--hero-content);
+  }
+
+  .home-hero h1,
+  .home-hero h2,
+  .home-hero h3 {
+    color: var(--hero-content) !important;
+  }
+
+  .home-hero .text-primary-content {
+    color: var(--hero-content) !important;
+  }
+
+  .home-hero .text-primary-content\/80 {
+    color: color-mix(in srgb, var(--hero-content) 80%, transparent) !important;
+  }
+
+  .home-hero .text-primary-content\/75 {
+    color: color-mix(in srgb, var(--hero-content) 75%, transparent) !important;
+  }
+
+  /* Harmonise les anciennes surfaces explicites avec le thème sombre. */
+  [data-theme="bumarket-dark"] .bg-white {
+    background-color: var(--surface) !important;
+  }
+
+  [data-theme="bumarket-dark"] .border-gray-300 {
+    border-color: var(--color-base-300) !important;
+  }
+
   /* ---------- Champs de saisie ---------- */
   .input,
   .select,
