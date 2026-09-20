@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Eye, Filter, Pencil, Plus, Search, SlidersHorizontal, Trash2, UsersRound, X } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { adminService } from '../../../services/mockAdminService.js'
+import { adminService } from '../../services/mockAdminService.js'
 import { PageHeader, Pagination, StatusBadge } from '../components/ui.jsx'
 import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
 

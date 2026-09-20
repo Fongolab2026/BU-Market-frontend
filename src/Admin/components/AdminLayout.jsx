@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { Bell, Building2, ChevronDown, ClipboardList, LayoutDashboard, Menu, Package, Settings, Star, Store, UsersRound, X } from 'lucide-react'
-import { useAuth } from '../../../context/AuthContext.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 const navigation = [
   { to: '/admin/tableau-de-bord', label: 'Tableau de bord', icon: LayoutDashboard },

@@ -12,7 +12,7 @@ import {
   ChevronDown,
   Store,
 } from 'lucide-react'
-import { isAuthenticated, clearTokens } from '../services/api'
+import { isAuthenticated, clearTokens } from '../../services/api'
 
 const THEME_KEY = 'bu-market-theme'
 const LIGHT = 'bumarket'

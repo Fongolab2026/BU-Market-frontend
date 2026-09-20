@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import CardProducts from '../../components/CardProduct.jsx'
-import NavBar from '../../components/NavBar.jsx'
-import Loading from '../../components/Loading.jsx'
+import CardProducts from '../products/ui/cardProduct'
+import NavBar from '../Composants/nav'
+import Loading from '../Composants/Loading'
 import { productApi, categoryApi } from '../../services'
 
 export default function Home() {

@@ -1,6 +1,6 @@
 import { Heart } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { favoriteApi, isAuthenticated } from '../services'
+import { favoriteApi, isAuthenticated } from '../../../services'
 
 export default function CardProducts({ product, categoryName }) {
   const handleFavorite = async () => {

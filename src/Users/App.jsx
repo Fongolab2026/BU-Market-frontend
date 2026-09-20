@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext.jsx'
+import { AuthProvider } from '../context/AuthContext.jsx'
 import { publicRoutes } from './routes/PublicRoutes.jsx'
 import { protectedRoutes } from './routes/ProtectedRoutes.jsx'
-import Loading from './components/Loading.jsx'
-import NotFound from './components/NotFound.jsx'
+import LoadingPage from './pages/LoadingPage.jsx'
 
 const router = createBrowserRouter([
   {
@@ -13,7 +12,6 @@ const router = createBrowserRouter([
     children: [
       ...publicRoutes,
       ...protectedRoutes,
-      { path: '*', element: <NotFound /> },
     ],
   },
 ])
@@ -28,7 +26,7 @@ export default function App() {
 
   return (
     <AuthProvider>
-      {booted ? <RouterProvider router={router} /> : <Loading fullScreen />}
+      {booted ? <RouterProvider router={router} /> : <LoadingPage />}
     </AuthProvider>
   )
 }

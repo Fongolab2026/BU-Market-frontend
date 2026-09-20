@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Eye, EyeOff, Package, Pencil, Plus, Search, Store, Trash2, X } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { adminService } from '../../../services/mockAdminService.js'
+import { adminService } from '../../services/mockAdminService.js'
 import { PageHeader, Pagination, StatusBadge } from '../components/ui.jsx'
 import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
 

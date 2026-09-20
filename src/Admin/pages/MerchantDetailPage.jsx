@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft, Ban, Building2, CheckCircle2, Clock3, Eye, EyeOff, LogIn, Mail, MapPin, MessageSquareText, Package, Phone, ShieldAlert, Star, Store, Trash2, UserPlus, UserRoundCheck } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { adminService } from '../../../services/mockAdminService.js'
+import { adminService } from '../../services/mockAdminService.js'
 import { StatusBadge } from '../components/ui.jsx'
 import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
 
