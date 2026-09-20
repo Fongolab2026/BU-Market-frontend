@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 import { adminService } from '../../services/mockAdminService.js'
 import { PageHeader, Pagination, StatusBadge } from '../components/ui.jsx'
 import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
-import Loading from '../../../components/Loading.jsx'
+import Loading from '../../Users/Composants/Loading'
 
 const PAGE_SIZE = 8
 

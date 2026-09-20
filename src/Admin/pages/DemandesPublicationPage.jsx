@@ -3,7 +3,7 @@ import { ClipboardList, Eye, Package, Search, Store, XCircle } from 'lucide-reac
 import toast from 'react-hot-toast'
 import { adminService } from '../../services/mockAdminService.js'
 import { PageHeader, StatusBadge } from '../components/ui.jsx'
-import Loading from '../../../components/Loading.jsx'
+import Loading from '../../Users/Composants/Loading'
 
 const statCards = [
   { id: 'pending', label: 'En attente', classes: 'bg-amber-50 text-amber-700' },

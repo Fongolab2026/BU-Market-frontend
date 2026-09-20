@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { productApi, categoryApi } from '../services'
 import Loading from '../Users/Composants/Loading'
@@ -7,34 +7,57 @@ export default function Liste() {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [categoryFilter, setCategoryFilter] = useState('')
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     const load = async () => {
       setLoading(true)
+      setError('')
+
       try {
         const [prodRes, catRes] = await Promise.all([
           productApi.list(),
           categoryApi.list(),
         ])
-        setProducts(prodRes.data.results ?? prodRes.data)
-        setCategories(Array.isArray(catRes.data) ? catRes.data : catRes.data.results ?? [])
+
+        const loadedProducts = Array.isArray(prodRes?.data?.results)
+          ? prodRes.data.results
+          : Array.isArray(prodRes?.data)
+            ? prodRes.data
+            : []
+
+        const loadedCategories = Array.isArray(catRes?.data?.results)
+          ? catRes.data.results
+          : Array.isArray(catRes?.data)
+            ? catRes.data
+            : []
+
+        setProducts(loadedProducts)
+        setCategories(loadedCategories)
       } catch (e) {
-        setError('Impossible de charger les produits')
+        setError('Impossible de charger les produits.')
         console.error('products:', e)
       } finally {
         setLoading(false)
       }
     }
+
     load()
   }, [])
 
-  const filtered = categoryFilter
-    ? products.filter((p) => p.category === Number(categoryFilter))
-    : products
+  const filtered = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase()
 
-  const categoryName = (id) => categories.find((c) => c.id === id)?.name ?? '—'
+    return products.filter((product) => {
+      const matchesCategory = !categoryFilter || String(product.category) === String(categoryFilter)
+      const matchesSearch = !normalizedSearch || `${product.name ?? ''} ${product.owner ?? ''} ${product.details ?? ''}`.toLowerCase().includes(normalizedSearch)
+      return matchesCategory && matchesSearch
+    })
+  }, [categoryFilter, products, search])
+
+  const categoryName = (id) => categories.find((category) => String(category.id) === String(id))?.name ?? '—'
 
   return (
     <div className='min-h-screen bg-base-100 text-base-content'>
@@ -47,18 +70,24 @@ export default function Liste() {
 
         <div className='flex flex-col gap-4'>
           <div className='w-full flex justify-center items-center gap-4 flex-wrap'>
-            <input type="search" placeholder='Rechercher un produit' className='input input-lg bg-white w-[70%]' />
-            <button className='btn btn-soft btn-lg'><Link to="/modifier">Modifier un Produit</Link></button>
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder='Rechercher un produit'
+              className='input input-lg bg-white w-[70%]'
+            />
+            <Link to="/modifier" className='btn btn-soft btn-lg'>Modifier un Produit</Link>
           </div>
           <div className='w-full flex gap-4'>
             <select
               className='select select-bordered w-64'
               value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
+              onChange={(event) => setCategoryFilter(event.target.value)}
             >
               <option value="">Toutes les catégories</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>{category.name}</option>
               ))}
             </select>
           </div>
@@ -86,10 +115,10 @@ export default function Liste() {
                     <td className="py-3 px-3 font-semibold text-slate-800">{p.name}</td>
                     <td className="py-3 px-3">{categoryName(p.category)}</td>
                     <td className="py-3 px-3">
-                      {Number(p.price).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                      {Number(p.price ?? 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
                     </td>
-                    <td className="py-3 px-3 text-slate-600 max-w-md truncate">{p.details}</td>
-                    <td className="py-3 px-3 text-slate-600">{p.owner}</td>
+                    <td className="py-3 px-3 text-slate-600 max-w-md truncate">{p.details ?? '—'}</td>
+                    <td className="py-3 px-3 text-slate-600">{p.owner ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import { adminService } from '../../services/mockAdminService.js'
 import { PageHeader, Pagination, StatusBadge } from '../components/ui.jsx'
 import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
-import Loading from '../../../components/Loading.jsx'
+import Loading from '../../Users/Composants/Loading'
 
 const PAGE_SIZE = 8
 const emptyForm = { shopId: '', name: '', price: '', stock: '' }
@@ -155,7 +155,7 @@ export function ListeProduitsPage() {
             <p className="mt-2 text-sm text-base-content/50">Aucun produit trouvé</p>
           </div>
         ) : (
-          <table className="w-full min-w-[820px] text-left">
+          <table className="w-full min-w-205 text-left">
             <thead>
               <tr className="text-xs font-semibold uppercase tracking-wide text-base-content/50">
                 <th className="pb-3 pl-2">Produit</th>
