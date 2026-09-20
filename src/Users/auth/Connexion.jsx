@@ -37,9 +37,9 @@ export default function Connexion() {
         {error && <div className='alert alert-error'>{error}</div>}
         <form className='flex flex-col' onSubmit={handleSubmit}>
           <div className='mb-5 flex flex-col'>
-            <label className='mb-2 text-[0.9rem] font-bold text-base-content'>Nom d'utilisateur *</label>
+            <label className='mb-2 text-[0.9rem] font-bold text-gray-700'>Nom d'utilisateur </label>
             <input
-              className='input input-lg w-85'
+              className='input input-lg w-85 outline-0'
               type="text"
               name="username"
               placeholder="Nom d'utilisateur..."
@@ -49,9 +49,9 @@ export default function Connexion() {
             />
           </div>
           <div className='mb-3 flex flex-col'>
-            <label className='text-[0.9rem] font-bold mb-2 text-base-content'>Mot de passe *</label>
+            <label className='text-[0.9rem] font-bold mb-2 text-gray-700'>Mot de passe </label>
             <input
-              className='input input-lg w-85'
+              className='input input-lg w-85 outline-0'
               type="password"
               name="password"
               placeholder='Mot de passe...'
