@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const apiBaseURL = import.meta.env.VITE_API_URL || ''
+
+export const API_URL = apiBaseURL || window.location.origin
 
 export const TOKEN_KEYS = {
   access: 'access_token',
@@ -22,7 +24,10 @@ export const clearTokens = () => {
 
 export const isAuthenticated = () => Boolean(getAccessToken())
 
-const api = axios.create({ baseURL: API_URL })
+const api = axios.create({
+  baseURL: API_URL,
+  timeout: 15000,
+})
 
 api.interceptors.request.use((config) => {
   const token = getAccessToken()

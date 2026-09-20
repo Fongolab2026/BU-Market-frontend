@@ -1,9 +1,8 @@
 import React from 'react'
 import { createBrowserRouter, Link, Outlet, RouterProvider } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext.jsx'
-
-import { publicRoutes } from './Users/routes/PublicRoutes.jsx'
-import { protectedRoutes } from './Users/routes/ProtectedRoutes.jsx'
+import { AuthProvider } from '../context/AuthContext.jsx'
+import { publicRoutes } from './routes/PublicRoutes.jsx'
+import { protectedRoutes } from './routes/ProtectedRoutes.jsx'
 
 function NotFound() {
   return (
@@ -22,12 +21,9 @@ const router = createBrowserRouter([
     children: [
       ...publicRoutes,
       ...protectedRoutes,
-      ...publicRoutes,
-      ...protectedRoutes,
-      { path: "*", element: <NotFound /> }
-    ]
+      { path: '*', element: <NotFound /> },
+    ],
   },
-
 ])
 
 export default function App() {
