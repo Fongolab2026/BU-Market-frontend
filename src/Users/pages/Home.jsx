@@ -1,7 +1,5 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import React from 'react'
-import { Link } from 'react-router-dom'
 import CardProducts from '../products/ui/cardProduct'
 import NavBar from '../Composants/nav'
 import Products from '../products/products'
@@ -19,6 +17,3 @@ export default function Home() {
   )
 }
 
-    </div>
-  )
-}
