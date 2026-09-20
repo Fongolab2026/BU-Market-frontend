@@ -1,105 +1,81 @@
-import { Link } from 'react-router-dom'
-import { ArrowRight, Shirt, Watch, Footprints, Backpack, Package } from 'lucide-react'
-import CardProduit from '../Composants/CardProduit.jsx'
-
-/* Données d'exemple — à remplacer par l'API (productApi.list) si besoin */
-const produits = [
-  {
-    id: 1,
-    name: 'Chemise en lin',
-    vendor: 'Buja Style',
-    price: 29.9,
-    icon: Shirt,
-    image: 'linear-gradient(135deg, #e8dcc9 0%, #c4ab90 100%)',
-  },
-  {
-    id: 2,
-    name: 'Veste en jean',
-    vendor: 'Denim & Co',
-    price: 45.0,
-    icon: Shirt,
-    image: 'linear-gradient(135deg, #4d6273 0%, #1e2a35 100%)',
-  },
-  {
-    id: 3,
-    name: 'Pantalon chino',
-    vendor: 'Mode Homme',
-    price: 35.5,
-    icon: Shirt,
-    image: 'linear-gradient(135deg, #b49d82 0%, #7d684f 100%)',
-  },
-  {
-    id: 4,
-    name: 'T-shirt coton bio',
-    vendor: 'Urban Wear',
-    price: 15.0,
-    icon: Shirt,
-    image: 'linear-gradient(135deg, #6b7ba8 0%, #2f3f66 100%)',
-  },
-  {
-    id: 5,
-    name: 'Sneakers blanches',
-    vendor: 'Step Paris',
-    price: 59.9,
-    icon: Footprints,
-    image: 'linear-gradient(135deg, #e3e3e3 0%, #9aa1a8 100%)',
-  },
-  {
-    id: 6,
-    name: 'Montre classique',
-    vendor: 'Tempo Luxe',
-    price: 79.0,
-    icon: Watch,
-    image: 'linear-gradient(135deg, #2b3440 0%, #10161d 100%)',
-  },
-  {
-    id: 7,
-    name: 'Ceinture en cuir',
-    vendor: 'Cuir & Co',
-    price: 19.9,
-    icon: Package,
-    image: 'linear-gradient(135deg, #b98a4e 0%, #6e4518 100%)',
-  },
-  {
-    id: 8,
-    name: 'Sac à dos urbain',
-    vendor: 'Nomad Gear',
-    price: 49.0,
-    icon: Backpack,
-    image: 'linear-gradient(135deg, #4f6b58 0%, #22382b 100%)',
-  },
-]
+import React, { useEffect, useState } from 'react'
+import CardProducts from '../products/ui/cardProduct'
+import NavBar from '../Composants/nav'
+import Loading from '../Composants/Loading'
+import { productApi, categoryApi } from '../../services'
 
 export default function Home() {
-  return (
-    <main className="min-h-screen bg-base-100">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        {/* En-tête de section */}
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary">
-              Collection
-            </p>
-            <h2 className="mt-1 text-2xl font-bold tracking-tight text-base-content sm:text-3xl">
-              Tous hommes
-            </h2>
-          </div>
-          <Link
-            to="/recherche?q="
-            className="btn btn-ghost btn-sm gap-1 text-primary hover:bg-primary/10"
-          >
-            Voir plus
-            <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-        </div>
+  const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-        {/* Grille de produits */}
-        <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
-          {produits.map((produit) => (
-            <CardProduit key={produit.id} product={produit} />
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true)
+      try {
+        const [prodRes, catRes] = await Promise.all([
+          productApi.list(),
+          categoryApi.list(),
+        ])
+        setProducts(prodRes.data.results ?? prodRes.data)
+        setCategories(Array.isArray(catRes.data) ? catRes.data : catRes.data.results ?? [])
+      } catch (e) {
+        setError('Erreur lors du chargement des produits')
+        console.error('home:', e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
+  const filtered = selectedCategory
+    ? products.filter((p) => p.category === selectedCategory)
+    : products
+
+  return (
+    <div className="min-h-screen bg-base-100">
+      <NavBar />
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+        <h2 className="text-3xl font-bold mb-6">Nos produits</h2>
+
+        <div className="flex gap-2 mb-8 flex-wrap">
+          <button
+            className={`btn btn-sm ${selectedCategory === null ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setSelectedCategory(null)}
+          >
+            Tous
+          </button>
+          {categories.map((c) => (
+            <button
+              key={c.id}
+              className={`btn btn-sm ${selectedCategory === c.id ? 'btn-primary' : 'btn-ghost'}`}
+              onClick={() => setSelectedCategory(c.id)}
+            >
+              {c.name}
+            </button>
           ))}
         </div>
+
+        {error && <div className="alert alert-error">{error}</div>}
+        {loading ? (
+          <Loading />
+        ) : filtered.length === 0 ? (
+          <p className="text-base-content/60">Aucun produit disponible.</p>
+        ) : (
+          <div className="flex flex-wrap gap-6">
+            {filtered.map((p) => (
+              <CardProducts
+                key={p.id}
+                product={p}
+                categoryName={categories.find((c) => c.id === p.category)?.name}
+              />
+            ))}
+          </div>
+        )}
       </div>
-    </main>
+    </div>
   )
 }
