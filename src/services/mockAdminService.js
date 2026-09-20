@@ -194,6 +194,38 @@ let settings = {
 
 const todayLabel = () => new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
 
+const orders = [
+  { id: 'CMD-1042', client: 'Jules Bernard', location: 'Bujumbura, Bwiza', shop: 'Maison Claire', items: 3, total: '82 500', status: 'pending', date: 'Aujourd’hui, 10:12' },
+  { id: 'CMD-1041', client: 'Margaux Petit', location: 'Bujumbura, Buyenzi', shop: 'Boutique Blanche', items: 2, total: '83 000', status: 'shipped', date: 'Aujourd’hui, 08:40' },
+  { id: 'CMD-1040', client: 'Noémie Girard', location: 'Bujumbura, Kamenge', shop: 'Coin Électro', items: 1, total: '18 000', status: 'completed', date: 'Hier, 16:05' },
+  { id: 'CMD-1039', client: 'Élodie Fournier', location: 'Ngozi', shop: 'Maison Claire', items: 4, total: '120 500', status: 'pending', date: 'Hier, 11:22' },
+  { id: 'CMD-1038', client: 'Liliane Marchand', location: 'Bujumbura, Kanyosha', shop: 'Atelier Jade', items: 2, total: '89 000', status: 'cancelled', date: 'Il y a 2 jours' },
+  { id: 'CMD-1037', client: 'Célia Fontaine', location: 'Rumonge', shop: 'Cuirs Nobles', items: 1, total: '25 000', status: 'completed', date: 'Il y a 3 jours' },
+  { id: 'CMD-1036', client: 'Anaïs Roussel', location: 'Bujumbura, Kigobe', shop: 'Coin Électro', items: 2, total: '60 000', status: 'shipped', date: 'Il y a 4 jours' },
+  { id: 'CMD-1035', client: 'Jules Bernard', location: 'Bujumbura, Bwiza', shop: 'Saveurs du Terroir', items: 3, total: '73 000', status: 'cancelled', date: 'Il y a 5 jours' },
+]
+
+const conversations = [
+  { id: 'cnv-001', sender: 'Espoir Durand', shop: 'Maison Claire', avatar: 'ED', message: 'Bonjour, la commande est-elle bien arrivée ?', time: 'Il y a 18 min', unread: 2, status: 'open' },
+  { id: 'cnv-002', sender: 'Benoît Lambert', shop: 'Boutique Blanche', avatar: 'BL', message: 'Merci pour la validation de notre boutiques.', time: 'Il y a 1 h', unread: 1, status: 'open' },
+  { id: 'cnv-003', sender: 'François Mercier', shop: 'Atelier Jade', avatar: 'FM', message: 'Quand notre boutique sera-t-elle examinée ?', time: 'Il y a 3 h', unread: 0, status: 'open' },
+  { id: 'cnv-004', sender: 'Martin Duval', shop: 'Coin Électro', avatar: 'MD', message: 'Nous voudrions ajouter de nouveaux produits.', time: 'Hier', unread: 0, status: 'closed' },
+  { id: 'cnv-005', sender: 'Lucas Renard', shop: 'Cuirs Nobles', avatar: 'LR', message: 'Une livraison est en retard à Kayanza.', time: 'Il y a 2 jours', unread: 0, status: 'open' },
+  { id: 'cnv-006', sender: 'Camille Lefèvre', shop: 'Maison Dorée', avatar: 'CL', message: 'Pouvons-nous réactiver notre compte ?', time: 'Il y a 1 semaine', unread: 0, status: 'closed' },
+]
+
+const notifications = [
+  { id: 'ntf-001', title: 'Nouvelle boutique en attente', description: 'Atelier Jade souhaite publier sur la plateforme.', time: 'Il y a 18 min', kind: 'shop', read: false },
+  { id: 'ntf-002', title: 'Avis signalé', description: 'Un commentaire sur Maison Dorée doit être vérifié.', time: 'Il y a 3 h', kind: 'alert', read: false },
+  { id: 'ntf-003', title: 'Commande reçue', description: 'Une nouvelle commande de 82 500 F pour Maison Claire.', time: 'Il y a 5 h', kind: 'order', read: false },
+  { id: 'ntf-004', title: 'Catalogue suspendu', description: 'Six produits de Saveurs du Terroir ont été retirés.', time: 'Hier', kind: 'product', read: true },
+  { id: 'ntf-005', title: 'Nouveau message', description: 'Espoir Durand vous a écrit au sujet d’une commande.', time: 'Il y a 2 jours', kind: 'message', read: true },
+]
+
+let ordersList = [...orders]
+let conversationsList = [...conversations]
+let notificationsList = [...notifications]
+
 export const adminService = {
   getDashboard: () => wait(dashboardData),
   listUsers: ({ query = '', role = 'all', status = 'all', page = 1, perPage = 5 } = {}) => {
@@ -392,5 +424,35 @@ export const adminService = {
   removeCategory: (id) => {
     settings.categories = settings.categories.filter((category) => category.id !== id)
     return wait(settings.categories)
+  },
+  listCategories: () => wait(settings.categories),
+  listOrders: () => wait(ordersList),
+  updateOrderStatus: (id, status) => {
+    const order = ordersList.find((item) => item.id === id)
+    if (order) order.status = status
+    return wait(order)
+  },
+  listConversations: () => wait(conversationsList),
+  markConversationRead: (id) => {
+    const conversation = conversationsList.find((item) => item.id === id)
+    if (conversation) {
+      conversation.unread = 0
+      conversation.status = 'closed'
+    }
+    return wait(conversation)
+  },
+  markAllConversationsRead: () => {
+    conversationsList = conversationsList.map((conversation) => ({ ...conversation, unread: 0 }))
+    return wait(conversationsList)
+  },
+  listNotifications: () => wait(notificationsList),
+  markNotificationRead: (id) => {
+    const notification = notificationsList.find((item) => item.id === id)
+    if (notification) notification.read = true
+    return wait(notification)
+  },
+  deleteNotification: (id) => {
+    notificationsList = notificationsList.filter((notification) => notification.id !== id)
+    return wait(true)
   },
 }
