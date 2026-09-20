@@ -48,7 +48,7 @@ export default function Inscription() {
           <div className='mb-5 flex flex-col'>
             <label className='mb-2 text-[0.9rem] font-bold text-base-content'>Nom d'utilisateur *</label>
             <input
-              className='input input-lg w-85'
+              className='input input-lg w-85 outline-0'
               type="text"
               name="username"
               placeholder="Choisissez un nom d'utilisateur..."
@@ -60,7 +60,7 @@ export default function Inscription() {
           <div className='mb-5 flex flex-col'>
             <label className='mb-2 text-[0.9rem] font-bold text-base-content'>Nom complet *</label>
             <input
-              className='input input-lg w-85'
+              className='input input-lg w-85 outline-0'
               type="text"
               name="first_name"
               placeholder='Tapez votre nom...'
@@ -72,7 +72,7 @@ export default function Inscription() {
           <div className='mb-5 flex flex-col'>
             <label className='text-[0.9rem] mb-2 font-bold text-base-content'>Email *</label>
             <input
-              className='input input-lg w-85'
+              className='input input-lg w-85 outline-0'
               type="email"
               name="email"
               placeholder='Tapez votre mail...'
@@ -84,7 +84,7 @@ export default function Inscription() {
           <div className='mb-5 flex flex-col'>
             <label className='text-[0.9rem] mb-2 font-bold text-base-content'>Mot de passe *</label>
             <input
-              className='input input-lg w-85'
+              className='input input-lg w-85 outline-0'
               type="password"
               name="password"
               placeholder='Mot de passe...'
@@ -96,7 +96,7 @@ export default function Inscription() {
           <div className='mb-5 flex flex-col'>
             <label className='text-[0.9rem] mb-2 font-bold text-base-content'>Confirmation mot de passe *</label>
             <input
-              className='input input-lg w-85'
+              className='input input-lg w-85 outline-0'
               type="password"
               name="password_confirm"
               placeholder='Confirmez le mot de passe...'
