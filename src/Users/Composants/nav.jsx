@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  Search,
   Heart,
   User,
   Repeat,
@@ -19,7 +18,6 @@ export default function NavBar() {
   const navigate = useNavigate()
   const menuRef = useRef(null)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [query, setQuery] = useState('')
   const [favorites] = useState(0)
 
   const { isDark, toggleTheme } = useTheme()
@@ -34,11 +32,6 @@ export default function NavBar() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
-
-  const handleSearch = (event) => {
-    event.preventDefault()
-    navigate(`/recherche?q=${encodeURIComponent(query.trim())}`)
-  }
 
   const handleLogout = () => {
     clearTokens()
@@ -59,47 +52,33 @@ export default function NavBar() {
           </span>
         </Link>
 
-        {/* Barre de recherche */}
-        <form onSubmit={handleSearch} className='relative flex-1'>
-          <Search
-            size={18}
-            className='pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40'
-          />
-          <input
-            type='search'
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder='Rechercher un produit...'
-            className='input w-full border-base-300 pl-10 outline-0'
-          />
-        </form>
+        <div className='ml-auto flex items-center gap-1 sm:gap-2'>
+          {/* Favoris */}
+          <Link
+            to='/favoris'
+            title='Mes favoris'
+            className='btn btn-ghost btn-circle relative'
+          >
+            <Heart size={22} />
+            {favorites > 0 && (
+              <span className='badge badge-primary badge-sm absolute right-0 top-0'>
+                {favorites}
+              </span>
+            )}
+          </Link>
 
-        {/* Favoris */}
-        <Link
-          to='/favoris'
-          title='Mes favoris'
-          className='btn btn-ghost btn-circle relative'
-        >
-          <Heart size={22} />
-          {favorites > 0 && (
-            <span className='badge badge-primary badge-sm absolute right-0 top-0'>
-              {favorites}
-            </span>
-          )}
-        </Link>
+          <button
+            type='button'
+            onClick={toggleTheme}
+            title={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
+            aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
+            className='btn btn-ghost btn-circle'
+          >
+            {isDark ? <Sun size={21} /> : <Moon size={21} />}
+          </button>
 
-        <button
-          type='button'
-          onClick={toggleTheme}
-          title={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
-          aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
-          className='btn btn-ghost btn-circle'
-        >
-          {isDark ? <Sun size={21} /> : <Moon size={21} />}
-        </button>
-
-        {/* Photo / avatar + menu paramètres */}
-        <div className='relative' ref={menuRef}>
+          {/* Photo / avatar + menu paramètres */}
+          <div className='relative' ref={menuRef}>
           <button
             type='button'
             onClick={() => setMenuOpen((open) => !open)}
@@ -163,6 +142,7 @@ export default function NavBar() {
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </header>

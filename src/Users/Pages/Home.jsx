@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   ArrowRight,
   ChevronLeft,
@@ -7,6 +8,7 @@ import {
   RotateCcw,
   ShieldCheck,
   ShoppingBag,
+  Search,
   Sparkles,
   Truck,
 } from 'lucide-react'
@@ -48,6 +50,7 @@ function CarteSquelette({ delay }) {
 
 export default function Home() {
   const { user } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState(null)
@@ -77,8 +80,19 @@ export default function Home() {
   const filtered = selectedCategory
     ? products.filter((p) => p.category === selectedCategory)
     : products
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PRODUCTS_PER_PAGE))
-  const paginatedProducts = filtered.slice(
+  const searchQuery = searchParams.get('q')?.trim().toLowerCase() || ''
+  const searchedProducts = searchQuery
+    ? filtered.filter((product) => {
+        const category = categories.find((item) => item.id === product.category)?.name || ''
+        return `${product.name} ${product.details || ''} ${category}`.toLowerCase().includes(searchQuery)
+      })
+    : filtered
+  const totalPages = Math.max(1, Math.ceil(searchedProducts.length / PRODUCTS_PER_PAGE))
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedCategory, searchQuery])
+
+  const visibleProducts = searchedProducts.slice(
     (currentPage - 1) * PRODUCTS_PER_PAGE,
     currentPage * PRODUCTS_PER_PAGE,
   )
@@ -166,13 +180,34 @@ export default function Home() {
           </div>
           {!initialLoading && (
             <p className="text-sm text-base-content/60">
-              {filtered.length} produit{filtered.length > 1 ? 's' : ''} disponible
-              {selectedCategory ? ' dans cette catégorie' : ''}
+              {searchedProducts.length} produit{searchedProducts.length > 1 ? 's' : ''} disponible
+              {searchQuery ? ` pour « ${searchQuery} »` : selectedCategory ? ' dans cette catégorie' : ''}
             </p>
           )}
         </div>
 
         {/* ---------- Filtres par catégorie ---------- */}
+        <div className="mx-auto mb-5 max-w-2xl">
+          <label className="relative block">
+            <span className="sr-only">Rechercher un produit</span>
+            <Search
+              size={19}
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40"
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => {
+                const nextQuery = event.target.value
+                setSearchParams(nextQuery ? { q: nextQuery } : {}, { replace: true })
+              }}
+              placeholder="Rechercher un produit..."
+              className="input h-12 w-full border-base-300 bg-[var(--surface)] pl-11 pr-4 text-base shadow-sm"
+            />
+          </label>
+        </div>
+
         <div className="mb-10 flex flex-wrap justify-center gap-2">
           <button
             className={`btn btn-sm ${selectedCategory === null ? 'btn-primary' : 'btn-ghost'}`}
@@ -200,11 +235,11 @@ export default function Home() {
               <CarteSquelette key={i} delay={i * 70} />
             ))}
           </div>
-        ) : filtered.length === 0 ? (
-          <p className="text-base-content/60">Aucun produit disponible.</p>
+        ) : searchedProducts.length === 0 ? (
+          <p className="text-center text-base-content/60">Aucun produit ne correspond à votre recherche.</p>
         ) : (
           <div className="grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {paginatedProducts.map((p) => (
+            {visibleProducts.map((p) => (
               <CardProducts
                 key={p.id}
                 product={p}
@@ -214,7 +249,7 @@ export default function Home() {
           </div>
         )}
 
-        {!initialLoading && filtered.length > PRODUCTS_PER_PAGE && (
+        {!initialLoading && searchedProducts.length > PRODUCTS_PER_PAGE && (
           <nav className="mt-10 flex flex-wrap items-center justify-center gap-3" aria-label="Pagination des produits">
             <button
               type="button"
@@ -243,7 +278,7 @@ export default function Home() {
         )}
 
         {/* ---------- Bandeau promotionnel ---------- */}
-        {!initialLoading && filtered.length > 0 && (
+        {!initialLoading && searchedProducts.length > 0 && (
           <section className="relative mt-16 overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-secondary p-8 text-primary-content md:p-12">
             <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-accent/25 blur-3xl" aria-hidden="true" />
             <div className="relative flex flex-wrap items-center justify-between gap-6">
