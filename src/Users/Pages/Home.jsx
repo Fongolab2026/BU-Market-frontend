@@ -44,12 +44,11 @@ export default function Home() {
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [selectedCategory, setSelectedCategory] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     const load = async () => {
-      setLoading(true)
       try {
         const [prodRes, catRes] = await Promise.all([
           productApi.list(),
@@ -61,7 +60,7 @@ export default function Home() {
         setError('Erreur lors du chargement des produits')
         console.error('home:', e)
       } finally {
-        setLoading(false)
+        setInitialLoading(false)
       }
     }
     load()
@@ -136,7 +135,7 @@ export default function Home() {
               Nos produits
             </h2>
           </div>
-          {!loading && (
+          {!initialLoading && (
             <p className="text-sm text-base-content/60">
               {filtered.length} produit{filtered.length > 1 ? 's' : ''} disponible
               {selectedCategory ? ' dans cette catégorie' : ''}
@@ -166,8 +165,8 @@ export default function Home() {
         {error && <div className="alert alert-error mb-6">{error}</div>}
 
         {/* ---------- Grille produits / squelette ---------- */}
-        {loading ? (
-          <div className="flex flex-wrap gap-6" aria-busy="true">
+        {initialLoading ? (
+          <div className="flex flex-wrap gap-6" aria-busy="true" aria-label="Chargement initial des produits">
             {Array.from({ length: 8 }, (_, i) => (
               <CarteSquelette key={i} delay={i * 70} />
             ))}
@@ -187,7 +186,7 @@ export default function Home() {
         )}
 
         {/* ---------- Bandeau promotionnel ---------- */}
-        {!loading && filtered.length > 0 && (
+        {!initialLoading && filtered.length > 0 && (
           <section className="relative mt-16 overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-secondary p-8 text-primary-content md:p-12">
             <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-accent/25 blur-3xl" aria-hidden="true" />
             <div className="relative flex flex-wrap items-center justify-between gap-6">
