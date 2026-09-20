@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import CardProducts from '../../components/CardProduct.jsx'
 import NavBar from '../../components/NavBar.jsx'
+import Loading from '../../components/Loading.jsx'
 import { productApi, categoryApi } from '../../services'
 
 export default function Home() {
@@ -60,7 +61,7 @@ export default function Home() {
 
         {error && <div className="alert alert-error">{error}</div>}
         {loading ? (
-          <span className="loading loading-spinner loading-lg"></span>
+          <Loading />
         ) : filtered.length === 0 ? (
           <p className="text-base-content/60">Aucun produit disponible.</p>
         ) : (

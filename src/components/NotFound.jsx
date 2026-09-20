@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import PageErreur from '../Users/Pages/PageErreur.jsx'
 
 export default function NotFound() {
   return (

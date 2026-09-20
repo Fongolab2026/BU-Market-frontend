@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { productApi, categoryApi } from '../../../services'
+import Loading from '../../../components/Loading.jsx'
 
 export default function Liste() {
   const [products, setProducts] = useState([])
@@ -65,7 +66,7 @@ export default function Liste() {
 
         <div className='w-full p-8 bg-white shadow-2xl rounded-2xl overflow-x-auto'>
           {loading ? (
-            <div className="flex justify-center p-8"><span className="loading loading-spinner loading-lg"></span></div>
+            <Loading />
           ) : filtered.length === 0 ? (
             <p className="text-center text-base-content/60 py-8">Aucun produit trouvé.</p>
           ) : (

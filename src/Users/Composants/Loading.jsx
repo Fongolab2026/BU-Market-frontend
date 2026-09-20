@@ -1,9 +1,9 @@
 import { LoaderCircle, ShoppingBag } from 'lucide-react'
 
-export default function Loading({ fullScreen = false }) {
+export default function Loading() {
   return (
     <div
-      className={`${fullScreen ? 'fixed inset-0 z-[9999] min-h-screen' : 'min-h-[18rem]'} relative flex w-full items-center justify-center overflow-hidden bg-base-100 px-6 py-12`}
+      className="relative flex min-h-[18rem] w-full items-center justify-center overflow-hidden bg-base-100 px-6 py-12"
       role="status"
       aria-live="polite"
     >

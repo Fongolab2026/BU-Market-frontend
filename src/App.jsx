@@ -3,7 +3,7 @@ import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { publicRoutes } from './routes/PublicRoutes.jsx'
 import { protectedRoutes } from './routes/ProtectedRoutes.jsx'
-import LoadingPage from './components/LoadingPage.jsx'
+import Loading from './components/Loading.jsx'
 import NotFound from './components/NotFound.jsx'
 
 const router = createBrowserRouter([
@@ -28,7 +28,7 @@ export default function App() {
 
   return (
     <AuthProvider>
-      {booted ? <RouterProvider router={router} /> : <LoadingPage />}
+      {booted ? <RouterProvider router={router} /> : <Loading fullScreen />}
     </AuthProvider>
   )
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import toast from 'react-hot-toast'
 import { orderApi } from '../../../services'
+import Loading from '../../../components/Loading.jsx'
 
 const STATUS_LABELS = {
   pending: 'En attente',
@@ -69,7 +70,7 @@ export default function Detail() {
           </thead>
           <tbody className='divide-y divide-slate-200/70 text-sm text-slate-700'>
             {loading ? (
-              <tr><td className="py-8 text-center" colSpan="6"><span className="loading loading-spinner loading-lg"></span></td></tr>
+              <tr><td className="py-8 text-center" colSpan="6"><Loading /></td></tr>
             ) : orders.length === 0 ? (
               <tr><td className="py-8 text-center text-slate-500" colSpan="6">Aucune commande.</td></tr>
             ) : (
