@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { adminService } from '../../../services/mockAdminService.js'
 import { PageHeader, Pagination, StatusBadge } from '../components/ui.jsx'
 import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
+import Loading from '../../../components/Loading.jsx'
 
 const PAGE_SIZE = 8
 const emptyForm = { shopId: '', name: '', price: '', stock: '' }
@@ -147,10 +148,7 @@ export function ListeProduitsPage() {
 
       <div className="card mt-5 overflow-x-auto p-4 sm:p-5">
         {loading ? (
-          <div className="flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-            <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-            Chargement des produits...
-          </div>
+          <Loading />
         ) : visible.length === 0 ? (
           <div className="p-10 text-center">
             <Package size={40} className="mx-auto opacity-30" />

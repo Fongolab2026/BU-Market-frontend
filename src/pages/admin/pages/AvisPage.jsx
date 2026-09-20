@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { adminService } from '../../../services/mockAdminService.js'
 import { PageHeader, Pagination, StatusBadge } from '../components/ui.jsx'
 import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
+import Loading from '../../../components/Loading.jsx'
 
 const PAGE_SIZE = 8
 
@@ -104,10 +105,7 @@ export function AvisPage() {
 
       <div className="mt-5 space-y-4">
         {loading ? (
-          <div className="card flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-            <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-            Chargement des avis...
-          </div>
+          <div className="card overflow-hidden"><Loading /></div>
         ) : visible.length === 0 ? (
           <div className="card p-10 text-center">
             <Star size={40} className="mx-auto opacity-30" />

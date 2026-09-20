@@ -3,6 +3,7 @@ import { ClipboardList, Eye, Package, Search, Store, XCircle } from 'lucide-reac
 import toast from 'react-hot-toast'
 import { adminService } from '../../../services/mockAdminService.js'
 import { PageHeader, StatusBadge } from '../components/ui.jsx'
+import Loading from '../../../components/Loading.jsx'
 
 const statCards = [
   { id: 'pending', label: 'En attente', classes: 'bg-amber-50 text-amber-700' },
@@ -94,10 +95,7 @@ export function DemandesPublicationPage() {
 
       <div className="mt-5 space-y-4">
         {loading && (
-          <div className="card flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-            <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-            Chargement des demandes...
-          </div>
+          <div className="card overflow-hidden"><Loading /></div>
         )}
 
         {!loading && filtered.length === 0 && (
