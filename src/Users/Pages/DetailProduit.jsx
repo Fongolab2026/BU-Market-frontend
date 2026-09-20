@@ -102,7 +102,7 @@ export default function DetailProduit() {
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Galerie d'images (principale + secondaires) */}
           <div className="flex flex-col gap-4">
-            <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-base-300 bg-white shadow-sm">
+            <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-base-300 bg-[var(--surface)] shadow-sm">
               <img
                 src={selectedImage || product.main_image}
                 alt={product.name}
@@ -117,7 +117,7 @@ export default function DetailProduit() {
                     key={img.id ?? index}
                     type="button"
                     onClick={() => setSelectedImage(img.image)}
-                    className={`aspect-square overflow-hidden rounded-xl border-2 bg-white transition-all ${
+                    className={`aspect-square overflow-hidden rounded-xl border-2 bg-[var(--surface)] transition-all ${
                       selectedImage === img.image
                         ? 'border-primary shadow-md'
                         : 'border-base-300 opacity-80 hover:opacity-100'

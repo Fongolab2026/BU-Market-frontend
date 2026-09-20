@@ -13,31 +13,17 @@ import {
   Store,
 } from 'lucide-react'
 import { isAuthenticated, clearTokens } from '../../services/api'
-
-const THEME_KEY = 'bu-market-theme'
-const LIGHT = 'bumarket'
-const DARK = 'bumarket-dark'
-
-function getInitialTheme() {
-  if (typeof window === 'undefined') return LIGHT
-  return localStorage.getItem(THEME_KEY) || LIGHT
-}
+import { useTheme } from '../../context/ThemeContext.jsx'
 
 export default function NavBar() {
   const navigate = useNavigate()
   const menuRef = useRef(null)
-  const [theme, setTheme] = useState(getInitialTheme)
   const [menuOpen, setMenuOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [favorites] = useState(0)
 
-  const isDark = theme === DARK
+  const { isDark, toggleTheme } = useTheme()
   const authenticated = isAuthenticated()
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem(THEME_KEY, theme)
-  }, [theme])
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -84,7 +70,7 @@ export default function NavBar() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder='Rechercher un produit...'
-            className='input w-full pl-10 outline-0 border-gray-300'
+            className='input w-full border-base-300 pl-10 outline-0'
           />
         </form>
 
@@ -101,6 +87,16 @@ export default function NavBar() {
             </span>
           )}
         </Link>
+
+        <button
+          type='button'
+          onClick={toggleTheme}
+          title={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
+          aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
+          className='btn btn-ghost btn-circle'
+        >
+          {isDark ? <Sun size={21} /> : <Moon size={21} />}
+        </button>
 
         {/* Photo / avatar + menu paramètres */}
         <div className='relative' ref={menuRef}>
@@ -152,23 +148,6 @@ export default function NavBar() {
                     <Repeat size={18} />
                     Changer de compte
                   </Link>
-                </li>
-                <li>
-                  <button
-                    type='button'
-                    onClick={() => setTheme(isDark ? LIGHT : DARK)}
-                    className='flex w-full items-center gap-3 rounded-field px-3 py-2 text-left text-base-content transition-colors hover:bg-base-200'
-                  >
-                    {isDark ? <Moon size={18} /> : <Sun size={18} />}
-                    <span className='flex-1'>Mode sombre</span>
-                    <span
-                      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${isDark ? 'bg-primary' : 'bg-base-300'}`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${isDark ? 'translate-x-4' : 'translate-x-0.5'}`}
-                      />
-                    </span>
-                  </button>
                 </li>
               </ul>
 

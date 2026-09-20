@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { AuthProvider } from '../context/AuthContext.jsx'
+import { ThemeProvider } from '../context/ThemeContext.jsx'
 import { publicRoutes } from './routes/PublicRoutes.jsx'
 import { protectedRoutes } from './routes/ProtectedRoutes.jsx'
 import LoadingPage from './Pages/LoadingPage.jsx'
@@ -26,7 +27,9 @@ export default function App() {
 
   return (
     <AuthProvider>
-      {booted ? <RouterProvider router={router} /> : <LoadingPage />}
+      <ThemeProvider>
+        {booted ? <RouterProvider router={router} /> : <LoadingPage />}
+      </ThemeProvider>
     </AuthProvider>
   )
 }
