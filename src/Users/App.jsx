@@ -1,7 +1,7 @@
 import React from 'react'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
-import { publicRoutes } from './Users/routes/PublicRoutes.jsx'
-import { protectedRoutes } from './Users/routes/ProtectedRoutes.jsx'
+import { publicRoutes } from './routes/PublicRoutes.jsx'
+import { protectedRoutes } from './routes/ProtectedRoutes.jsx'
 
 const router = createBrowserRouter([
   {

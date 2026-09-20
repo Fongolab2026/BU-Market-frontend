@@ -13,8 +13,8 @@ export default function useProducts(url ){
                 if(rep.status!==200){
                     throw new Error(`echec de chargement statut ${rep.status}`)
                 }
-                const prods = await rep.data.products
-                setData(prods)
+                const products = await rep.data.results
+                setData(products)
             }catch(e){
                 setErr(e instanceof Error? e: new Error("une erreur est arrivee"))
             }

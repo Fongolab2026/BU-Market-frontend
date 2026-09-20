@@ -1,3 +1,1 @@
-export const api=({
-    baseURL:'https://dummyjson.com/products'
-})
+export { default as api } from '../services/api'

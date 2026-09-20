@@ -1,37 +1,99 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { productApi, categoryApi } from '../services'
+
 export default function Liste() {
+  const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true)
+      try {
+        const [prodRes, catRes] = await Promise.all([
+          productApi.list(),
+          categoryApi.list(),
+        ])
+        setProducts(prodRes.data.results ?? prodRes.data)
+        setCategories(Array.isArray(catRes.data) ? catRes.data : catRes.data.results ?? [])
+      } catch (e) {
+        setError('Impossible de charger les produits')
+        console.error('products:', e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
+  const filtered = categoryFilter
+    ? products.filter((p) => p.category === Number(categoryFilter))
+    : products
+
+  const categoryName = (id) => categories.find((c) => c.id === id)?.name ?? '—'
+
   return (
-    <div className='w-full h-screen bg-white text-black flex'>
-        {/* aside bar  */}
-      <div className='w-[20%] h-full bg-amber-50 '>
-        <p>helo</p>
-      </div>
-      {/* main bar */}
-      <div className='w-[80%] h-full flex justify-center items-center flex-col'>
-        <nav className='navbar navbar-start text-2xl font-bold w-full pl-14'>PRODUITS - LISTES</nav>
-        <div className='w-[92%] h-[90%] flex gap-4 flex-col'>
-            <h1 className='text-2xl font-bold'>Mes produits</h1>
-            {/* Zone de recherches */}
-            <div className='w-full flex justify-center items-center gap-20'>
-                <input type="search"  placeholder='Rechercher un produits' className='input input-lg border-none  w-[70%] bg-white'/>
-                <button className='btn btn-soft btn-lg'><Link to="/modifier">Modifier un Produit</Link></button>
-            </div>
-            {/* FIltres */}
-            <div className='w-full h-[10%] flex gap-8 bg-[whitesmoke] '>
-                <select>
-                    <option>Categories</option>
-                </select>
-                <select>
-                    <option>
-                        Statuts
-                    </option>
-                </select>
-            </div>
-            {/* Liste_produits */}
-            <div className='w-full h-[75%] p-8 shadow-2xl, overflow-y-scroll'>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia maxime hic libero, inventore impedit velit itaque quisquam nisi quaerat provident ab quod voluptates consequatur harum quae eligendi. Nihil asperiores earum, ipsum eaque provident, iusto blanditiis libero optio repellendus laudantium ipsa mollitia! Voluptatibus, vero recusandae quidem quisquam tempore unde voluptates id delectus veniam cum odit! Commodi maxime fugiat veniam, error nostrum esse iure praesentium. Ex, totam. Nostrum atque iusto accusantium, reprehenderit animi sint vero a commodi autem sit eius maiores aspernatur velit hic fuga itaque? Voluptate quaerat ut, facere autem neque illo velit inventore nisi officiis, iusto aut beatae commodi, distinctio numquam veritatis excepturi possimus laboriosam molestiae recusandae corporis porro! Unde dicta, doloribus libero optio praesentium id expedita voluptas nihil illum, minima, aut et ab alias blanditiis minus iure deleniti non esse ducimus. In iusto labore earum fuga ullam eveniet quam, voluptas doloremque alias omnis dicta quo praesentium maiores exercitationem non beatae neque ratione illo? Error at aspernatur laudantium, et in dolore natus. Cumque nemo, dolorem autem voluptatibus consequuntur necessitatibus. Eum, impedit a. Beatae voluptatum aliquam ad, illo maiores fuga inventore ratione deserunt. Quisquam eligendi, voluptates natus molestias cupiditate harum, eum sapiente nesciunt optio dicta culpa delectus rem modi. Quisquam, temporibus! Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo cupiditate voluptatibus impedit consequuntur illum pariatur, fuga et! Illum at cumque repellendus laboriosam provident adipisci dignissimos possimus, quasi iste quia obcaecati voluptatibus debitis, non cupiditate praesentium quas voluptas molestiae? Hic odit est in porro? Illum minima libero cum sapiente tenetur magnam, laborum eius. Illo molestias nulla, nesciunt corporis ducimus delectus quia, ea tempora rerum repudiandae eos. Facilis quia, totam explicabo perferendis tempore provident sequi quo. Nisi ullam, quasi ratione dolorum repudiandae asperiores quos et iusto sint quisquam, neque quo error eos! Rem soluta error qui sit neque dicta explicabo ab beatae? Saepe harum explicabo laudantium unde natus? Animi vitae illum provident minima nemo expedita necessitatibus nam maiores, maxime quidem iusto optio odit, porro recusandae suscipit iste sequi perspiciatis tempora totam velit commodi. Et omnis libero laboriosam quisquam inventore minus, voluptate pariatur explicabo. Expedita qui inventore, explicabo voluptate nesciunt quibusdam maiores in unde cupiditate deleniti, tenetur voluptatibus. Vitae odio, maiores repudiandae consequuntur officiis suscipit asperiores. Quae non reprehenderit, molestias sequi doloremque minus beatae provident deleniti odit eligendi vero? Ipsa ad eius dolore eum assumenda minima temporibus voluptatum omnis possimus harum ea cum explicabo maiores atque beatae facere soluta corporis distinctio molestiae quam, nam natus voluptatibus? Dolore, distinctio quia error vel sapiente voluptates quo adipisci assumenda placeat non? Beatae odit eum deleniti? Facere sit esse qui, mollitia voluptatum voluptatem, quasi asperiores perspiciatis libero nobis quo ducimus in vitae repellat omnis sint repellendus? Enim vel voluptatum saepe, exercitationem repudiandae magnam sit beatae dolores voluptates laboriosam nulla unde officiis? Aspernatur rerum accusamus necessitatibus architecto perferendis nihil eum totam asperiores, quaerat ratione unde eaque error, quisquam doloribus corporis magnam earum? Cupiditate laboriosam, dolorum sunt aperiam odio aliquid sint, nihil quo facilis similique saepe obcaecati. Accusantium, hic porro laudantium alias explicabo quaerat ducimus, non commodi in suscipit vel est ipsam aliquam quas vero, nostrum deleniti fugiat aperiam ipsa. Sed, quisquam exercitationem? Ad excepturi facilis corrupti consequatur quae at nulla! Voluptas voluptates possimus odio, consectetur repellendus illo nobis aut culpa neque perferendis fuga corporis voluptatum! Fugiat aut hic fuga labore fugit ipsum, odio suscipit modi exercitationem consequuntur voluptatem culpa voluptatibus optio quos magnam, est assumenda explicabo ipsa sunt? Delectus rerum fugiat voluptatem. Recusandae beatae consequatur, et voluptatem numquam similique nihil maiores aliquid placeat sint nam deserunt in voluptatum, laboriosam molestiae iste distinctio, qui explicabo eos ea? Ad quae eius impedit repellat dolorum, nulla doloremque amet quos illo vitae libero accusamus voluptate magnam facilis neque fuga, non obcaecati iusto, eveniet delectus beatae. Nemo quisquam sunt, voluptatem voluptates ea cum fuga consectetur unde minima rerum voluptate beatae ex iste aut consequuntur, numquam dicta alias placeat sequi ut ipsum impedit. Et placeat quasi error delectus illo repellendus nisi reprehenderit exercitationem esse beatae a recusandae vel consequuntur officia sit maxime sunt dolorum, amet laboriosam magnam illum! Natus id repudiandae unde rerum maiores quasi aut necessitatibus dolores corrupti ullam modi, ex fuga sapiente quisquam maxime reprehenderit, at numquam consectetur harum similique eum ab. Laboriosam ad perspiciatis ab. Dolore eveniet esse nulla porro autem quod numquam voluptas maiores ex repellat blanditiis voluptatum libero doloribus deleniti veritatis, ducimus perferendis amet. Ratione ab veritatis facilis impedit nesciunt quo est possimus. Iusto hic tempora a nam rerum blanditiis provident aspernatur est omnis recusandae. Perferendis et, tempore repellat dolore voluptates nulla placeat doloremque natus aliquam. Accusamus perspiciatis fugiat amet quos dolorum doloribus dolor, odio maiores eaque, animi similique vel culpa porro. Rerum assumenda modi perferendis placeat libero molestias unde sint vitae culpa aspernatur voluptas harum architecto quae, ad, itaque reiciendis repellendus quisquam qui incidunt! Esse modi consectetur aliquid, magnam perferendis amet voluptatem. Dignissimos laudantium maiores amet, sed nemo suscipit soluta autem veritatis maxime, quod repellat tenetur! A saepe dolorum esse nobis neque molestiae fugit et similique eaque aspernatur exercitationem, earum debitis velit impedit, illum incidunt quia dolores ab. Nulla mollitia, ab, necessitatibus blanditiis aperiam placeat dolorem repudiandae autem ipsum perferendis dignissimos quod? Impedit commodi vitae repellendus dolore. Ab aperiam culpa dolorum obcaecati molestiae in, quidem alias consequuntur dolor sint nisi beatae officiis eaque hic quis consectetur libero, praesentium eos! Velit ullam dolorem tempore, repellendus, distinctio at officia voluptatum, nesciunt ipsam ducimus ipsum cumque minus doloribus iusto! Itaque, porro quis! Doloribus exercitationem, laboriosam cum itaque ipsum eius, debitis laborum nostrum blanditiis esse adipisci neque dolorem maiores, doloremque nihil fugit reprehenderit et! Quisquam deleniti quibusdam dolor pariatur autem suscipit debitis modi ipsum sunt libero ut blanditiis dolorem eaque natus architecto nam, inventore ad hic. Delectus distinctio eum dolorem? Vero aliquid praesentium tempora, laboriosam porro, libero dicta illo officia, et accusamus quasi repellat fuga quidem nesciunt esse soluta. Delectus reiciendis qui doloremque, voluptas, fuga nihil libero blanditiis hic dicta odit vero dolore officiis cum. Possimus laboriosam reprehenderit architecto, molestias dolores sunt id quod eaque saepe qui numquam? Inventore cumque numquam illo dolores dolore, vitae facilis culpa, maxime voluptatem velit aliquam amet? </p>
-            </div>
+    <div className='min-h-screen bg-base-100 text-base-content'>
+      <div className='w-full h-full flex flex-col gap-4 p-6'>
+        <nav className='navbar py-0'>
+          <h1 className='text-2xl font-bold'>Produits - Listes</h1>
+        </nav>
+
+        {error && <div className='alert alert-error'>{error}</div>}
+
+        <div className='flex flex-col gap-4'>
+          <div className='w-full flex justify-center items-center gap-4 flex-wrap'>
+            <input type="search" placeholder='Rechercher un produit' className='input input-lg bg-white w-[70%]' />
+            <button className='btn btn-soft btn-lg'><Link to="/modifier">Modifier un Produit</Link></button>
+          </div>
+          <div className='w-full flex gap-4'>
+            <select
+              className='select select-bordered w-64'
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="">Toutes les catégories</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className='w-full p-8 bg-white shadow-2xl rounded-2xl overflow-x-auto'>
+          {loading ? (
+            <div className="flex justify-center p-8"><span className="loading loading-spinner loading-lg"></span></div>
+          ) : filtered.length === 0 ? (
+            <p className="text-center text-base-content/60 py-8">Aucun produit trouvé.</p>
+          ) : (
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200 text-sm font-semibold text-slate-600">
+                  <th className="py-3 px-3">Nom</th>
+                  <th className="py-3 px-3">Catégorie</th>
+                  <th className="py-3 px-3">Prix</th>
+                  <th className="py-3 px-3">Détails</th>
+                  <th className="py-3 px-3">Vendeur</th>
+                </tr>
+              </thead>
+              <tbody className='divide-y divide-slate-200/70 text-sm text-slate-700'>
+                {filtered.map((p) => (
+                  <tr key={p.id} className="hover:bg-slate-100/50 transition-colors">
+                    <td className="py-3 px-3 font-semibold text-slate-800">{p.name}</td>
+                    <td className="py-3 px-3">{categoryName(p.category)}</td>
+                    <td className="py-3 px-3">
+                      {Number(p.price).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+                    </td>
+                    <td className="py-3 px-3 text-slate-600 max-w-md truncate">{p.details}</td>
+                    <td className="py-3 px-3 text-slate-600">{p.owner}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
