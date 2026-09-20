@@ -16,7 +16,7 @@ const STATUS_BADGE = {
   cancelled: 'bg-error/20 text-error',
 }
 
-export default function Demandes() {
+export default function Detail() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')

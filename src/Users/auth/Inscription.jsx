@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import { userApi } from '../../services'
 
 export default function Inscription() {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -25,11 +28,12 @@ export default function Inscription() {
     setLoading(true)
     setError('')
     try {
-      const response = await userApi.create(formData)
-      console.log('Inscription réussie:', response.data)
+      await userApi.create(formData)
+      toast.success("Inscription réussie, connectez-vous")
+      navigate('/connexion')
     } catch (err) {
       setError(err.response?.data?.detail || "Une erreur est survenue lors de l'inscription")
-      console.error("inscription:", err)
+      console.error('inscription:', err)
     } finally {
       setLoading(false)
     }
@@ -107,7 +111,7 @@ export default function Inscription() {
             </button>
           </div>
         </form>
-        <p className='text-center text-base-content/70 text-[0.9rem]'>Déjà un compte ? <a className='text-primary font-semibold' href='/login'>Se connecter</a></p>
+        <p className='text-center text-base-content/70 text-[0.9rem]'>Déjà un compte ? <Link className='text-primary font-semibold' to="/connexion">Se connecter</Link></p>
       </div>
     </div>
   )

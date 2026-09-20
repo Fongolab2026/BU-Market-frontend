@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import CardProducts from '../products/ui/cardProduct'
+import NavBar from '../Composants/nav'
 import { productApi, categoryApi } from '../../services'
 
 export default function Home() {
@@ -21,7 +21,7 @@ export default function Home() {
         setProducts(prodRes.data.results ?? prodRes.data)
         setCategories(Array.isArray(catRes.data) ? catRes.data : catRes.data.results ?? [])
       } catch (e) {
-        setError("Erreur lors du chargement des produits")
+        setError('Erreur lors du chargement des produits')
         console.error('home:', e)
       } finally {
         setLoading(false)
@@ -36,15 +36,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-base-100">
-      <nav className="navbar bg-base-200 px-6 shadow-sm">
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-primary">BU Market</h1>
-        </div>
-        <Link className="btn btn-outline" to="/connexion">Se connecter</Link>
-        <Link className="btn btn-primary" to="/inscription">Inscription</Link>
-      </nav>
+      <NavBar />
 
-      <div className="px-8 py-6">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <h2 className="text-3xl font-bold mb-6">Nos produits</h2>
 
         <div className="flex gap-2 mb-8 flex-wrap">
