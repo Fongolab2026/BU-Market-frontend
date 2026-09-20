@@ -2,7 +2,7 @@ import Home from "../pages/Home.jsx";
 import Inscription from "../auth/Inscription.jsx";
 import Connexion from "../auth/Connexion.jsx";
 import PageErreur from "../Pages/PageErreur.jsx";
-import Detail from "../../Admin/Approuver_Demande.jsx";
+import DetailProduit from "../Pages/DetailProduit.jsx";
 
 export const publicRoutes = [
     {
@@ -18,8 +18,8 @@ export const publicRoutes = [
         element: <Connexion />
     },
     {
-        path:"detail",
-        element:<Detail/>
+        path:"produit/:id",
+        element:<DetailProduit/>
     },
     {
     path: "*",
