@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import toast from 'react-hot-toast'
-import { userApi } from '../../../services'
+import { userApi } from '../services'
 
 const ROLE_LABELS = {
   buyer: 'Buyer',

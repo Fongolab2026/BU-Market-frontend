@@ -1,5 +1,5 @@
 import { MessageSquare } from 'lucide-react'
-import { PageHeader } from '../components/ui.jsx'
+import { PageHeader } from './components/ui.jsx'
 
 export default function Message() {
   return <>

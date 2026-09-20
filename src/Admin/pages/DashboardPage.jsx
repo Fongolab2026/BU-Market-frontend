@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Activity, AlertTriangle, CheckCircle2, Clock3, Package, Store, UsersRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { adminService } from '../../../services/mockAdminService.js'
+import { adminService } from '../../services/mockAdminService.js'
 import { PageHeader, StatCard, StatusBadge } from '../components/ui.jsx'
 
 const iconByStat = { users: UsersRound, shops: Store, products: Package, pending: AlertTriangle }

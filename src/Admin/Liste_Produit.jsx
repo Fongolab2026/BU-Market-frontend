@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { productApi, categoryApi } from '../../../services'
-import Loading from '../../../components/Loading.jsx'
+import { productApi, categoryApi } from '../services'
+import Loading from '../Users/Composants/Loading'
 
 export default function Liste() {
   const [products, setProducts] = useState([])

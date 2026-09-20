@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import toast from 'react-hot-toast'
-import { orderApi } from '../../../services'
-import Loading from '../../../components/Loading.jsx'
+import { orderApi } from '../services'
+import Loading from '../Users/Composants/Loading'
 
 const STATUS_LABELS = {
   pending: 'En attente',

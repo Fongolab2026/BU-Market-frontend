@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ClipboardList, Eye, Package, Search, Store, XCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { adminService } from '../../../services/mockAdminService.js'
+import { adminService } from '../../services/mockAdminService.js'
 import { PageHeader, StatusBadge } from '../components/ui.jsx'
 import Loading from '../../../components/Loading.jsx'
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Banknote, Bell, Check, Languages, LoaderCircle, Mail, Pencil, Phone, Plus, SaveAll, Settings2, ShieldCheck, Trash2, X } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { adminService } from '../../../services/mockAdminService.js'
+import { adminService } from '../../services/mockAdminService.js'
 import { PageHeader } from '../components/ui.jsx'
 import { ConfirmDialog } from '../components/ConfirmDialog.jsx'
 

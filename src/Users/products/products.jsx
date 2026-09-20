@@ -1,9 +1,10 @@
-import useProducts from '../../hooks/useProducts.js'
+import useProducts from '../Hooks/hooks'
+import CardProducts from './ui/cardProduct'
+import Loading from '../Composants/Loading'
 
 function Products(){
-    const {data,loading,err} = useProducts('/api/products/')
-    
-    
+    const {data, loading, err} = useProducts('/api/products/')
+
     return(
         <>
             <div className="w-full min-h-[100vh] flex flex-wrap gap-4 justify-center items-center">
@@ -11,10 +12,7 @@ function Products(){
                     data.map((product)=>{
                         return <CardProducts
                             key={product.id}
-                            nameProduct={product.name}
-                            descritption={product.details}
-                            category={product.category}
-                            prix={`${product.price} €`}
+                            product={product}
                         />
                 })
                 }
