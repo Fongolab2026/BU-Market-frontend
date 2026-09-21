@@ -1,10 +1,10 @@
-import api from './api'
+import api, { endpoints } from './api'
 
 export const userApi = {
-  list: (params) => api.get('/api/users/', { params }),
-  detail: (id) => api.get(`/api/users/${id}/`),
-  create: (data) => api.post('/api/users/', data),
-  update: (id, data) => api.put(`/api/users/${id}/`, data),
-  partialUpdate: (id, data) => api.patch(`/api/users/${id}/`, data),
-  remove: (id) => api.delete(`/api/users/${id}/`),
+  list: (params) => api.get(endpoints.users.list, { params }),
+  detail: (id) => api.get(endpoints.users.detail(id)),
+  create: (data) => api.post(endpoints.users.list, data),
+  update: (id, data) => api.put(endpoints.users.detail(id), data),
+  partialUpdate: (id, data) => api.patch(endpoints.users.detail(id), data),
+  remove: (id) => api.delete(endpoints.users.detail(id)),
 }

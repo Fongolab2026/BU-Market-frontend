@@ -31,9 +31,10 @@ export function MerchantCategoriesPage() {
     if (!form.name.trim()) return
     setSubmitting(true)
     if (modal === 'create') {
-      await merchantCategoryService.list().then(() => toast.success('Catégorie ajoutée.'))
+      await merchantCategoryService.create({ name: form.name, description: form.description })
+      toast.success('Catégorie ajoutée.')
     } else {
-      await merchantCategoryService.update(modal, form)
+      await merchantCategoryService.update(modal, { name: form.name, description: form.description })
       toast.success('Catégorie mise à jour.')
     }
     setSubmitting(false)
@@ -50,8 +51,9 @@ export function MerchantCategoriesPage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return
-    await merchantCategoryService.list().then(() => toast.success('Catégorie supprimée.'))
+    await merchantCategoryService.remove(deleteTarget.id)
     setDeleteTarget(null)
+    toast.success('Catégorie supprimée.')
     await reload()
   }
 
@@ -105,14 +107,14 @@ export function MerchantCategoriesPage() {
                   .map((category) => (
                     <article key={category.id} className="group rounded-2xl border border-base-200 bg-white overflow-hidden transition-all duration-300 hover:border-brand/40 hover:shadow-xl hover:-translate-y-1">
                       <div className="aspect-square bg-gradient-to-br from-brand/10 to-brand/5 flex items-center justify-center">
-                        <span className="text-5xl">{category.icon}</span>
+                        <span className="text-5xl">{category.name ? categoryIcons[category.name] || '📦' : '📦'}</span>
                       </div>
                       <div className="p-4 space-y-3">
                         <div className="flex items-start justify-between">
                           <div className="min-w-0">
                             <p className="truncate font-semibold text-base-content">{category.name}</p>
                             <p className="mt-0.5 text-xs text-base-content/50 flex items-center gap-1">
-                              <Package size={12} /> {category.productCount} produits
+                              <Package size={12} /> {category.count} produits
                             </p>
                           </div>
                           <StatusBadge status={category.active ? 'active' : 'inactive'} label={category.active ? 'Active' : 'Inactive'} />

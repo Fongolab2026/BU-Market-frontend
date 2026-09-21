@@ -56,10 +56,7 @@ api.interceptors.response.use(
 
     const refreshAccessToken = async () => {
       try {
-        const { data } = await axios.post(
-          `${API_URL}/api/auth/refresh/`,
-          { refresh: refreshToken },
-        )
+        const { data } = await api.post(endpoints.auth.refresh, { refresh: refreshToken })
         setTokens(data)
         return data.access
       } catch (err) {

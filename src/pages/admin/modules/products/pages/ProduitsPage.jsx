@@ -6,6 +6,7 @@ import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
 
 const PAGE_SIZE = 8
+const MAX_IMAGES = 5
 const emptyForm = { shopId: '', name: '', price: '', stock: '' }
 
 export function ProduitsPage() {
@@ -20,6 +21,7 @@ export function ProduitsPage() {
   const [form, setForm] = useState(emptyForm)
   const [submitting, setSubmitting] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
+  const [selectedFiles, setSelectedFiles] = useState([])
 
   useEffect(() => {
     let active = true
@@ -56,18 +58,20 @@ export function ProduitsPage() {
   const openCreate = () => {
     setEditing(null)
     setForm({ ...emptyForm, shopId: shops[0]?.id || '' })
+    setSelectedFiles([])
     setShowForm(true)
   }
 
   const openEdit = (product) => {
     setEditing(product)
     setForm({ shopId: product.shopId, name: product.name, price: product.price, stock: String(product.stock) })
+    setSelectedFiles([])
     setShowForm(true)
   }
 
   const toggleStatus = async (product) => {
     const nextStatus = product.status === 'active' ? 'inactive' : 'active'
-    await produitsService.updateStatus(product.shopId, product.id, nextStatus)
+    await produitsService.updateStatus(product.id, nextStatus)
     const updated = await produitsService.list()
     setProducts(updated)
     toast.success(nextStatus === 'active' ? 'Produit réactivé.' : 'Produit retiré.')
@@ -78,21 +82,28 @@ export function ProduitsPage() {
     if (!canSubmit) return
     setSubmitting(true)
     if (editing) {
-      await produitsService.update(editing.shopId, editing.id, form)
+      await produitsService.update(editing.id, form)
+      if (selectedFiles.length > 0) {
+        try { await produitsService.uploadImages(editing.id, selectedFiles) } catch (e) { console.error('Upload images:', e) }
+      }
       toast.success('Produit modifié.')
     } else {
-      await produitsService.create(form.shopId, form)
+      const created = await produitsService.create(form)
+      if (selectedFiles.length > 0 && created?.id) {
+        try { await produitsService.uploadImages(created.id, selectedFiles) } catch (e) { console.error('Upload images:', e) }
+      }
       toast.success('Produit ajouté.')
     }
     setSubmitting(false)
     setShowForm(false)
     setEditing(null)
     setForm(emptyForm)
+    setSelectedFiles([])
   }
 
   const handleDelete = async () => {
     if (!deleteTarget) return
-    await produitsService.remove(deleteTarget.shopId, deleteTarget.id)
+    await produitsService.remove(deleteTarget.id)
     const updated = await produitsService.list()
     setProducts(updated)
     setDeleteTarget(null)
@@ -228,6 +239,8 @@ export function ProduitsPage() {
           submitting={submitting}
           onSubmit={handleSubmit}
           onClose={() => { setShowForm(false); setEditing(null) }}
+          selectedFiles={selectedFiles}
+          setSelectedFiles={setSelectedFiles}
         />
       )}
 
@@ -243,10 +256,18 @@ export function ProduitsPage() {
   )
 }
 
-function ProductFormModal({ editing, shops, form, setFormField, canSubmit, submitting, onSubmit, onClose }) {
+function ProductFormModal({ editing, shops, form, setFormField, canSubmit, submitting, onSubmit, onClose, selectedFiles, setSelectedFiles }) {
+  const handleFileChange = (event) => {
+    const files = Array.from(event.target.files || [])
+    const remaining = MAX_IMAGES - selectedFiles.length
+    setSelectedFiles((prev) => [...prev, ...files.slice(0, remaining)])
+  }
+  const removeFile = (index) => setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+  const canAddMore = selectedFiles.length < MAX_IMAGES
+
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
-      <form onSubmit={onSubmit} className="card w-full max-w-md p-5">
+      <form onSubmit={onSubmit} className="card w-full max-w-md max-h-[90vh] overflow-y-auto p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-bold text-base-content">{editing ? 'Modifier le produit' : 'Ajouter un produit'}</h2>
@@ -271,6 +292,41 @@ function ProductFormModal({ editing, shops, form, setFormField, canSubmit, submi
           <ProductField label="Nom du produit" value={form.name} onChange={(value) => setFormField('name', value)} placeholder="Ex. Sac en raphia naturel" className="sm:col-span-2" />
           <ProductField label="Prix (F)" type="number" value={form.price} onChange={(value) => setFormField('price', value)} placeholder="Ex. 45000" />
           <ProductField label="Quantité en stock" type="number" value={form.stock} onChange={(value) => setFormField('stock', value)} placeholder="Ex. 20" />
+
+          {/* Upload d'images */}
+          <label className="block sm:col-span-2">
+            <span className="mb-1.5 block text-sm font-semibold text-base-content/80">
+              Photos du produit <span className="font-normal text-base-content/50">(max {MAX_IMAGES})</span>
+            </span>
+            {canAddMore && (
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileChange}
+                className="h-10 w-full border border-base-300 bg-white px-3 text-sm outline-none transition file:mr-3 file:border-0 file:bg-brand/10 file:px-3 file:py-1 file:text-sm file:font-semibold file:text-brand hover:file:bg-brand/20"
+              />
+            )}
+            {selectedFiles.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {selectedFiles.map((file, i) => (
+                  <div key={i} className="group relative h-16 w-16 overflow-hidden rounded-lg border border-base-300">
+                    <img src={URL.createObjectURL(file)} alt={`Aperçu ${i + 1}`} className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeFile(i)}
+                      className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+                    >
+                      <X size={14} className="text-white" />
+                    </button>
+                    {i === 0 && (
+                      <span className="absolute bottom-0 left-0 w-full bg-brand/90 px-1 text-center text-[10px] font-bold text-white">Principale</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </label>
         </div>
 
         <div className="mt-5 flex justify-end gap-2">

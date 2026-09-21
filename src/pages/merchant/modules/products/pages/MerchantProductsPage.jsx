@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react'
 import { Eye, EyeOff, Package, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { merchantProductService } from '../services/merchantProductService.js'
+import { categoryApi } from '../../../../../services/categoryService.js'
 import { PageHeader, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
-
-const productCategories = ['Alimentation', 'Mode & accessoires', 'Artisanat', 'Maison & décoration', 'Beauté & soins', 'Électronique']
 
 const categoryIcons = {
   'Alimentation': '🍎',
@@ -25,6 +24,8 @@ const placeholderImages = [
   'https://images.unsplash.com/photo-1498840177845-8f2b3c98a77c?w=400&h=300&fit=crop'
 ]
 
+const MAX_IMAGES = 5
+
 function getPlaceholderImage(name) {
   let hash = 0
   for (let i = 0; i < name.length; i++) {
@@ -36,13 +37,15 @@ function getPlaceholderImage(name) {
 
 export function MerchantProductsPage() {
   const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState([])
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(null)
-  const [form, setForm] = useState({ name: '', category: productCategories[0], price: '', stock: '' })
+  const [form, setForm] = useState({ name: '', category: '', price: '', stock: '' })
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [selectedFiles, setSelectedFiles] = useState([])
 
   useEffect(() => {
     merchantProductService.list({ query: search, status }).then((result) => {
@@ -51,24 +54,37 @@ export function MerchantProductsPage() {
     })
   }, [search, status])
 
+  useEffect(() => {
+    categoryApi.list().then((result) => {
+      setCategories(result.results || result)
+    })
+  }, [])
+
   const reload = () => merchantProductService.list({ query: search, status }).then(setProducts)
 
-  const openCreate = () => { setForm({ name: '', category: productCategories[0], price: '', stock: '' }); setModal('create') }
-  const openEdit = (product) => { setForm({ name: product.name, category: product.category, price: String(product.price).replace(/\s/g, ''), stock: String(product.stock) }); setModal(product.id) }
+  const openCreate = () => { setForm({ name: '', category: '', price: '', stock: '' }); setSelectedFiles([]); setModal('create') }
+  const openEdit = (product) => { setForm({ name: product.name, category: product.category, price: String(product.price).replace(/\s/g, ''), stock: String(product.stock) }); setSelectedFiles([]); setModal(product.id) }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (!form.name.trim() || !form.price) return
     setSubmitting(true)
     if (modal === 'create') {
-      await merchantProductService.create(form)
+      const created = await merchantProductService.create(form)
+      if (selectedFiles.length > 0 && created?.id) {
+        try { await merchantProductService.uploadImages(created.id, selectedFiles, true) } catch (e) { console.error('Upload images:', e) }
+      }
       toast.success('Votre produit a été publié.')
     } else {
       await merchantProductService.update(modal, form)
+      if (selectedFiles.length > 0) {
+        try { await merchantProductService.uploadImages(modal, selectedFiles, true) } catch (e) { console.error('Upload images:', e) }
+      }
       toast.success('Votre produit a été mis à jour.')
     }
     setSubmitting(false)
     setModal(null)
+    setSelectedFiles([])
     await reload()
   }
 
@@ -137,7 +153,7 @@ export function MerchantProductsPage() {
                   <article key={product.id} className="group rounded-2xl border border-base-200 bg-white overflow-hidden transition-all duration-300 hover:border-brand/40 hover:shadow-xl hover:-translate-y-1">
                     <div className="relative aspect-[4/3] bg-base-50 overflow-hidden">
                       <img
-                        src={product.image || getPlaceholderImage(product.name)}
+                        src={product.main_image || getPlaceholderImage(product.name)}
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         loading="lazy"
@@ -151,8 +167,8 @@ export function MerchantProductsPage() {
                     <div className="p-4 space-y-3">
                       <div className="flex items-start gap-3">
                         <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-brand/10 text-brand">
-                          {categoryIcons[product.category] ? (
-                            <span className="text-lg">{categoryIcons[product.category]}</span>
+                          {categoryIcons[getCategoryName(product.category, categories)] ? (
+                            <span className="text-lg">{categoryIcons[getCategoryName(product.category, categories)]}</span>
                           ) : (
                             <Package size={18} />
                           )}
@@ -160,8 +176,8 @@ export function MerchantProductsPage() {
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-semibold text-base-content group-hover:text-brand transition-colors">{product.name}</p>
                           <p className="mt-0.5 text-xs text-base-content/50 flex items-center gap-1">
-                            {categoryIcons[product.category] && <span className="text-xs">{categoryIcons[product.category]}</span>}
-                            {product.category}
+                            {categoryIcons[getCategoryName(product.category, categories)] && <span className="text-xs">{categoryIcons[getCategoryName(product.category, categories)]}</span>}
+                            {getCategoryName(product.category, categories)}
                           </p>
                         </div>
                       </div>
@@ -201,9 +217,12 @@ export function MerchantProductsPage() {
                   isCreate={modal === 'create'}
                   form={form}
                   setFormField={(name, value) => setForm((current) => ({ ...current, [name]: value }))}
+                  categories={categories}
                   submitting={submitting}
                   onSubmit={handleSubmit}
                   onClose={() => setModal(null)}
+                  selectedFiles={selectedFiles}
+                  setSelectedFiles={setSelectedFiles}
                 />
               )}
             </>
@@ -214,10 +233,23 @@ export function MerchantProductsPage() {
   )
 }
 
-function ProductForm({ isCreate, form, setFormField, submitting, onSubmit, onClose }) {
+function getCategoryName(categoryId, categories) {
+  const cat = categories.find((c) => c.id === categoryId)
+  return cat ? cat.name : ''
+}
+
+function ProductForm({ isCreate, form, setFormField, categories, submitting, onSubmit, onClose, selectedFiles, setSelectedFiles }) {
+  const handleFileChange = (event) => {
+    const files = Array.from(event.target.files || [])
+    const remaining = MAX_IMAGES - selectedFiles.length
+    setSelectedFiles((prev) => [...prev, ...files.slice(0, remaining)])
+  }
+  const removeFile = (index) => setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+  const canAddMore = selectedFiles.length < MAX_IMAGES
+
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4 animate-in fade-in zoom-in-95 duration-200">
-      <form onSubmit={onSubmit} className="card w-full max-w-lg p-5">
+      <form onSubmit={onSubmit} className="card w-full max-w-lg max-h-[90vh] overflow-y-auto p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-bold text-base-content">{isCreate ? 'Publier un produit' : 'Modifier le produit'}</h2>
@@ -235,9 +267,9 @@ function ProductForm({ isCreate, form, setFormField, submitting, onSubmit, onClo
           </label>
           <label className="block">
             <span className="mb-1.5 block text-sm font-semibold text-base-content/80">Catégorie</span>
-            <select value={form.category} onChange={(event) => setFormField('category', event.target.value)} className="select select-bordered w-full text-sm focus:border-brand focus:ring-2 focus:ring-brand/20">
-              {productCategories.map((category) => (
-                <option key={category} value={category}>{category}</option>
+            <select value={form.category} onChange={(event) => setFormField('category', Number(event.target.value))} className="select select-bordered w-full text-sm focus:border-brand focus:ring-2 focus:ring-brand/20">
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
           </label>
@@ -251,6 +283,41 @@ function ProductForm({ isCreate, form, setFormField, submitting, onSubmit, onClo
               <input type="number" min="0" value={form.stock} onChange={(event) => setFormField('stock', event.target.value)} placeholder="60" className="input input-bordered w-full text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20" />
             </label>
           </div>
+
+          {/* Upload d'images */}
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold text-base-content/80">
+              Photos du produit <span className="font-normal text-base-content/50">(max {MAX_IMAGES})</span>
+            </span>
+            {canAddMore && (
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileChange}
+                className="file-input file-input-bordered w-full text-sm"
+              />
+            )}
+            {selectedFiles.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {selectedFiles.map((file, i) => (
+                  <div key={i} className="group relative h-16 w-16 overflow-hidden rounded-lg border border-base-300">
+                    <img src={URL.createObjectURL(file)} alt={`Aperçu ${i + 1}`} className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeFile(i)}
+                      className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+                    >
+                      <X size={14} className="text-white" />
+                    </button>
+                    {i === 0 && (
+                      <span className="absolute bottom-0 left-0 w-full bg-brand/90 px-1 text-center text-[10px] font-bold text-white">Principale</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </label>
         </div>
 
         <div className="mt-5 flex justify-end gap-2">

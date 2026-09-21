@@ -10,7 +10,7 @@ export const merchantProductEndpoints = {
 
 export const merchantProductService = {
   list: async ({ query = '', status = 'all', page = 1, perPage = 20 } = {}) => {
-    const params = { search: query, status, page, per_page: perPage }
+    const params = { search: query, status, page, perPage }
     return await apiGet(endpoints.products.list, params)
   },
   create: async (input) => {
@@ -24,5 +24,19 @@ export const merchantProductService = {
   },
   remove: async (id) => {
     return await apiDelete(endpoints.products.delete(id))
+  },
+  uploadImages: async (productId, files, isMain = true) => {
+    const formData = new FormData()
+    files.forEach((file) => formData.append('images', file))
+    formData.append('is_main', String(isMain))
+    const { default: api } = await import('../../../../../services/api.js')
+    const { data } = await api.post(`/products/products/${productId}/images/`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
+  },
+  removeImage: async (productId, imageId) => {
+    const { default: api } = await import('../../../../../services/api.js')
+    await api.delete(`/products/products/${productId}/images/${imageId}/`)
   },
 }

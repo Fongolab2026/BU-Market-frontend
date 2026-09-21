@@ -33,7 +33,7 @@ export function CategoriesPage() {
     event.preventDefault()
     if (!name.trim()) return
     setSubmitting(true)
-    const result = await (editing ? categoriesService.update(editing.id, name.trim()) : categoriesService.create(name.trim()))
+    const result = await (editing ? categoriesService.update(editing.id, { name: name.trim() }) : categoriesService.create({ name: name.trim() }))
     setSubmitting(false)
     refresh(result)
     toast.success(editing ? 'Catégorie renommée.' : 'Catégorie créée.')

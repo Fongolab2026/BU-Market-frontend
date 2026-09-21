@@ -11,11 +11,11 @@ export const produitEndpoints = {
 
 export const produitsService = {
   list: async ({ query = '', status = 'all', page = 1, perPage = 20 } = {}) => {
-    const params = { search: query, status, page, per_page: perPage }
+    const params = { search: query, status, page, perPage }
     return await apiGet(endpoints.products.list, params)
   },
   listShopOptions: async () => {
-    return await apiGet('/admin/shops/', { per_page: 100 })
+    return await apiGet('/shops/shops/', { perPage: 100 })
   },
   create: async (input) => {
     return await apiPost(endpoints.products.create, input)
@@ -28,5 +28,15 @@ export const produitsService = {
   },
   remove: async (id) => {
     return await apiDelete(endpoints.products.delete(id))
+  },
+  uploadImages: async (productId, files, isMain = true) => {
+    const formData = new FormData()
+    files.forEach((file) => formData.append('images', file))
+    formData.append('is_main', String(isMain))
+    const { default: api } = await import('../../../../../services/api.js')
+    const { data } = await api.post(`/products/products/${productId}/images/`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data
   },
 }
