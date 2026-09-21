@@ -1,14 +1,21 @@
-import { adminService } from '../../../../../services/mockAdminService.js'
+import { apiGet, apiPatch, apiDelete, endpoints } from '../../../../../services/api.js'
 
 export const notificationEndpoints = {
-  list: '/api/notifications/',
-  detail: '/api/notifications/:id/',
-  markRead: '/api/notifications/:id/read/',
-  remove: '/api/notifications/:id/',
+  list: endpoints.notifications.list,
+  detail: (id) => endpoints.notifications.detail(id),
+  markRead: (id) => `/notifications/notifications/${id}/read/`,
+  remove: (id) => endpoints.notifications.delete(id),
 }
 
 export const notificationsService = {
-  list: (params) => adminService.listNotifications(params),
-  markRead: (id) => adminService.markNotificationRead(id),
-  remove: (id) => adminService.deleteNotification(id),
+  list: async ({ query = '', page = 1, perPage = 20 } = {}) => {
+    const params = { search: query, page, per_page: perPage }
+    return await apiGet(endpoints.notifications.list, params)
+  },
+  markRead: async (id) => {
+    return await apiPatch(`/notifications/notifications/${id}/read/`)
+  },
+  remove: async (id) => {
+    return await apiDelete(endpoints.notifications.delete(id))
+  },
 }

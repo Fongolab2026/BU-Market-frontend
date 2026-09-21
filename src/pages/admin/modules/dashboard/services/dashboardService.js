@@ -1,11 +1,18 @@
-import { adminService } from '../../../../../services/mockAdminService.js'
+import { apiGet, endpoints } from '../../../../../services/api.js'
 
 export const dashboardEndpoints = {
-  stats: '/api/admin/stats/',
-  activity: '/api/admin/activity/',
-  moderationQueue: '/api/admin/moderation-queue/',
+  stats: endpoints.admin.stats,
+  activity: endpoints.admin.activity,
+  moderationQueue: endpoints.admin.moderationQueue,
 }
 
 export const dashboardService = {
-  get: () => adminService.getDashboard(),
+  get: async () => {
+    const [stats, activity, moderationQueue] = await Promise.all([
+      apiGet(endpoints.admin.stats),
+      apiGet(endpoints.admin.activity),
+      apiGet(endpoints.admin.moderationQueue),
+    ])
+    return { stats, activity, moderationQueue }
+  },
 }

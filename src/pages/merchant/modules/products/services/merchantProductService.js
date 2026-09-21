@@ -1,21 +1,17 @@
 import { apiGet, apiPost, apiPatch, apiDelete, endpoints } from '../../../../../services/api.js'
 
-export const produitEndpoints = {
+export const merchantProductEndpoints = {
   list: endpoints.products.list,
-  detail: (id) => endpoints.products.detail(id),
   create: endpoints.products.create,
   update: (id) => endpoints.products.update(id),
+  updateStatus: (id) => endpoints.products.setStatus(id),
   remove: (id) => endpoints.products.delete(id),
-  setStatus: (id) => endpoints.products.setStatus(id),
 }
 
-export const produitsService = {
+export const merchantProductService = {
   list: async ({ query = '', status = 'all', page = 1, perPage = 20 } = {}) => {
     const params = { search: query, status, page, per_page: perPage }
     return await apiGet(endpoints.products.list, params)
-  },
-  listShopOptions: async () => {
-    return await apiGet('/admin/shops/', { per_page: 100 })
   },
   create: async (input) => {
     return await apiPost(endpoints.products.create, input)

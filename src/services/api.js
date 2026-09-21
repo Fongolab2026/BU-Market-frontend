@@ -25,7 +25,7 @@ export const clearTokens = () => {
 export const isAuthenticated = () => Boolean(getAccessToken())
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: `${API_URL}/api`,
   timeout: 15000,
 })
 
@@ -41,7 +41,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const { config, response } = error
-    const isAuthUrl = config?.url?.includes('/login/') || config?.url?.includes('/refresh/')
+    const isAuthUrl = config?.url?.includes('/auth/login/') || config?.url?.includes('/auth/refresh/')
     if (!response || response.status !== 401 || isAuthUrl || config._retried) {
       throw error
     }
@@ -77,3 +77,58 @@ api.interceptors.response.use(
 )
 
 export default api
+
+export const endpoints = {
+  auth: {
+    login: '/auth/login/',
+    refresh: '/auth/refresh/',
+    me: '/users/users/me/',
+  },
+  users: {
+    list: '/users/users/',
+    detail: (id) => `/users/users/${id}/`,
+    setStatus: (id) => `/users/users/${id}/status/`,
+  },
+  products: {
+    list: '/products/products/',
+    create: '/products/products/',
+    detail: (id) => `/products/products/${id}/`,
+    update: (id) => `/products/products/${id}/`,
+    delete: (id) => `/products/products/${id}/`,
+    setStatus: (id) => `/products/products/${id}/status/`,
+  },
+  categories: {
+    list: '/categories/categories/',
+    create: '/categories/categories/',
+    detail: (id) => `/categories/categories/${id}/`,
+    update: (id) => `/categories/categories/${id}/`,
+    delete: (id) => `/categories/categories/${id}/`,
+  },
+  orders: {
+    list: '/orders/orders/',
+    detail: (id) => `/orders/orders/${id}/`,
+    items: (orderId) => `/orders/orders/${orderId}/items/`,
+  },
+  messages: {
+    list: '/messages/messages/',
+    create: '/messages/messages/',
+    detail: (id) => `/messages/messages/${id}/`,
+  },
+  notifications: {
+    list: '/notifications/notifications/',
+    detail: (id) => `/notifications/notifications/${id}/`,
+  },
+  admin: {
+    stats: '/admin/admin/stats/',
+    activity: '/admin/admin/activity/',
+    moderationQueue: '/admin/admin/moderation-queue/',
+    meta: '/admin/admin/meta/',
+    settings: '/admin/admin/settings/',
+  },
+}
+
+export const apiGet = (url, params) => api.get(url, { params }).then((r) => r.data)
+export const apiPost = (url, data) => api.post(url, data).then((r) => r.data)
+export const apiPatch = (url, data) => api.patch(url, data).then((r) => r.data)
+export const apiPut = (url, data) => api.put(url, data).then((r) => r.data)
+export const apiDelete = (url) => api.delete(url).then((r) => r.data)

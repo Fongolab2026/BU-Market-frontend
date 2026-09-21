@@ -13,6 +13,21 @@ import { DemandesPage } from '../../pages/admin/modules/requests/pages/DemandesP
 import { MessagesPage } from '../../pages/admin/modules/messages/pages/MessagesPage.jsx'
 import { NotificationsPage } from '../../pages/admin/modules/notifications/pages/NotificationsPage.jsx'
 import { SettingsPage } from '../../pages/admin/modules/settings/pages/SettingsPage.jsx'
+import { MerchantLayout } from '../../pages/merchant/components/MerchantLayout.jsx'
+import { MerchantDashboardPage } from '../../pages/merchant/modules/dashboard/pages/MerchantDashboardPage.jsx'
+import { MerchantShopPage } from '../../pages/merchant/modules/shop/pages/MerchantShopPage.jsx'
+import { MerchantProductsPage } from '../../pages/merchant/modules/products/pages/MerchantProductsPage.jsx'
+import { MerchantOrdersPage } from '../../pages/merchant/modules/orders/pages/MerchantOrdersPage.jsx'
+import { MerchantMessagesPage } from '../../pages/merchant/modules/messages/pages/MerchantMessagesPage.jsx'
+import { MerchantCategoriesPage } from '../../pages/merchant/modules/categories/pages/MerchantCategoriesPage.jsx'
+import { MerchantCompetitorsPage } from '../../pages/merchant/modules/competitors/pages/MerchantCompetitorsPage.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
+
+function MerchantRootRedirect() {
+  const { user } = useAuth()
+  if (user?.role === 'merchant') return <Navigate to="/marchand/tableau-de-bord" replace />
+  return <Navigate to="/" replace />
+}
 
 export const protectedRoutes = [
   {
@@ -35,6 +50,26 @@ export const protectedRoutes = [
           { path: 'messages', element: <MessagesPage /> },
           { path: 'notifications', element: <NotificationsPage /> },
           { path: 'parametres', element: <SettingsPage /> },
+        ],
+      },
+    ],
+  },
+  {
+    element: <ProtectedRoute allowedRoles={['merchant']} />,
+    children: [
+      { path: '/', element: <MerchantRootRedirect /> },
+      {
+        path: 'marchand',
+        element: <MerchantLayout />,
+        children: [
+          { index: true, element: <Navigate to="tableau-de-bord" replace /> },
+          { path: 'tableau-de-bord', element: <MerchantDashboardPage /> },
+          { path: 'boutique', element: <MerchantShopPage /> },
+          { path: 'produits', element: <MerchantProductsPage /> },
+          { path: 'commandes', element: <MerchantOrdersPage /> },
+          { path: 'messages', element: <MerchantMessagesPage /> },
+          { path: 'categories', element: <MerchantCategoriesPage /> },
+          { path: 'concurrents', element: <MerchantCompetitorsPage /> },
         ],
       },
     ],

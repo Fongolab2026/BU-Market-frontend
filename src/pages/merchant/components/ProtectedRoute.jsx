@@ -1,0 +1,1 @@
+export { ProtectedRoute } from '../../admin/components/ProtectedRoute.jsx'

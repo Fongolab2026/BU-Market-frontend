@@ -1,0 +1,1 @@
+export { ConfirmDialog } from '../../admin/components/ConfirmDialog.jsx'

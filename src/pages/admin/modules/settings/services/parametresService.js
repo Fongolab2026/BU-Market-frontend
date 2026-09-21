@@ -1,15 +1,25 @@
-import { adminService } from '../../../../../services/mockAdminService.js'
+import { apiGet, apiPost, apiPatch, apiDelete, endpoints } from '../../../../../services/api.js'
 
 export const parametreEndpoints = {
-  get: '/api/settings/',
-  update: '/api/settings/',
-  categories: '/api/categories/',
+  get: endpoints.admin.settings,
+  update: endpoints.admin.settings,
+  categories: endpoints.categories.list,
 }
 
 export const parametresService = {
-  get: () => adminService.getSettings(),
-  update: (nextSettings) => adminService.updateSettings(nextSettings),
-  addCategory: (name) => adminService.addCategory(name),
-  renameCategory: (id, name) => adminService.renameCategory(id, name),
-  removeCategory: (id) => adminService.removeCategory(id),
+  get: async () => {
+    return await apiGet(endpoints.admin.settings)
+  },
+  update: async (nextSettings) => {
+    return await apiPatch(endpoints.admin.settings, nextSettings)
+  },
+  addCategory: async (name) => {
+    return await apiPost(endpoints.categories, { name })
+  },
+  renameCategory: async (id, name) => {
+    return await apiPatch(endpoints.categories.detail(id), { name })
+  },
+  removeCategory: async (id) => {
+    return await apiDelete(endpoints.categories.delete(id))
+  },
 }

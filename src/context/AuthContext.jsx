@@ -2,12 +2,17 @@ import { createContext, useContext, useMemo, useState } from 'react'
 
 const AuthContext = createContext(null)
 const SESSION_KEY = 'vima_demo_session'
+const DEMO_ROLE_KEY = 'vima_demo_role'
 const demoAdmin = { id: 'usr-admin-001', firstName: 'Julien', lastName: 'Faure', email: 'julien.faure@bumarket.app', role: 'admin', initials: 'JF' }
+const demoMerchant = { id: 'usr-merchant-001', firstName: 'Espoir', lastName: 'Durand', email: 'espoir.durand@bumarket.app', role: 'merchant', initials: 'ED' }
+const demoUserFor = (role) => (role === 'merchant' ? demoMerchant : demoAdmin)
 
 function readSession() {
   if (import.meta.env.VITE_ENABLE_DEMO_ADMIN !== 'false') {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(demoAdmin))
-    return demoAdmin
+    const role = localStorage.getItem(DEMO_ROLE_KEY) === 'merchant' ? 'merchant' : 'admin'
+    const user = demoUserFor(role)
+    localStorage.setItem(SESSION_KEY, JSON.stringify(user))
+    return user
   }
   const storedSession = localStorage.getItem(SESSION_KEY)
   if (storedSession) {
@@ -18,11 +23,14 @@ function readSession() {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readSession)
+  const isDemo = import.meta.env.VITE_ENABLE_DEMO_ADMIN !== 'false'
   const value = useMemo(() => ({
     user,
+    isDemo,
     signIn: (nextUser) => { localStorage.setItem(SESSION_KEY, JSON.stringify(nextUser)); setUser(nextUser) },
     signOut: () => { localStorage.removeItem(SESSION_KEY); setUser(null) },
-  }), [user])
+    switchDemoRole: (role) => { localStorage.setItem(DEMO_ROLE_KEY, role); signIn(demoUserFor(role)) },
+  }), [user, isDemo])
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

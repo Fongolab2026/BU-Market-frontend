@@ -1,44 +1,39 @@
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { Bell, Building2, ClipboardList, LayoutDashboard, Layers, Mail, Package, Settings, ShoppingBag, Star, UsersRound, X } from 'lucide-react'
+import { Building2, LayoutDashboard, Mail, Package, ShoppingBag, X, Layers, Store } from 'lucide-react'
 import UnifiedNavbar from '../../../components/UnifiedNavbar.jsx'
 
 const navigationGroups = [
   {
-    label: 'Aperçu',
-    items: [{ to: '/admin/tableau-de-bord', label: 'Tableau de bord', icon: LayoutDashboard }],
-  },
-  {
-    label: 'Comptes',
-    items: [{ to: '/admin/utilisateurs', label: 'Utilisateurs', icon: UsersRound }],
-  },
-  {
-    label: 'Catalogue',
+    label: 'Gestion',
     items: [
-      { to: '/admin/boutiques', label: 'Boutiques', icon: Building2 },
-      { to: '/admin/produits', label: 'Produits', icon: Package },
-      { to: '/admin/categories', label: 'Catégories', icon: Layers },
+      { to: '/marchand/tableau-de-bord', label: 'Tableau de bord', icon: LayoutDashboard },
+      { to: '/marchand/boutique', label: 'Ma boutique', icon: Building2 },
+      { to: '/marchand/categories', label: 'Catégories', icon: Layers },
     ],
   },
   {
-    label: 'Commerce',
+    label: 'Ventes',
     items: [
-      { to: '/admin/commandes', label: 'Commandes', icon: ShoppingBag },
-      { to: '/admin/avis', label: 'Avis', icon: Star },
-      { to: '/admin/demandes', label: 'Demandes', icon: ClipboardList },
-      { to: '/admin/messages', label: 'Messages', icon: Mail },
+      { to: '/marchand/produits', label: 'Mes produits', icon: Package },
+      { to: '/marchand/commandes', label: 'Commandes', icon: ShoppingBag },
     ],
   },
   {
-    label: 'Système',
+    label: 'Communication',
     items: [
-      { to: '/admin/notifications', label: 'Notifications', icon: Bell },
-      { to: '/admin/parametres', label: 'Paramètres', icon: Settings },
+      { to: '/marchand/messages', label: 'Messages', icon: Mail },
+    ],
+  },
+  {
+    label: 'Marché',
+    items: [
+      { to: '/marchand/concurrents', label: 'Concurrents', icon: Store },
     ],
   },
 ]
 
-export function AdminLayout() {
+export function MerchantLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   return (
@@ -54,7 +49,7 @@ export function AdminLayout() {
 
       <aside className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-brand px-4 py-5 transition-transform duration-200 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between px-1">
-          <NavLink to="/admin/tableau-de-bord" className="flex items-center gap-3" onClick={() => setIsSidebarOpen(false)}>
+          <NavLink to="/marchand/tableau-de-bord" className="flex items-center gap-3" onClick={() => setIsSidebarOpen(false)}>
             <span className="grid size-9 place-items-center rounded-lg bg-accent text-lg font-black text-brand shadow-[0_4px_14px_rgba(0,0,0,0.25)]">B</span>
             <span>
               <span className="block text-lg font-bold tracking-tight text-white">BUMA</span>
@@ -89,8 +84,8 @@ export function AdminLayout() {
         </nav>
 
         <div className="mt-auto rounded-lg border border-white/10 bg-white/5 p-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">Espace gestion</p>
-          <p className="mt-1 text-xs leading-5 text-white/55">Administration de la plateforme BUJA MARKET.</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">Espace vendeur</p>
+          <p className="mt-1 text-xs leading-5 text-white/55">Gérez votre boutique et vos ventes sur BUJA MARKET.</p>
         </div>
       </aside>
 
