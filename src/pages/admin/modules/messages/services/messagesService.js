@@ -3,7 +3,9 @@ import { apiGet, apiPatch, endpoints } from '../../../../../services/api.js'
 export const messageEndpoints = {
   list: endpoints.messages.list,
   detail: (id) => endpoints.messages.detail(id),
-  markRead: (id) => `/messages/messages/${id}/read/`,
+  markRead: (id) => endpoints.messages.markRead(id),
+  readAll: endpoints.messages.readAll,
+  conversations: endpoints.messages.conversations,
 }
 
 export const messagesService = {
@@ -12,10 +14,9 @@ export const messagesService = {
     return await apiGet(endpoints.messages.list, params)
   },
   markRead: async (id) => {
-    return await apiPatch(`/messages/messages/${id}/read/`)
+    return await apiPatch(endpoints.messages.markRead(id))
   },
   markAllRead: async () => {
-    // No bulk endpoint in API
-    throw new Error('Bulk mark read not implemented')
+    return await apiPatch(endpoints.messages.readAll)
   },
 }

@@ -2,8 +2,9 @@ import { apiGet, apiPost, apiPatch, endpoints } from '../../../../../services/ap
 
 export const merchantMessageEndpoints = {
   list: endpoints.messages.list,
-  send: (id) => `/messages/messages/${id}/reply/`,
-  markRead: (id) => `/messages/messages/${id}/read/`,
+  conversations: endpoints.messages.conversations,
+  send: endpoints.messages.create,
+  markRead: (id) => endpoints.messages.markRead(id),
 }
 
 export const merchantMessageService = {
@@ -11,10 +12,13 @@ export const merchantMessageService = {
     const params = { search: query, page, per_page: perPage }
     return await apiGet(endpoints.messages.list, params)
   },
-  send: async (conversationId, content) => {
-    return await apiPost(`/messages/messages/${conversationId}/reply/`, { content })
+  conversations: async () => {
+    return await apiGet(endpoints.messages.conversations)
   },
-  markRead: async (conversationId) => {
-    return await apiPatch(`/messages/messages/${conversationId}/read/`)
+  send: async (data) => {
+    return await apiPost(endpoints.messages.create, data)
+  },
+  markRead: async (id) => {
+    return await apiPatch(endpoints.messages.markRead(id))
   },
 }

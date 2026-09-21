@@ -2,7 +2,7 @@ import { apiGet, apiPatch, endpoints } from '../../../../../services/api.js'
 
 export const merchantOrderEndpoints = {
   list: endpoints.orders.list,
-  updateStatus: (id) => `/orders/orders/${id}/status/`,
+  updateStatus: (id) => endpoints.orders.setStatus(id),
 }
 
 export const merchantOrderService = {
@@ -11,6 +11,6 @@ export const merchantOrderService = {
     return await apiGet(endpoints.orders.list, params)
   },
   updateStatus: async (id, status) => {
-    return await apiPatch(`/orders/orders/${id}/status/`, { status })
+    return await apiPatch(endpoints.orders.setStatus(id), { status })
   },
 }

@@ -83,7 +83,9 @@ export const endpoints = {
   },
   users: {
     list: '/users/users/',
+    create: '/users/users/',
     detail: (id) => `/users/users/${id}/`,
+    delete: (id) => `/users/users/${id}/`,
     setStatus: (id) => `/users/users/${id}/status/`,
   },
   products: {
@@ -104,16 +106,49 @@ export const endpoints = {
   orders: {
     list: '/orders/orders/',
     detail: (id) => `/orders/orders/${id}/`,
+    setStatus: (id) => `/orders/orders/${id}/status/`,
     items: (orderId) => `/orders/orders/${orderId}/items/`,
   },
   messages: {
     list: '/messages/messages/',
     create: '/messages/messages/',
     detail: (id) => `/messages/messages/${id}/`,
+    markRead: (id) => `/messages/messages/${id}/read/`,
+    readAll: '/messages/messages/read-all/',
+    inbox: '/messages/messages/inbox/',
+    sent: '/messages/messages/sent/',
+    conversations: '/messages/messages/conversations/',
+    conversation: (userId) => `/messages/messages/conversation/${userId}/`,
   },
   notifications: {
     list: '/notifications/notifications/',
     detail: (id) => `/notifications/notifications/${id}/`,
+    markRead: (id) => `/notifications/notifications/${id}/read/`,
+    markAllRead: '/notifications/notifications/mark_all_read/',
+  },
+  favorites: {
+    list: '/favorites/favorites/',
+    create: '/favorites/favorites/',
+    detail: (id) => `/favorites/favorites/${id}/`,
+    delete: (id) => `/favorites/favorites/${id}/`,
+  },
+  reviews: {
+    list: '/favorites/reviews/',
+    detail: (id) => `/favorites/reviews/${id}/`,
+    hide: (id) => `/favorites/reviews/${id}/hide/`,
+    reveal: (id) => `/favorites/reviews/${id}/reveal/`,
+    delete: (id) => `/favorites/reviews/${id}/`,
+  },
+  shops: {
+    list: '/shops/shops/',
+    detail: (id) => `/shops/shops/${id}/`,
+  },
+  carts: {
+    list: '/carts/carts/',
+    create: '/carts/carts/',
+    detail: (id) => `/carts/carts/${id}/`,
+    items: '/carts/cart-items/',
+    itemDetail: (id) => `/carts/cart-items/${id}/`,
   },
   admin: {
     stats: '/admin/admin/stats/',

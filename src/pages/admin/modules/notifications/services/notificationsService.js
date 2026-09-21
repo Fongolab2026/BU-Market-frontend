@@ -3,8 +3,8 @@ import { apiGet, apiPatch, apiDelete, endpoints } from '../../../../../services/
 export const notificationEndpoints = {
   list: endpoints.notifications.list,
   detail: (id) => endpoints.notifications.detail(id),
-  markRead: (id) => `/notifications/notifications/${id}/read/`,
-  remove: (id) => endpoints.notifications.delete(id),
+  markRead: (id) => endpoints.notifications.markRead(id),
+  remove: (id) => endpoints.notifications.detail(id),
 }
 
 export const notificationsService = {
@@ -13,9 +13,9 @@ export const notificationsService = {
     return await apiGet(endpoints.notifications.list, params)
   },
   markRead: async (id) => {
-    return await apiPatch(`/notifications/notifications/${id}/read/`)
+    return await apiPatch(endpoints.notifications.markRead(id))
   },
   remove: async (id) => {
-    return await apiDelete(endpoints.notifications.delete(id))
+    return await apiDelete(endpoints.notifications.detail(id))
   },
 }

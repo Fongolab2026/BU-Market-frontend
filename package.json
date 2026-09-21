@@ -16,6 +16,8 @@
     "axios": "^1.18.1",
     "lucide-react": "^1.47.0",
     "opencode-runtime-fallback": "^0.2.4",
+    "primeicons": "^8.0.1",
+    "primereact": "^11.1.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.83.0",

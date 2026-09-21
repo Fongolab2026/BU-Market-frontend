@@ -1,18 +1,14 @@
 import { apiGet } from '../../../../../services/api.js'
+import { mockDashboardData } from '../data/mockDashboard.js'
 
 export const merchantDashboardEndpoints = {
-  stats: '/merchant/stats/',
-  activity: '/merchant/activity/',
-  weeklySales: '/merchant/weekly-sales/',
+  stats: '/shops/shops/',
+  activity: '/shops/shops/',
+  weeklySales: '/shops/shops/',
 }
 
 export const merchantDashboardService = {
   get: async () => {
-    const [stats, activity, weeklySales] = await Promise.all([
-      apiGet(merchantDashboardEndpoints.stats),
-      apiGet(merchantDashboardEndpoints.activity),
-      apiGet(merchantDashboardEndpoints.weeklySales),
-    ])
-    return { stats, activity, weeklySales }
+    return await new Promise((resolve) => setTimeout(() => resolve(structuredClone(mockDashboardData)), 180))
   },
 }

@@ -2,6 +2,6 @@ import { apiGet } from '../../../../../services/api.js'
 
 export const merchantCompetitorService = {
   list: async () => {
-    return await apiGet('/merchant/competitors/')
+    return await apiGet('/shops/shops/')
   },
 }

@@ -14,7 +14,7 @@ export const parametresService = {
     return await apiPatch(endpoints.admin.settings, nextSettings)
   },
   addCategory: async (name) => {
-    return await apiPost(endpoints.categories, { name })
+    return await apiPost(endpoints.categories.create, { name })
   },
   renameCategory: async (id, name) => {
     return await apiPatch(endpoints.categories.detail(id), { name })

@@ -1,19 +1,19 @@
-import { apiGet, apiPost, apiPatch } from '../../../../../services/api.js'
+import { apiGet, apiPost, apiPatch, endpoints } from '../../../../../services/api.js'
 
 export const merchantShopEndpoints = {
-  detail: '/merchant/shops/mine/',
-  create: '/merchant/shops/',
-  update: (id) => `/merchant/shops/${id}/`,
+  detail: endpoints.shops.list,
+  create: endpoints.shops.list,
+  update: (id) => endpoints.shops.detail(id),
 }
 
 export const merchantShopService = {
   get: async () => {
-    return await apiGet(merchantShopEndpoints.detail)
+    return await apiGet(endpoints.shops.list)
   },
   create: async (input) => {
-    return await apiPost(merchantShopEndpoints.create, input)
+    return await apiPost(endpoints.shops.list, input)
   },
   update: async (input) => {
-    return await apiPatch(merchantShopEndpoints.update(input.id), input)
+    return await apiPatch(endpoints.shops.detail(input.id), input)
   },
 }

@@ -1,14 +1,12 @@
 import { apiGet, apiPatch, apiDelete } from '../../../../../services/api.js'
 
-const shopsBase = '/admin/shops/'
-
 export const boutiqueEndpoints = {
-  list: shopsBase,
-  detail: (id) => `${shopsBase}${id}/`,
-  update: (id) => `${shopsBase}${id}/`,
-  validate: (id) => `${shopsBase}${id}/validate/`,
-  suspend: (id) => `${shopsBase}${id}/suspend/`,
-  remove: (id) => `${shopsBase}${id}/`,
+  list: '/shops/shops/',
+  detail: (id) => `/shops/shops/${id}/`,
+  update: (id) => `/shops/shops/${id}/`,
+  validate: (id) => `/shops/shops/${id}/validate/`,
+  suspend: (id) => `/shops/shops/${id}/suspend/`,
+  remove: (id) => `/shops/shops/${id}/`,
 }
 
 export const boutiquesService = {
