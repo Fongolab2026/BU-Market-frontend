@@ -197,28 +197,28 @@ export default function Inscription() {
 
             <div className='border-t border-base-300 pt-5'>
               <h2 className='mb-4 text-sm font-bold uppercase tracking-wider text-base-content/70'>Sécurité du compte</h2>
-            <div className='grid gap-4 sm:grid-cols-2'>
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-bold text-base-content' htmlFor='password'>Mot de passe</label>
-                <div className='relative'>
-                  <input id='password' className={`input input-lg w-full pr-12 ${errors.password ? 'input-error' : ''}`} type={showPassword ? 'text' : 'password'} name='password' placeholder='Mot de passe (8 min.)' value={formData.password} onChange={handleChange} required />
-                  <button type='button' onClick={() => setShowPassword((visible) => !visible)} className='btn btn-ghost btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2' aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}>
-                    {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                  </button>
+              <div className='grid gap-4 sm:grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <label className='text-sm font-bold text-base-content' htmlFor='password'>Mot de passe</label>
+                  <div className='relative'>
+                    <input id='password' className={`input input-lg w-full pr-12 ${errors.password ? 'input-error' : ''}`} type={showPassword ? 'text' : 'password'} name='password' placeholder='Mot de passe (8 min.)' value={formData.password} onChange={handleChange} required />
+                    <button type='button' onClick={() => setShowPassword((visible) => !visible)} className='btn btn-ghost btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2' aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}>
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
+                  </div>
+                  {errors.password && <p className='text-xs text-error'>{errors.password}</p>}
                 </div>
-                {errors.password && <p className='text-xs text-error'>{errors.password}</p>}
-              </div>
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-bold text-base-content' htmlFor='password_confirm'>Confirmation</label>
-                <div className='relative'>
-                  <input id='password_confirm' className={`input input-lg w-full pr-12 ${errors.password_confirm ? 'input-error' : ''}`} type={showConfirmation ? 'text' : 'password'} name='password_confirm' placeholder='Répétez le mot de passe' value={formData.password_confirm} onChange={handleChange} required />
-                  <button type='button' onClick={() => setShowConfirmation((visible) => !visible)} className='btn btn-ghost btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2' aria-label={showConfirmation ? 'Masquer la confirmation' : 'Afficher la confirmation'}>
-                    {showConfirmation ? <EyeOff size={17} /> : <Eye size={17} />}
-                  </button>
+                <div className='flex flex-col gap-2'>
+                  <label className='text-sm font-bold text-base-content' htmlFor='password_confirm'>Confirmation</label>
+                  <div className='relative'>
+                    <input id='password_confirm' className={`input input-lg w-full pr-12 ${errors.password_confirm ? 'input-error' : ''}`} type={showConfirmation ? 'text' : 'password'} name='password_confirm' placeholder='Répétez le mot de passe' value={formData.password_confirm} onChange={handleChange} required />
+                    <button type='button' onClick={() => setShowConfirmation((visible) => !visible)} className='btn btn-ghost btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2' aria-label={showConfirmation ? 'Masquer la confirmation' : 'Afficher la confirmation'}>
+                      {showConfirmation ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
+                  </div>
+                  {errors.password_confirm && <p className='text-xs text-error'>{errors.password_confirm}</p>}
                 </div>
-                {errors.password_confirm && <p className='text-xs text-error'>{errors.password_confirm}</p>}
               </div>
-            </div>
             </div>
             <button className='btn btn-primary mt-3 w-full gap-2' type='submit' disabled={loading}>
               {loading ? 'Inscription...' : "Créer mon compte"}
