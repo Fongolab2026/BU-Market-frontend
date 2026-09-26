@@ -58,7 +58,7 @@ export function MerchantLayout() {
           </NavLink>
           <button
             aria-label="Fermer le menu"
-            className="p-2 text-white/70 hover:text-white lg:hidden"
+            className="p-2 text-white/70 hover:text-white md:hidden"
             onClick={() => setIsSidebarOpen(false)}
           >
             <X size={20} />
