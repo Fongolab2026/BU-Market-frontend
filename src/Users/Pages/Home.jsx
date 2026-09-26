@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext.jsx'
 import {
   ArrowRight,
+  Building2,
   ChevronLeft,
   ChevronRight,
   Headphones,
@@ -85,6 +87,10 @@ function CarteSquelette({ delay }) {
 }
 
 export default function Home() {
+  const { user } = useAuth()
+  // Un commerçant possède déjà une boutique : plus de bouton « Louer l'espace ».
+  // Le backend renvoie role "seller", le mock de session utilise "merchant".
+  const isMerchant = user?.role === 'seller' || user?.role === 'merchant'
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
@@ -180,6 +186,12 @@ export default function Home() {
               <a href="#garanties" className="btn gap-2 border border-white/30 bg-white/10 text-primary-content hover:bg-white/20">
                 Nos garanties
               </a>
+              {!isMerchant && (
+                <Link to="/louer-espace" className="btn gap-2 border border-white/30 bg-white/10 text-primary-content hover:bg-white/20">
+                  <Building2 size={18} aria-hidden="true" />
+                  Louer l&apos;espace
+                </Link>
+              )}
             </div>
           </div>
         </section>

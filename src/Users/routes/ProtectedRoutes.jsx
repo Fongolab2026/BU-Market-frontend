@@ -8,7 +8,7 @@ import { MessagesPage } from "../../pages/admin/modules/messages/pages/MessagesP
 import { NotificationsPage } from "../../pages/admin/modules/notifications/pages/NotificationsPage.jsx";
 import { CommandesPage } from "../../pages/admin/modules/orders/pages/CommandesPage.jsx";
 import { ProduitsPage } from "../../pages/admin/modules/products/pages/ProduitsPage.jsx";
-import { DemandesPage } from "../../pages/admin/modules/requests/pages/DemandesPage.jsx";
+import { DemandesLocationPage } from "../../pages/admin/modules/shops/pages/DemandesLocationPage.jsx";
 import { AvisPage } from "../../pages/admin/modules/reviews/pages/AvisPage.jsx";
 import { SettingsPage } from "../../pages/admin/modules/settings/pages/SettingsPage.jsx";
 import { BoutiquesPage } from "../../pages/admin/modules/shops/pages/BoutiquesPage.jsx";
@@ -57,11 +57,11 @@ export const protectedRoutes = [
           { path: "utilisateurs", element: <UsersPage /> },
           { path: "utilisateurs/:userId", element: <UserDetailPage /> },
           { path: "boutiques", element: <BoutiquesPage /> },
+          { path: "demandes-location", element: <DemandesLocationPage /> },
           { path: "produits", element: <ProduitsPage /> },
           { path: "categories", element: <CategoriesPage /> },
           { path: "commandes", element: <CommandesPage /> },
           { path: "avis", element: <AvisPage /> },
-          { path: "demandes", element: <DemandesPage /> },
           { path: "messages", element: <MessagesPage /> },
           { path: "notifications", element: <NotificationsPage /> },
           { path: "parametres", element: <SettingsPage /> },

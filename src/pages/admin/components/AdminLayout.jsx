@@ -37,6 +37,7 @@ const navigationGroups = [
     label: "Catalogue",
     items: [
       { to: "/admin/boutiques", label: "Boutiques", icon: Building2 },
+      { to: "/admin/demandes-location", label: "Demandes location", icon: Building2 },
       { to: "/admin/produits", label: "Produits", icon: Package },
       { to: "/admin/categories", label: "Catégories", icon: Layers },
     ],

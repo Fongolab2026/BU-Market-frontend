@@ -148,6 +148,13 @@ export const endpoints = {
     list: "/shops/shops/",
     detail: (id) => `/shops/shops/${id}/`,
   },
+  boutiques: {
+    list: "/shops/boutiques/",
+    create: "/shops/boutiques/",
+    detail: (id) => `/shops/boutiques/${id}/`,
+    validate: (id) => `/shops/boutiques/${id}/validate/`,
+    reject: (id) => `/shops/boutiques/${id}/reject/`,
+  },
   carts: {
     list: "/carts/carts/",
     create: "/carts/carts/",
