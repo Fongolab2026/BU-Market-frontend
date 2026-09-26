@@ -75,40 +75,42 @@ export default function NavBar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-base-300/70 bg-base-100/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:gap-5">
+    <header className="sticky top-0 z-50 w-full border-b border-base-300/70 bg-base-100/90 shadow-sm shadow-base-content/3 backdrop-blur-xl">
+      <div className="mx-auto flex min-h-18 max-w-7xl items-center gap-3 px-4 sm:gap-5 sm:px-6">
         <Link
           to="/"
-          className="flex shrink-0 items-center gap-2"
+          className="group flex shrink-0 items-center gap-2.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           onClick={() => setMobileOpen(false)}
+          aria-label="BU-Market, accueil"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-content shadow-md">
-            <Store size={22} />
+          <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-content shadow-md shadow-primary/20 transition-transform duration-200 group-hover:-rotate-3 group-hover:scale-105">
+            <Store size={21} strokeWidth={2.2} />
           </span>
-          <span className="hidden text-lg font-bold tracking-tight text-base-content sm:block">
-            BU-<span className="text-primary">Market</span>
+          <span className="hidden text-[17px] font-extrabold tracking-tight text-base-content sm:block">
+            BU<span className="text-primary">Market</span>
           </span>
         </Link>
 
         <nav
-          className="hidden flex-1 justify-center gap-1 md:flex"
+          className="hidden flex-1 justify-center md:flex"
           aria-label="Navigation principale"
         >
-          {NAV_LINKS.map(({ label, path }) => (
-            <Button
-              key={label}
-              type="button"
-              onClick={() => handleNavLink(path)}
-              text
-              className="text-sm font-medium text-base-content/75 hover:text-primary"
-              style={{ minHeight: "auto", padding: "0.5rem 1rem" }}
-            >
-              {label}
-            </Button>
-          ))}
+          <ul className="flex items-center gap-1 rounded-full border border-base-300/70 bg-base-200/55 p-1">
+            {NAV_LINKS.map(({ label, path }) => (
+              <li key={label}>
+                <button
+                  type="button"
+                  onClick={() => handleNavLink(path)}
+                  className="rounded-full px-4 py-2 text-[13px] font-semibold text-base-content/65 transition-colors hover:bg-base-100 hover:text-primary hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  {label}
+                </button>
+              </li>
+            ))}
+          </ul>
         </nav>
 
-        <div className="ml-auto flex items-center gap-1 sm:gap-2">
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           <Button
             type="button"
             onClick={toggleTheme}
@@ -119,7 +121,7 @@ export default function NavBar() {
             }
             text
             rounded
-            className="text-base-content/70"
+            className="flex! size-10! items-center! justify-center! text-base-content/65! transition-colors hover:bg-base-200! hover:text-primary!"
           />
 
           <Button
@@ -129,7 +131,7 @@ export default function NavBar() {
             aria-label="Menu"
             text
             rounded
-            className="!inline-flex text-base-content/70 md:!hidden"
+            className="inline-flex! size-10! items-center! justify-center! text-base-content/65! transition-colors hover:bg-base-200! hover:text-primary! md:hidden!"
           />
 
           {/* Photo / avatar + menu paramètres */}
@@ -137,9 +139,11 @@ export default function NavBar() {
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}
-              className="flex items-center gap-1 rounded-full p-1 transition-colors hover:bg-base-200"
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              className="flex items-center gap-2 rounded-full border border-transparent p-1 pr-2 transition-colors hover:border-base-300/70 hover:bg-base-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20">
+              <span className="relative flex size-9 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20">
                 {profileImage ? (
                   <img src={profileImage} alt="" className="h-full w-full object-cover" />
                 ) : initials ? (
@@ -148,18 +152,18 @@ export default function NavBar() {
                   <User size={20} />
                 )}
               </span>
-              <span className="hidden max-w-28 truncate text-sm font-semibold text-base-content md:block">
+              <span className="hidden max-w-28 truncate text-[13px] font-semibold text-base-content md:block">
                 {displayName}
               </span>
               <ChevronDown
                 size={16}
-                className={`hidden text-base-content/60 transition-transform sm:block ${menuOpen ? "rotate-180" : ""}`}
+                className={`hidden text-base-content/50 transition-transform duration-200 sm:block ${menuOpen ? "rotate-180" : ""}`}
               />
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-60 overflow-hidden rounded-box border border-base-300/70 bg-base-100 shadow-xl">
-                <div className="border-b border-base-300/70 px-4 py-3">
+              <div className="absolute right-0 mt-3 w-64 overflow-hidden rounded-xl border border-base-300/80 bg-base-100 shadow-xl shadow-base-content/10">
+                <div className="border-b border-base-300/70 bg-base-200/40 px-4 py-3.5">
                   <p className="text-sm font-semibold text-base-content">
                     {authenticated ? displayName : "Invité"}
                   </p>
@@ -175,7 +179,8 @@ export default function NavBar() {
                     <Link
                       to="/profil"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 rounded-field px-3 py-2 text-base-content transition-colors hover:bg-base-200"
+                      role="menuitem"
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-base-content/80 transition-colors hover:bg-base-200 hover:text-primary"
                     >
                       <Settings size={18} />
                       Paramètres du profil
@@ -188,7 +193,8 @@ export default function NavBar() {
                         clearTokens();
                         setMenuOpen(false);
                       }}
-                      className="flex items-center gap-3 rounded-field px-3 py-2 text-base-content transition-colors hover:bg-base-200"
+                      role="menuitem"
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-base-content/80 transition-colors hover:bg-base-200 hover:text-primary"
                     >
                       <Repeat size={18} />
                       Changer de compte
@@ -200,7 +206,7 @@ export default function NavBar() {
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-3 rounded-field px-3 py-2 text-sm text-error transition-colors hover:bg-error/10"
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-error transition-colors hover:bg-error/10"
                   >
                     <LogOut size={18} />
                     Déconnexion
@@ -213,19 +219,18 @@ export default function NavBar() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-base-300/70 bg-base-100 px-4 py-3 md:hidden">
-          <nav aria-label="Navigation mobile">
-            <ul className="flex flex-col gap-1">
+        <div className="border-t border-base-300/70 bg-base-100/95 px-4 py-4 shadow-lg shadow-base-content/4 backdrop-blur-xl md:hidden">
+          <nav className="mx-auto max-w-7xl" aria-label="Navigation mobile">
+            <ul className="flex flex-col gap-1.5">
               {NAV_LINKS.map(({ label, path }) => (
                 <li key={label}>
-                  <Button
+                  <button
                     type="button"
                     onClick={() => handleNavLink(path)}
-                    className="w-full justify-start rounded-field px-4 py-2.5 text-base-content/75 hover:text-primary"
-                    text
+                    className="w-full rounded-lg px-4 py-3 text-left text-sm font-semibold text-base-content/75 transition-colors hover:bg-base-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     {label}
-                  </Button>
+                  </button>
                 </li>
               ))}
             </ul>
