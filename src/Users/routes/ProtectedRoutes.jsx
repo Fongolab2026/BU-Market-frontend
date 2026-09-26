@@ -1,4 +1,7 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
+import Home from '../Pages/Home.jsx'
+import DetailProduit from '../Pages/DetailProduit.jsx'
+import { isAuthenticated } from '../../services/api.js'
 import { AdminLayout } from '../../pages/admin/components/AdminLayout.jsx'
 import { ProtectedRoute } from '../../pages/admin/components/ProtectedRoute.jsx'
 import { DashboardPage } from '../../pages/admin/modules/dashboard/pages/DashboardPage.jsx'
@@ -29,7 +32,18 @@ function MerchantRootRedirect() {
   return <Navigate to="/" replace />
 }
 
+function RequireUser() {
+  return isAuthenticated() ? <Outlet /> : <Navigate to="/connexion" replace />
+}
+
 export const protectedRoutes = [
+  {
+    element: <RequireUser />,
+    children: [
+      { index: true, element: <Home /> },
+      { path: 'produit/:id', element: <DetailProduit /> },
+    ],
+  },
   {
     element: <ProtectedRoute allowedRoles={['admin']} />,
     children: [

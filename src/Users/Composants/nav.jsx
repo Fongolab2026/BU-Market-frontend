@@ -17,6 +17,7 @@ import { Button } from 'primereact/button'
 import { Badge } from 'primereact/badge'
 import { isAuthenticated, clearTokens } from '../../services/api'
 import { useTheme } from '../../context/ThemeContext.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 const NAV_LINKS = [
   { label: 'Accueil', path: '/' },
@@ -33,7 +34,12 @@ export default function NavBar() {
   const [favorites] = useState(0)
 
   const { isDark, toggleTheme } = useTheme()
+  const { user, signOut } = useAuth()
   const authenticated = isAuthenticated()
+
+  const displayName = user?.firstName || user?.first_name || user?.username || 'Utilisateur'
+  const initials = user?.initials || `${user?.firstName?.[0] || user?.first_name?.[0] || ''}${user?.lastName?.[0] || user?.last_name?.[0] || ''}`.toUpperCase() || 'U'
+  const profileImage = user?.profile_pic || user?.profilePic || user?.avatar || user?.photo
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -47,6 +53,7 @@ export default function NavBar() {
 
   const handleLogout = () => {
     clearTokens()
+    signOut()
     setMenuOpen(false)
     navigate('/connexion')
   }
@@ -125,37 +132,46 @@ export default function NavBar() {
             className="md:hidden text-base-content/70"
           />
 
-          <div className="relative" ref={menuRef}>
-            <Button
-              type="button"
+          {/* Photo / avatar + menu paramètres */}
+          <div className='relative' ref={menuRef}>
+            <button
+              type='button'
               onClick={() => setMenuOpen((open) => !open)}
-              className="flex items-center gap-1 rounded-full p-1 transition-colors hover:bg-base-200"
-              icon={<span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-primary/20"><User size={20} /></span>}
-              iconPos="left"
+              className='flex items-center gap-1 rounded-full p-1 transition-colors hover:bg-base-200'
             >
+              <span className='flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20'>
+                {profileImage ? (
+                  <img src={profileImage} alt={displayName} className='h-full w-full object-cover' />
+                ) : initials ? (
+                  initials
+                ) : (
+                  <User size={20} />
+                )}
+              </span>
+              <span className='hidden max-w-28 truncate text-sm font-semibold text-base-content md:block'>{displayName}</span>
               <ChevronDown
                 size={16}
                 className={`hidden text-base-content/60 transition-transform sm:block ${menuOpen ? 'rotate-180' : ''}`}
               />
-            </Button>
+            </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-60 overflow-hidden rounded-box border border-base-300/70 bg-base-100 shadow-xl">
-                <div className="border-b border-base-300/70 px-4 py-3">
-                  <p className="text-sm font-semibold text-base-content">
-                    {authenticated ? 'Mon compte' : 'Invité'}
+              <div className='absolute right-0 mt-2 w-60 overflow-hidden rounded-box border border-base-300/70 bg-base-100 shadow-xl'>
+                <div className='border-b border-base-300/70 px-4 py-3'>
+                  <p className='text-sm font-semibold text-base-content'>
+                    {authenticated ? displayName : 'Invité'}
                   </p>
-                  <p className="text-xs text-base-content/60">
-                    {authenticated ? 'Gérer mon espace' : 'Connectez-vous'}
+                  <p className='text-xs text-base-content/60'>
+                    {authenticated ? (user?.email || 'Gérer mon espace') : 'Connectez-vous'}
                   </p>
                 </div>
 
-                <ul className="p-2 text-sm">
+                <ul className='p-2 text-sm'>
                   <li>
                     <Link
                       to="/profil"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 rounded-field px-3 py-2 text-base-content transition-colors hover:bg-base-200"
+                      className='flex items-center gap-3 rounded-field px-3 py-2 text-base-content transition-colors hover:bg-base-200'
                     >
                       <Settings size={18} />
                       Paramètres du profil
@@ -168,7 +184,7 @@ export default function NavBar() {
                         clearTokens()
                         setMenuOpen(false)
                       }}
-                      className="flex items-center gap-3 rounded-field px-3 py-2 text-base-content transition-colors hover:bg-base-200"
+                      className='flex items-center gap-3 rounded-field px-3 py-2 text-base-content transition-colors hover:bg-base-200'
                     >
                       <Repeat size={18} />
                       Changer de compte
@@ -176,11 +192,11 @@ export default function NavBar() {
                   </li>
                 </ul>
 
-                <div className="border-t border-base-300/70 p-2">
+                <div className='border-t border-base-300/70 p-2'>
                   <button
-                    type="button"
+                    type='button'
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-3 rounded-field px-3 py-2 text-sm text-error transition-colors hover:bg-error/10"
+                    className='flex w-full items-center gap-3 rounded-field px-3 py-2 text-sm text-error transition-colors hover:bg-error/10'
                   >
                     <LogOut size={18} />
                     Déconnexion

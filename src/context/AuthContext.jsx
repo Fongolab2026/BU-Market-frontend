@@ -1,4 +1,6 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { authApi } from '../services/authService.js'
+import { getAccessToken } from '../services/api.js'
 
 const AuthContext = createContext(null)
 const SESSION_KEY = 'vima_demo_session'
@@ -23,14 +25,28 @@ function readSession() {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readSession)
-  const isDemo = import.meta.env.VITE_ENABLE_DEMO_ADMIN !== 'false'
+
+  useEffect(() => {
+    // If demo mode or no token, don't fetch
+    if (import.meta.env.VITE_ENABLE_DEMO_ADMIN !== 'false' || !getAccessToken()) return
+    // If we already have a user, don't fetch again
+    if (user) return
+
+    authApi.me()
+      .then(({ data }) => {
+        localStorage.setItem(SESSION_KEY, JSON.stringify(data))
+        setUser(data)
+      })
+      .catch(() => setUser(null))
+  }, [user])
+
   const value = useMemo(() => ({
     user,
-    isDemo,
     signIn: (nextUser) => { localStorage.setItem(SESSION_KEY, JSON.stringify(nextUser)); setUser(nextUser) },
     signOut: () => { localStorage.removeItem(SESSION_KEY); setUser(null) },
     switchDemoRole: (role) => { localStorage.setItem(DEMO_ROLE_KEY, role); signIn(demoUserFor(role)) },
-  }), [user, isDemo])
+  }), [user])
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
