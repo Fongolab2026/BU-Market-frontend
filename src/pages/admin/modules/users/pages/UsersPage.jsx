@@ -7,7 +7,7 @@ import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
 
 const roleLabel = { admin: 'Gestionnaire', merchant: 'Commerçant', client: 'Client' }
-const emptyForm = { firstName: '', lastName: '', email: '', phone: '+257', location: '', role: 'client' }
+const emptyForm = { firstName: '', email: '', phone: '+257', location: '', role: 'client' }
 
 export function UsersPage() {
   const [searchParams] = useSearchParams()
@@ -38,7 +38,7 @@ export function UsersPage() {
     setPage(1)
   }
   const setFormField = (name, value) => setForm((current) => ({ ...current, [name]: value }))
-  const canSubmit = form.firstName.trim() && form.lastName.trim() && form.email.trim() && form.phone.trim()
+  const canSubmit = form.firstName.trim() && form.email.trim() && form.phone.trim()
 
   const handleCreate = async (event) => {
     event.preventDefault()
@@ -60,7 +60,7 @@ export function UsersPage() {
   }
 
   const handleEdit = (user) => {
-    setForm({ firstName: user.firstName, lastName: user.lastName, email: user.email, phone: user.phone, location: user.location, role: user.role })
+    setForm({ firstName: user.firstName, email: user.email, phone: user.phone, location: user.location, role: user.role })
     setEditing(user)
     setShowForm(true)
   }
@@ -149,7 +149,7 @@ export function UsersPage() {
                       <div className="flex items-center gap-3">
                         <span className="grid size-9 place-items-center rounded-full bg-brand/10 text-xs font-semibold text-brand">{user.initials}</span>
                         <div>
-                          <p className="font-semibold text-base-content">{user.firstName} {user.lastName}</p>
+                          <p className="font-semibold text-base-content">{user.firstName}</p>
                           <p className="mt-0.5 text-xs text-base-content/50">{user.email}</p>
                         </div>
                       </div>
@@ -165,10 +165,10 @@ export function UsersPage() {
                         <Link to={`/admin/utilisateurs/${user.id}`} className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-brand hover:bg-brand/10">
                           <Eye size={16} /> Détail
                         </Link>
-                        <button onClick={() => handleEdit(user)} className="rounded-lg p-2 text-base-content/40 transition hover:bg-brand/10 hover:text-brand" aria-label={`Modifier ${user.firstName} ${user.lastName}`}>
+                        <button onClick={() => handleEdit(user)} className="rounded-lg p-2 text-base-content/40 transition hover:bg-brand/10 hover:text-brand" aria-label={`Modifier ${user.firstName}`}>
                           <Pencil size={16} />
                         </button>
-                        <button onClick={() => setDeleteTarget(user)} className="rounded-lg p-2 text-base-content/40 transition hover:bg-rose-50 hover:text-rose-600" aria-label={`Supprimer ${user.firstName} ${user.lastName}`}>
+                        <button onClick={() => setDeleteTarget(user)} className="rounded-lg p-2 text-base-content/40 transition hover:bg-rose-50 hover:text-rose-600" aria-label={`Supprimer ${user.firstName}`}>
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -203,7 +203,7 @@ export function UsersPage() {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         title="Supprimer le compte"
-        message={deleteTarget ? `Le compte de ${deleteTarget.firstName} ${deleteTarget.lastName} sera définitivement supprimé. Cette action est irréversible.` : ''}
+        message={deleteTarget ? `Le compte de ${deleteTarget.firstName} sera définitivement supprimé. Cette action est irréversible.` : ''}
         confirmLabel="Supprimer"
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
@@ -219,7 +219,7 @@ function AddUserModal({ editing, form, setFormField, canSubmit, submitting, onSu
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-bold text-base-content">{editing ? 'Modifier l’utilisateur' : 'Ajouter un utilisateur'}</h2>
-            <p className="mt-1 text-sm text-base-content/55">{editing ? `Mettez à jour le compte de ${editing.firstName} ${editing.lastName}.` : 'Compte fictif, ajouté directement à la liste.'}</p>
+            <p className="mt-1 text-sm text-base-content/55">{editing ? `Mettez à jour le compte de ${editing.firstName}.` : 'Compte fictif, ajouté directement à la liste.'}</p>
           </div>
           <button type="button" onClick={onClose} className="rounded-lg p-2 text-base-content/50 transition hover:bg-base-100" aria-label="Fermer">
             <X size={18} />
@@ -228,7 +228,6 @@ function AddUserModal({ editing, form, setFormField, canSubmit, submitting, onSu
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <ModalField label="Prénom" value={form.firstName} onChange={(value) => setFormField('firstName', value)} placeholder="Ex. Antoine" />
-          <ModalField label="Nom" value={form.lastName} onChange={(value) => setFormField('lastName', value)} placeholder="Ex. Chevalier" />
           <ModalField label="E-mail" type="email" value={form.email} onChange={(value) => setFormField('email', value)} placeholder="exemple@gmail.com" className="sm:col-span-2" />
           <ModalField label="Téléphone" value={form.phone} onChange={(value) => setFormField('phone', value)} placeholder="+257 66 00 00 00" />
           <label className="block">

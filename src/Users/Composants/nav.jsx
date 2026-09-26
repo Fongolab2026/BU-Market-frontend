@@ -35,7 +35,7 @@ export default function NavBar() {
   const authenticated = isAuthenticated()
 
   const displayName = user?.firstName || user?.first_name || user?.username || 'Utilisateur'
-  const initials = user?.initials || `${user?.firstName?.[0] || user?.first_name?.[0] || ''}${user?.lastName?.[0] || user?.last_name?.[0] || ''}`.toUpperCase() || 'U'
+  const initials = user?.initials || `${user?.firstName?.[0] || user?.first_name?.[0] || user?.username?.[0] || ''}`.toUpperCase() || 'U'
   const profileImage = user?.profile_pic || user?.profilePic || user?.avatar || user?.photo
 
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function NavBar() {
             aria-label="Menu"
             text
             rounded
-            className="md:hidden text-base-content/70"
+            className="!inline-flex text-base-content/70 md:!hidden"
           />
 
           {/* Photo / avatar + menu paramètres */}
@@ -127,7 +127,7 @@ export default function NavBar() {
             >
               <span className='flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20'>
                 {profileImage ? (
-                  <img src={profileImage} alt={displayName} className='h-full w-full object-cover' />
+              className="!inline-flex text-base-content/70 md:!hidden"
                 ) : initials ? (
                   initials
                 ) : (

@@ -77,7 +77,7 @@ export default function UnifiedNavbar() {
           </button>
 
           {/* Photo / avatar + menu paramètres */}
-          <div className="relative" ref={menuRef}>
+          <div className="relative md:hidden" ref={menuRef}>
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}

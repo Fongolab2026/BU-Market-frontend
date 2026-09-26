@@ -5,8 +5,8 @@ import { getAccessToken } from '../services/api.js'
 const AuthContext = createContext(null)
 const SESSION_KEY = 'vima_demo_session'
 const DEMO_ROLE_KEY = 'vima_demo_role'
-const demoAdmin = { id: 'usr-admin-001', firstName: 'Julien', lastName: 'Faure', email: 'julien.faure@bumarket.app', role: 'admin', initials: 'JF' }
-const demoMerchant = { id: 'usr-merchant-001', firstName: 'Espoir', lastName: 'Durand', email: 'espoir.durand@bumarket.app', role: 'merchant', initials: 'ED' }
+const demoAdmin = { id: 'usr-admin-001', firstName: 'Julien', email: 'julien.faure@bumarket.app', role: 'admin', initials: 'J' }
+const demoMerchant = { id: 'usr-merchant-001', firstName: 'Espoir', email: 'espoir.durand@bumarket.app', role: 'merchant', initials: 'E' }
 const demoUserFor = (role) => (role === 'merchant' ? demoMerchant : demoAdmin)
 
 function readSession() {

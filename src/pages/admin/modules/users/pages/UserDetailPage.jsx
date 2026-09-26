@@ -107,7 +107,7 @@ export function UserDetailPage() {
       <ConfirmDialog
         open={Boolean(confirm)}
         title={confirm === 'shop' ? 'Supprimer la boutique' : 'Supprimer le compte'}
-        message={confirm === 'shop' ? `La boutique « ${user.shop?.name} » sera supprimée. Cette action est définitive.` : `Le compte de ${user.firstName} ${user.lastName} sera définitivement supprimé.`}
+        message={confirm === 'shop' ? `La boutique « ${user.shop?.name} » sera supprimée. Cette action est définitive.` : `Le compte de ${user.firstName} sera définitivement supprimé.`}
         confirmLabel="Supprimer"
         busy={busy}
         onConfirm={confirm === 'shop' ? handleDeleteShop : handleDeleteUser}
@@ -128,7 +128,7 @@ function IdentityCard({ user }) {
           </span>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight text-base-content sm:text-2xl">{user.firstName} {user.lastName}</h1>
+              <h1 className="text-xl font-bold tracking-tight text-base-content sm:text-2xl">{user.firstName}</h1>
               <UserRoundCheck size={19} className="text-brand" aria-label="Compte vérifié" />
             </div>
             <div className="mt-1.5 flex flex-wrap items-center gap-2">
