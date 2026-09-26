@@ -55,8 +55,8 @@ export function MerchantProductsPage() {
   }, [search, status])
 
   useEffect(() => {
-    categoryApi.list().then((result) => {
-      setCategories(result.results || result)
+    categoryApi.list().then(({ data }) => {
+      setCategories(Array.isArray(data) ? data : data?.results ?? [])
     })
   }, [])
 
@@ -234,6 +234,7 @@ export function MerchantProductsPage() {
 }
 
 function getCategoryName(categoryId, categories) {
+  if (!Array.isArray(categories)) return ''
   const cat = categories.find((c) => c.id === categoryId)
   return cat ? cat.name : ''
 }

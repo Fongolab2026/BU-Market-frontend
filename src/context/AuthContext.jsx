@@ -72,7 +72,9 @@ export function AuthProvider({ children }) {
       },
       switchDemoRole: (role) => {
         localStorage.setItem(DEMO_ROLE_KEY, role);
-        signIn(demoUserFor(role));
+        const nextUser = demoUserFor(role);
+        localStorage.setItem(SESSION_KEY, JSON.stringify(nextUser));
+        setUser(nextUser);
       },
     }),
     [user],

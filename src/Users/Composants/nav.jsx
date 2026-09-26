@@ -141,7 +141,7 @@ export default function NavBar() {
             >
               <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20">
                 {profileImage ? (
-                  (className = "!inline-flex text-base-content/70 md:!hidden")
+                  <img src={profileImage} alt="" className="h-full w-full object-cover" />
                 ) : initials ? (
                   initials
                 ) : (
