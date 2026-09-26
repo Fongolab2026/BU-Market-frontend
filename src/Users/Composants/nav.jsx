@@ -90,7 +90,7 @@ export default function NavBar() {
               key={label}
               type="button"
               onClick={() => handleNavLink(path)}
-              text
+              variant="text"
               className="text-sm font-medium text-base-content/75 hover:text-primary"
               style={{ minHeight: 'auto', padding: '0.5rem 1rem' }}
             >
@@ -117,7 +117,7 @@ export default function NavBar() {
             icon={isDark ? <Sun size={21} /> : <Moon size={21} />}
             title={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
             aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
-            text
+            variant="text"
             rounded
             className="text-base-content/70"
           />
@@ -127,7 +127,7 @@ export default function NavBar() {
             onClick={() => setMobileOpen((v) => !v)}
             icon={mobileOpen ? <X size={22} /> : <Menu size={22} />}
             aria-label="Menu"
-            text
+            variant="text"
             rounded
             className="md:hidden text-base-content/70"
           />
@@ -218,7 +218,7 @@ export default function NavBar() {
                     type="button"
                     onClick={() => handleNavLink(path)}
                     className="w-full justify-start rounded-field px-4 py-2.5 text-base-content/75 hover:text-primary"
-                    text
+                    variant="text"
                   >
                     {label}
                   </Button>

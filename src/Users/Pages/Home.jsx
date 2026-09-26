@@ -23,10 +23,8 @@ import {
   Send,
   Heart,
 } from 'lucide-react'
-import { Card } from 'primereact/card'
 import { Divider } from 'primereact/divider'
 import { Button } from 'primereact/button'
-import { Rating } from 'primereact/rating'
 import { InputText } from 'primereact/inputtext'
 import { Textarea } from 'primereact/textarea'
 import CardProducts from '../products/ui/cardProduct'
@@ -216,7 +214,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {VALUES.map(({ icon: Icon, title, text }) => (
-              <Card
+              <div
                 key={title}
                 className="flex flex-col items-center gap-3 rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
               >
@@ -225,7 +223,7 @@ export default function Home() {
                 </span>
                 <h3 className="font-semibold text-base-content">{title}</h3>
                 <p className="text-sm leading-relaxed text-base-content/60">{text}</p>
-              </Card>
+              </div>
             ))}
           </div>
         </section>
@@ -387,26 +385,26 @@ export default function Home() {
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Card className="rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm">
+                <div className="rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm">
                   <Globe size={32} className="mb-3 text-primary" aria-hidden="true" />
                   <h3 className="font-semibold text-base-content">Livraison internationale</h3>
                   <p className="mt-1 text-sm text-base-content/60">Livraison dans plus de 50 pays à travers le monde.</p>
-                </Card>
-                <Card className="rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm">
+                </div>
+                <div className="rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm">
                   <Users size={32} className="mb-3 text-primary" aria-hidden="true" />
                   <h3 className="font-semibold text-base-content">10 000+ clients</h3>
                   <p className="mt-1 text-sm text-base-content/60">Des milliers d&apos;acheteurs satisfaits chaque mois.</p>
-                </Card>
-                <Card className="rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm">
+                </div>
+                <div className="rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm">
                   <Award size={32} className="mb-3 text-primary" aria-hidden="true" />
                   <h3 className="font-semibold text-base-content">Vendeurs certifiés</h3>
                   <p className="mt-1 text-sm text-base-content/60">Chaque vendeur passe une vérification rigoureuse.</p>
-                </Card>
-                <Card className="rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm">
+                </div>
+                <div className="rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm">
                   <Star size={32} className="mb-3 text-primary" aria-hidden="true" />
                   <h3 className="font-semibold text-base-content">Satisfaction garantie</h3>
                   <p className="mt-1 text-sm text-base-content/60">Toujours satisfait ou remboursé sous 30 jours.</p>
-                </Card>
+                </div>
               </div>
             </div>
           </div>
@@ -441,17 +439,21 @@ export default function Home() {
                 rating: 5,
               },
             ].map(({ name, role, text, rating }) => (
-              <Card
+              <div
                 key={name}
                 className="flex flex-col gap-3 rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
               >
-                <Rating value={rating} readOnly cancel={false} stars={5} className="mb-1" />
+                <div className="mb-1 flex text-amber-500" role="img" aria-label={`${rating} étoiles sur 5`}>
+                  {Array.from({ length: rating }, (_, index) => (
+                    <Star key={index} size={16} fill="currentColor" aria-hidden="true" />
+                  ))}
+                </div>
                 <p className="text-sm leading-relaxed text-base-content/75">&quot;{text}&quot;</p>
                 <div className="mt-auto pt-2">
                   <p className="font-semibold text-base-content">{name}</p>
                   <p className="text-xs text-base-content/50">{role}</p>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         </section>
@@ -514,7 +516,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <Card className="rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm sm:p-8">
+              <div className="rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm sm:p-8">
                 {contactSent ? (
                   <div className="flex flex-col items-center gap-4 py-8 text-center">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/10 text-success">
@@ -582,13 +584,13 @@ export default function Home() {
                         placeholder="Votre message..."
                       />
                     </div>
-                    <Button type="submit" className="mt-2 gap-2" severity="primary">
+                    <Button type="submit" className="mt-2 gap-2" color="primary">
                       <Send size={18} aria-hidden="true" />
                       Envoyer le message
                     </Button>
                   </form>
                 )}
-              </Card>
+              </div>
             </div>
           </div>
         </section>
