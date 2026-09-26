@@ -1,5 +1,5 @@
-import { adminService } from '../../../../../services/mockAdminService.js'
-import { endpoints } from '../../../../../services/api.js'
+import { endpoints } from "../../../../../services/api.js";
+import { adminService } from "../../../../../services/mockAdminService.js";
 
 export const categorieEndpoints = {
   list: endpoints.categories.list,
@@ -7,19 +7,19 @@ export const categorieEndpoints = {
   create: endpoints.categories.create,
   update: (id) => endpoints.categories.update(id),
   remove: (id) => endpoints.categories.delete(id),
-}
+};
 
 export const categoriesService = {
   list: async () => {
-    return await adminService.listCategories()
+    return await adminService.listCategories();
   },
   create: async (input) => {
-    return await adminService.addCategory(input.name)
+    return await adminService.addCategory(input.name);
   },
   update: async (id, input) => {
-    return await adminService.renameCategory(id, input.name)
+    return await adminService.renameCategory(id, input.name);
   },
   remove: async (id) => {
-    return await adminService.removeCategory(id)
+    return await adminService.removeCategory(id);
   },
-}
+};
