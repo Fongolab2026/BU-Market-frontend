@@ -26,7 +26,7 @@ import {
 import { Divider } from 'primereact/divider'
 import { Button } from 'primereact/button'
 import { InputText } from 'primereact/inputtext'
-import { Textarea } from 'primereact/textarea'
+import { InputTextarea } from 'primereact/inputtextarea'
 import CardProducts from '../products/ui/cardProduct'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
@@ -574,7 +574,7 @@ export default function Home() {
                       <label htmlFor="contact-message" className="mb-1 block text-sm font-semibold text-base-content">
                         Message
                       </label>
-                      <Textarea
+                      <InputTextarea
                         id="contact-message"
                         rows={5}
                         required
@@ -584,7 +584,7 @@ export default function Home() {
                         placeholder="Votre message..."
                       />
                     </div>
-                    <Button type="submit" className="mt-2 gap-2" color="primary">
+                    <Button type="submit" className="mt-2 gap-2" severity="primary">
                       <Send size={18} aria-hidden="true" />
                       Envoyer le message
                     </Button>

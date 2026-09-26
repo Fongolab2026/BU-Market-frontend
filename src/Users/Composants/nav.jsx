@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  Heart,
   User,
   Repeat,
   Sun,
@@ -14,7 +13,6 @@ import {
   X,
 } from 'lucide-react'
 import { Button } from 'primereact/button'
-import { Badge } from 'primereact/badge'
 import { isAuthenticated, clearTokens } from '../../services/api'
 import { useTheme } from '../../context/ThemeContext.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
@@ -31,7 +29,6 @@ export default function NavBar() {
   const menuRef = useRef(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [favorites] = useState(0)
 
   const { isDark, toggleTheme } = useTheme()
   const { user, signOut } = useAuth()
@@ -90,7 +87,7 @@ export default function NavBar() {
               key={label}
               type="button"
               onClick={() => handleNavLink(path)}
-              variant="text"
+              text
               className="text-sm font-medium text-base-content/75 hover:text-primary"
               style={{ minHeight: 'auto', padding: '0.5rem 1rem' }}
             >
@@ -100,24 +97,13 @@ export default function NavBar() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
-          <Link
-            to="/favoris"
-            title="Mes favoris"
-            className="btn btn-ghost btn-circle relative"
-          >
-            <Heart size={22} />
-            {favorites > 0 && (
-              <Badge value={favorites} severity="primary" className="absolute right-0 top-0" />
-            )}
-          </Link>
-
           <Button
             type="button"
             onClick={toggleTheme}
             icon={isDark ? <Sun size={21} /> : <Moon size={21} />}
             title={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
             aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
-            variant="text"
+            text
             rounded
             className="text-base-content/70"
           />
@@ -127,7 +113,7 @@ export default function NavBar() {
             onClick={() => setMobileOpen((v) => !v)}
             icon={mobileOpen ? <X size={22} /> : <Menu size={22} />}
             aria-label="Menu"
-            variant="text"
+            text
             rounded
             className="md:hidden text-base-content/70"
           />
@@ -218,7 +204,7 @@ export default function NavBar() {
                     type="button"
                     onClick={() => handleNavLink(path)}
                     className="w-full justify-start rounded-field px-4 py-2.5 text-base-content/75 hover:text-primary"
-                    variant="text"
+                    text
                   >
                     {label}
                   </Button>

@@ -10,15 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@primereact/core": "^11.1.0",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.101.4",
     "@tanstack/react-query-devtools": "^5.101.4",
     "axios": "^1.18.1",
     "lucide-react": "^1.47.0",
     "opencode-runtime-fallback": "^0.2.4",
-    "primeicons": "^8.0.2",
-    "primereact": "^11.1.0",
+    "primeicons": "^7.0.0",
+    "primereact": "^10.9.9",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.83.0",
