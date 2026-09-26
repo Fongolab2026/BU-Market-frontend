@@ -1,4 +1,5 @@
-import { apiGet, apiPost, apiPatch, apiDelete, endpoints } from '../../../../../services/api.js'
+import { adminService } from '../../../../../services/mockAdminService.js'
+import { endpoints } from '../../../../../services/api.js'
 
 export const parametreEndpoints = {
   get: endpoints.admin.settings,
@@ -8,18 +9,18 @@ export const parametreEndpoints = {
 
 export const parametresService = {
   get: async () => {
-    return await apiGet(endpoints.admin.settings)
+    return await adminService.getSettings()
   },
   update: async (nextSettings) => {
-    return await apiPatch(endpoints.admin.settings, nextSettings)
+    return await adminService.updateSettings(nextSettings)
   },
   addCategory: async (name) => {
-    return await apiPost(endpoints.categories.create, { name })
+    return await adminService.addCategory(name)
   },
   renameCategory: async (id, name) => {
-    return await apiPatch(endpoints.categories.detail(id), { name })
+    return await adminService.renameCategory(id, name)
   },
   removeCategory: async (id) => {
-    return await apiDelete(endpoints.categories.delete(id))
+    return await adminService.removeCategory(id)
   },
 }

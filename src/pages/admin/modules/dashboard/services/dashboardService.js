@@ -1,4 +1,5 @@
-import { apiGet, endpoints } from '../../../../../services/api.js'
+import { adminService } from '../../../../../services/mockAdminService.js'
+import { endpoints } from '../../../../../services/api.js'
 
 export const dashboardEndpoints = {
   stats: endpoints.admin.stats,
@@ -7,12 +8,5 @@ export const dashboardEndpoints = {
 }
 
 export const dashboardService = {
-  get: async () => {
-    const [stats, activity, moderationQueue] = await Promise.all([
-      apiGet(endpoints.admin.stats),
-      apiGet(endpoints.admin.activity),
-      apiGet(endpoints.admin.moderationQueue),
-    ])
-    return { stats, activity, moderationQueue }
-  },
+  get: async () => adminService.getDashboard(),
 }

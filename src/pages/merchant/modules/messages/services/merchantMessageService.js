@@ -1,4 +1,5 @@
-import { apiGet, apiPost, apiPatch, endpoints } from '../../../../../services/api.js'
+import { merchantService } from '../../../../../services/mockMerchantService.js'
+import { endpoints } from '../../../../../services/api.js'
 
 export const merchantMessageEndpoints = {
   list: endpoints.messages.list,
@@ -10,15 +11,15 @@ export const merchantMessageEndpoints = {
 export const merchantMessageService = {
   list: async ({ query = '', page = 1, perPage = 20 } = {}) => {
     const params = { search: query, page, per_page: perPage }
-    return await apiGet(endpoints.messages.list, params)
+    return await merchantService.listConversations(params)
   },
   conversations: async () => {
-    return await apiGet(endpoints.messages.conversations)
+    return await merchantService.listConversations()
   },
   send: async (data) => {
-    return await apiPost(endpoints.messages.create, data)
+    return await merchantService.sendMessage(data.conversationId, data.content)
   },
   markRead: async (id) => {
-    return await apiPatch(endpoints.messages.markRead(id))
+    return await merchantService.markConversationRead(id)
   },
 }

@@ -1,4 +1,5 @@
-import { apiGet, apiPost, apiPatch, apiDelete, endpoints } from '../../../../../services/api.js'
+import { adminService } from '../../../../../services/mockAdminService.js'
+import { endpoints } from '../../../../../services/api.js'
 
 export const categorieEndpoints = {
   list: endpoints.categories.list,
@@ -10,15 +11,15 @@ export const categorieEndpoints = {
 
 export const categoriesService = {
   list: async () => {
-    return await apiGet(endpoints.categories.list)
+    return await adminService.listCategories()
   },
   create: async (input) => {
-    return await apiPost(endpoints.categories.create, input)
+    return await adminService.addCategory(input.name)
   },
   update: async (id, input) => {
-    return await apiPatch(endpoints.categories.update(id), input)
+    return await adminService.renameCategory(id, input.name)
   },
   remove: async (id) => {
-    return await apiDelete(endpoints.categories.delete(id))
+    return await adminService.removeCategory(id)
   },
 }

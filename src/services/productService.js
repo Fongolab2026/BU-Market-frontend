@@ -1,4 +1,4 @@
-import api, { endpoints } from './api'
+import api, { endpoints } from "./api";
 
 export const productApi = {
   list: (params) => api.get(endpoints.products.list, { params }),
@@ -7,4 +7,4 @@ export const productApi = {
   update: (id, data) => api.put(endpoints.products.update(id), data),
   partialUpdate: (id, data) => api.patch(endpoints.products.update(id), data),
   remove: (id) => api.delete(endpoints.products.delete(id)),
-}
+};

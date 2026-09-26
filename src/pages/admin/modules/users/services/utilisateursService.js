@@ -1,4 +1,5 @@
-import { apiGet, apiPost, apiPatch, apiDelete, endpoints } from '../../../../../services/api.js'
+import { adminService } from '../../../../../services/mockAdminService.js'
+import { endpoints } from '../../../../../services/api.js'
 
 export const utilisateurEndpoints = {
   list: endpoints.users.list,
@@ -12,21 +13,21 @@ export const utilisateurEndpoints = {
 export const utilisateursService = {
   list: async ({ query = '', role = 'all', status = 'all', page = 1, perPage = 20 } = {}) => {
     const params = { search: query, role, status, page, per_page: perPage }
-    return await apiGet(endpoints.users.list, params)
+    return await adminService.listUsers({ ...params, perPage })
   },
   detail: async (id) => {
-    return await apiGet(endpoints.users.detail(id))
+    return await adminService.getUser(id)
   },
   create: async (input) => {
-    return await apiPost(endpoints.users.create, input)
+    return await adminService.createUser(input)
   },
   update: async (id, input) => {
-    return await apiPatch(endpoints.users.update(id), input)
+    return await adminService.updateUser(id, input)
   },
   updateStatus: async (id, status) => {
-    return await apiPatch(endpoints.users.setStatus(id), { status })
+    return await adminService.updateUserStatus(id, status)
   },
   remove: async (id) => {
-    return await apiDelete(endpoints.users.delete(id))
+    return await adminService.deleteUser(id)
   },
 }

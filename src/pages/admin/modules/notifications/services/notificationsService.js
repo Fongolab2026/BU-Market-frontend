@@ -1,4 +1,5 @@
-import { apiGet, apiPatch, apiDelete, endpoints } from '../../../../../services/api.js'
+import { adminService } from '../../../../../services/mockAdminService.js'
+import { endpoints } from '../../../../../services/api.js'
 
 export const notificationEndpoints = {
   list: endpoints.notifications.list,
@@ -10,12 +11,12 @@ export const notificationEndpoints = {
 export const notificationsService = {
   list: async ({ query = '', page = 1, perPage = 20 } = {}) => {
     const params = { search: query, page, per_page: perPage }
-    return await apiGet(endpoints.notifications.list, params)
+    return await adminService.listNotifications({ ...params, perPage })
   },
   markRead: async (id) => {
-    return await apiPatch(endpoints.notifications.markRead(id))
+    return await adminService.markNotificationRead(id)
   },
   remove: async (id) => {
-    return await apiDelete(endpoints.notifications.detail(id))
+    return await adminService.deleteNotification(id)
   },
 }

@@ -157,6 +157,11 @@ export const merchantService = {
     return wait(order)
   },
   listCategories: () => wait(categories),
+  createCategory: (input) => {
+    const category = { id: `cat-${Date.now().toString(36)}`, name: input.name, slug: input.name.toLowerCase().replace(/\s+/g, '-'), description: input.description || '', icon: '', productCount: 0, active: true }
+    categories.push(category)
+    return wait(category)
+  },
   updateCategory: (id, input) => {
     const index = categories.findIndex((c) => c.id === id)
     if (index !== -1) {
@@ -164,6 +169,11 @@ export const merchantService = {
       return wait(categories[index])
     }
     return wait(null)
+  },
+  deleteCategory: (id) => {
+    const index = categories.findIndex((category) => category.id === id)
+    if (index !== -1) categories.splice(index, 1)
+    return wait(true)
   },
   listCompetitorShops: () => wait(competitorShops),
 }

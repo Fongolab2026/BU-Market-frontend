@@ -1,16 +1,16 @@
-import { apiGet, apiPost, apiPatch, apiDelete, endpoints } from '../../../../../services/api.js'
+import { merchantService } from '../../../../../services/mockMerchantService.js'
 
 export const merchantCategoryService = {
   list: async () => {
-    return await apiGet(endpoints.categories.list)
+    return await merchantService.listCategories()
   },
   create: async (input) => {
-    return await apiPost(endpoints.categories.create, input)
+    return await merchantService.createCategory(input)
   },
   update: async (id, input) => {
-    return await apiPatch(endpoints.categories.update(id), input)
+    return await merchantService.updateCategory(id, input)
   },
   remove: async (id) => {
-    return await apiDelete(endpoints.categories.delete(id))
+    return await merchantService.deleteCategory(id)
   },
 }

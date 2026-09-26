@@ -296,6 +296,14 @@ export const adminService = {
     if (product) product.status = status
     return wait(user)
   },
+  updateAnyProductStatus: (productId, status) => {
+    const user = users.find((item) => item.shop?.productList.some((product) => product.id === productId))
+    return adminService.updateProductStatus(user?.shop?.id, productId, status)
+  },
+  deleteAnyProduct: (productId) => {
+    const user = users.find((item) => item.shop?.productList.some((product) => product.id === productId))
+    return adminService.deleteProduct(user?.shop?.id, productId)
+  },
   createProduct: (shopId, input) => {
     const user = users.find((item) => item.shop?.id === shopId)
     if (user?.shop) {
@@ -329,6 +337,14 @@ export const adminService = {
     const review = user?.shop?.reviewList.find((item) => item.id === reviewId)
     if (review) review.status = status
     return wait(user)
+  },
+  updateAnyReviewStatus: (reviewId, status) => {
+    const user = users.find((item) => item.shop?.reviewList.some((review) => review.id === reviewId))
+    return adminService.updateReviewStatus(user?.shop?.id, reviewId, status)
+  },
+  deleteAnyReview: (reviewId) => {
+    const user = users.find((item) => item.shop?.reviewList.some((review) => review.id === reviewId))
+    return adminService.deleteReview(user?.shop?.id, reviewId)
   },
   deleteReview: (shopId, reviewId) => {
     const user = users.find((item) => item.shop?.id === shopId)

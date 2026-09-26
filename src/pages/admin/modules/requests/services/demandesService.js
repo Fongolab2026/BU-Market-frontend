@@ -1,4 +1,4 @@
-import { apiGet, apiPatch } from '../../../../../services/api.js'
+import { adminService } from '../../../../../services/mockAdminService.js'
 
 export const demandeEndpoints = {
   list: '/publications/publications/',
@@ -10,12 +10,12 @@ export const demandeEndpoints = {
 export const demandesService = {
   list: async ({ query = '', status = 'all', page = 1, perPage = 20 } = {}) => {
     const params = { search: query, status, page, per_page: perPage }
-    return await apiGet(demandeEndpoints.list, params)
+    return await adminService.listRequests({ ...params, perPage })
   },
   approve: async (id) => {
-    return await apiPatch(demandeEndpoints.approve(id))
+    return await adminService.updateRequestStatus(id, 'approved')
   },
   reject: async (id) => {
-    return await apiPatch(demandeEndpoints.reject(id))
+    return await adminService.updateRequestStatus(id, 'rejected')
   },
 }

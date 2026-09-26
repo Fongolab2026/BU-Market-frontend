@@ -1,166 +1,172 @@
-import axios from 'axios'
+import axios from "axios";
 
-const apiBaseURL = import.meta.env.VITE_API_URL || ''
+const apiBaseURL = import.meta.env.VITE_API_URL || "";
 
-export const API_URL = apiBaseURL || window.location.origin
+export const API_URL = apiBaseURL || window.location.origin;
 
 export const TOKEN_KEYS = {
-  access: 'access_token',
-  refresh: 'refresh_token',
-}
+  access: "access_token",
+  refresh: "refresh_token",
+};
 
-export const getAccessToken = () => localStorage.getItem(TOKEN_KEYS.access)
-export const getRefreshToken = () => localStorage.getItem(TOKEN_KEYS.refresh)
+export const getAccessToken = () => localStorage.getItem(TOKEN_KEYS.access);
+export const getRefreshToken = () => localStorage.getItem(TOKEN_KEYS.refresh);
 
 export const setTokens = ({ access, refresh }) => {
-  if (access) localStorage.setItem(TOKEN_KEYS.access, access)
-  if (refresh) localStorage.setItem(TOKEN_KEYS.refresh, refresh)
-}
+  if (access) localStorage.setItem(TOKEN_KEYS.access, access);
+  if (refresh) localStorage.setItem(TOKEN_KEYS.refresh, refresh);
+};
 
 export const clearTokens = () => {
-  localStorage.removeItem(TOKEN_KEYS.access)
-  localStorage.removeItem(TOKEN_KEYS.refresh)
-}
+  localStorage.removeItem(TOKEN_KEYS.access);
+  localStorage.removeItem(TOKEN_KEYS.refresh);
+};
 
-export const isAuthenticated = () => Boolean(getAccessToken())
+export const isAuthenticated = () => Boolean(getAccessToken());
 
 const api = axios.create({
   baseURL: `${API_URL}/api`,
   timeout: 15000,
-})
+});
 
 api.interceptors.request.use((config) => {
-  const token = getAccessToken()
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+  const token = getAccessToken();
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
-let refreshRequest = null
+let refreshRequest = null;
 
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const { config, response } = error
-    const isAuthUrl = config?.url?.includes('/auth/login/') || config?.url?.includes('/auth/refresh/')
+    const { config, response } = error;
+    const isAuthUrl =
+      config?.url?.includes("/auth/login/") ||
+      config?.url?.includes("/auth/refresh/");
     if (!response || response.status !== 401 || isAuthUrl || config._retried) {
-      throw error
+      throw error;
     }
 
-    const refreshToken = getRefreshToken()
+    const refreshToken = getRefreshToken();
     if (!refreshToken) {
-      clearTokens()
-      throw error
+      clearTokens();
+      throw error;
     }
 
-    config._retried = true
+    config._retried = true;
 
     const refreshAccessToken = async () => {
       try {
-        const { data } = await api.post(endpoints.auth.refresh, { refresh: refreshToken })
-        setTokens(data)
-        return data.access
+        const { data } = await api.post(endpoints.auth.refresh, {
+          refresh: refreshToken,
+        });
+        setTokens(data);
+        return data.access;
       } catch (err) {
-        clearTokens()
-        throw err
+        clearTokens();
+        throw err;
       } finally {
-        refreshRequest = null
+        refreshRequest = null;
       }
-    }
+    };
 
-    const access = await (refreshRequest || (refreshRequest = refreshAccessToken()))
-    config.headers.Authorization = `Bearer ${access}`
-    return api(config)
+    const access = await (refreshRequest ||
+      (refreshRequest = refreshAccessToken()));
+    config.headers.Authorization = `Bearer ${access}`;
+    return api(config);
   },
-)
+);
 
-export default api
+export default api;
 
 export const endpoints = {
   auth: {
-    login: '/auth/login/',
-    refresh: '/auth/refresh/',
-    me: '/users/users/me/',
+    login: "/auth/login/",
+    refresh: "/auth/refresh/",
+    me: "/users/users/me/",
   },
   users: {
-    list: '/users/users/',
-    create: '/users/users/',
+    list: "/users/users/",
+    create: "/users/users/",
     detail: (id) => `/users/users/${id}/`,
     delete: (id) => `/users/users/${id}/`,
     setStatus: (id) => `/users/users/${id}/status/`,
   },
   products: {
-    list: '/products/products/',
-    create: '/products/products/',
+    list: "/products/products/",
+    create: "/products/products/",
     detail: (id) => `/products/products/${id}/`,
     update: (id) => `/products/products/${id}/`,
     delete: (id) => `/products/products/${id}/`,
     setStatus: (id) => `/products/products/${id}/status/`,
   },
   categories: {
-    list: '/categories/categories/',
-    create: '/categories/categories/',
+    list: "/categories/categories/",
+    create: "/categories/categories/",
     detail: (id) => `/categories/categories/${id}/`,
     update: (id) => `/categories/categories/${id}/`,
     delete: (id) => `/categories/categories/${id}/`,
   },
   orders: {
-    list: '/orders/orders/',
+    list: "/orders/orders/",
     detail: (id) => `/orders/orders/${id}/`,
     setStatus: (id) => `/orders/orders/${id}/status/`,
     items: (orderId) => `/orders/orders/${orderId}/items/`,
   },
   messages: {
-    list: '/messages/messages/',
-    create: '/messages/messages/',
+    list: "/messages/messages/",
+    create: "/messages/messages/",
     detail: (id) => `/messages/messages/${id}/`,
     markRead: (id) => `/messages/messages/${id}/read/`,
-    readAll: '/messages/messages/read-all/',
-    inbox: '/messages/messages/inbox/',
-    sent: '/messages/messages/sent/',
-    conversations: '/messages/messages/conversations/',
+    readAll: "/messages/messages/read-all/",
+    inbox: "/messages/messages/inbox/",
+    sent: "/messages/messages/sent/",
+    conversations: "/messages/messages/conversations/",
     conversation: (userId) => `/messages/messages/conversation/${userId}/`,
   },
   notifications: {
-    list: '/notifications/notifications/',
+    list: "/notifications/notifications/",
     detail: (id) => `/notifications/notifications/${id}/`,
     markRead: (id) => `/notifications/notifications/${id}/read/`,
-    markAllRead: '/notifications/notifications/mark_all_read/',
+    markAllRead: "/notifications/notifications/mark_all_read/",
   },
   favorites: {
-    list: '/favorites/favorites/',
-    create: '/favorites/favorites/',
+    list: "/favorites/favorites/",
+    create: "/favorites/favorites/",
     detail: (id) => `/favorites/favorites/${id}/`,
     delete: (id) => `/favorites/favorites/${id}/`,
   },
   reviews: {
-    list: '/favorites/reviews/',
+    list: "/favorites/reviews/",
     detail: (id) => `/favorites/reviews/${id}/`,
     hide: (id) => `/favorites/reviews/${id}/hide/`,
     reveal: (id) => `/favorites/reviews/${id}/reveal/`,
     delete: (id) => `/favorites/reviews/${id}/`,
   },
   shops: {
-    list: '/shops/shops/',
+    list: "/shops/shops/",
     detail: (id) => `/shops/shops/${id}/`,
   },
   carts: {
-    list: '/carts/carts/',
-    create: '/carts/carts/',
+    list: "/carts/carts/",
+    create: "/carts/carts/",
     detail: (id) => `/carts/carts/${id}/`,
-    items: '/carts/cart-items/',
+    items: "/carts/cart-items/",
     itemDetail: (id) => `/carts/cart-items/${id}/`,
   },
   admin: {
-    stats: '/admin/admin/stats/',
-    activity: '/admin/admin/activity/',
-    moderationQueue: '/admin/admin/moderation-queue/',
-    meta: '/admin/admin/meta/',
-    settings: '/admin/admin/settings/',
+    stats: "/admin/admin/stats/",
+    activity: "/admin/admin/activity/",
+    moderationQueue: "/admin/admin/moderation-queue/",
+    meta: "/admin/admin/meta/",
+    settings: "/admin/admin/settings/",
   },
-}
+};
 
-export const apiGet = (url, params) => api.get(url, { params }).then((r) => r.data)
-export const apiPost = (url, data) => api.post(url, data).then((r) => r.data)
-export const apiPatch = (url, data) => api.patch(url, data).then((r) => r.data)
-export const apiPut = (url, data) => api.put(url, data).then((r) => r.data)
-export const apiDelete = (url) => api.delete(url).then((r) => r.data)
+export const apiGet = (url, params) =>
+  api.get(url, { params }).then((r) => r.data);
+export const apiPost = (url, data) => api.post(url, data).then((r) => r.data);
+export const apiPatch = (url, data) => api.patch(url, data).then((r) => r.data);
+export const apiPut = (url, data) => api.put(url, data).then((r) => r.data);
+export const apiDelete = (url) => api.delete(url).then((r) => r.data);

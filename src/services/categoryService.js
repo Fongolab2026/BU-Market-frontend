@@ -1,4 +1,4 @@
-import api, { endpoints } from './api'
+import api, { endpoints } from "./api";
 
 export const categoryApi = {
   list: (params) => api.get(endpoints.categories.list, { params }),
@@ -7,4 +7,4 @@ export const categoryApi = {
   update: (id, data) => api.put(endpoints.categories.update(id), data),
   partialUpdate: (id, data) => api.patch(endpoints.categories.update(id), data),
   remove: (id) => api.delete(endpoints.categories.delete(id)),
-}
+};

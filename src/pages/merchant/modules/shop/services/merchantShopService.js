@@ -1,4 +1,5 @@
-import { apiGet, apiPost, apiPatch, endpoints } from '../../../../../services/api.js'
+import { merchantService } from '../../../../../services/mockMerchantService.js'
+import { endpoints } from '../../../../../services/api.js'
 
 export const merchantShopEndpoints = {
   detail: endpoints.shops.list,
@@ -8,12 +9,12 @@ export const merchantShopEndpoints = {
 
 export const merchantShopService = {
   get: async () => {
-    return await apiGet(endpoints.shops.list)
+    return await merchantService.getMyShop()
   },
   create: async (input) => {
-    return await apiPost(endpoints.shops.list, input)
+    return await merchantService.createShop(input)
   },
   update: async (input) => {
-    return await apiPatch(endpoints.shops.detail(input.id), input)
+    return await merchantService.updateShop(input)
   },
 }

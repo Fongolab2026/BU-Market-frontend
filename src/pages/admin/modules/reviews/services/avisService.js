@@ -1,4 +1,5 @@
-import { apiGet, apiPatch, apiDelete, endpoints } from '../../../../../services/api.js'
+import { adminService } from '../../../../../services/mockAdminService.js'
+import { endpoints } from '../../../../../services/api.js'
 
 export const avisEndpoints = {
   list: endpoints.reviews.list,
@@ -11,13 +12,12 @@ export const avisEndpoints = {
 export const avisService = {
   list: async ({ query = '', status = 'all', page = 1, perPage = 20 } = {}) => {
     const params = { search: query, status, page, per_page: perPage }
-    return await apiGet(endpoints.reviews.list, params)
+    return await adminService.listReviews({ ...params, perPage })
   },
-  updateStatus: async (id, status) => {
-    const endpoint = status === 'hidden' ? avisEndpoints.hide(id) : avisEndpoints.reveal(id)
-    return await apiPatch(endpoint)
+  updateStatus: async (shopId, id, status) => {
+    return await adminService.updateReviewStatus(shopId, id, status)
   },
   remove: async (id) => {
-    return await apiDelete(avisEndpoints.remove(id))
+    return await adminService.deleteAnyReview(id)
   },
 }

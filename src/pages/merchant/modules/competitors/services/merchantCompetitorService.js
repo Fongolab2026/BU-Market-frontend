@@ -1,7 +1,7 @@
-import { apiGet } from '../../../../../services/api.js'
+import { merchantService } from '../../../../../services/mockMerchantService.js'
 
 export const merchantCompetitorService = {
   list: async () => {
-    return await apiGet('/shops/shops/')
+    return await merchantService.listCompetitorShops()
   },
 }

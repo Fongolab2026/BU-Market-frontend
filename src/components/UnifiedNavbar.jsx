@@ -1,53 +1,69 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
 import {
-  Heart,
-  User,
-  Repeat,
-  Sun,
-  Moon,
-  LogOut,
-  Settings,
   ChevronDown,
-  Store,
+  Heart,
   LayoutDashboard,
+  LogOut,
+  Menu,
+  Moon,
   Package,
-} from 'lucide-react'
-import { useAuth } from '../context/AuthContext.jsx'
-import { useTheme } from '../context/ThemeContext.jsx'
+  Repeat,
+  Settings,
+  Store,
+  Sun,
+  User,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
+import { useTheme } from "../context/ThemeContext.jsx";
 
-export default function UnifiedNavbar() {
-  const navigate = useNavigate()
-  const menuRef = useRef(null)
-  const [menuOpen, setMenuOpen] = useState(false)
+export default function UnifiedNavbar({ onOpenMenu }) {
+  const navigate = useNavigate();
+  const menuRef = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const { isDark, toggleTheme } = useTheme()
-  const { user, signOut, isDemo, switchDemoRole } = useAuth()
-  const authenticated = !!user
+  const { isDark, toggleTheme } = useTheme();
+  const { user, signOut, isDemo, switchDemoRole } = useAuth();
+  const authenticated = !!user;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setMenuOpen(false)
+        setMenuOpen(false);
       }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
-    signOut()
-    setMenuOpen(false)
-    navigate('/')
-  }
+    signOut();
+    setMenuOpen(false);
+    navigate("/");
+  };
 
-  const currentRole = user?.role
+  const currentRole = user?.role;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-base-300/70 bg-base-100/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:gap-5">
+        {onOpenMenu && (
+          <button
+            type="button"
+            onClick={onOpenMenu}
+            className="btn btn-ghost btn-circle lg:hidden"
+            aria-label="Ouvrir le menu"
+          >
+            <Menu size={22} />
+          </button>
+        )}
+
         {/* Logo + titre */}
-        <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="Accueil BU-Market">
+        <Link
+          to="/"
+          className="flex shrink-0 items-center gap-2"
+          aria-label="Accueil BU-Market"
+        >
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-content shadow-md">
             <Store size={22} />
           </span>
@@ -69,15 +85,17 @@ export default function UnifiedNavbar() {
           <button
             type="button"
             onClick={toggleTheme}
-            title={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
-            aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
+            title={isDark ? "Activer le mode clair" : "Activer le mode sombre"}
+            aria-label={
+              isDark ? "Activer le mode clair" : "Activer le mode sombre"
+            }
             className="btn btn-ghost btn-circle"
           >
             {isDark ? <Sun size={21} /> : <Moon size={21} />}
           </button>
 
           {/* Photo / avatar + menu paramètres */}
-          <div className="relative md:hidden" ref={menuRef}>
+          <div className="relative" ref={menuRef}>
             <button
               type="button"
               onClick={() => setMenuOpen((open) => !open)}
@@ -88,7 +106,7 @@ export default function UnifiedNavbar() {
               </span>
               <ChevronDown
                 size={16}
-                className={`hidden text-base-content/60 transition-transform sm:block ${menuOpen ? 'rotate-180' : ''}`}
+                className={`hidden text-base-content/60 transition-transform sm:block ${menuOpen ? "rotate-180" : ""}`}
               />
             </button>
 
@@ -97,18 +115,20 @@ export default function UnifiedNavbar() {
                 <div className="border-b border-base-300/70 px-4 py-3">
                   <p className="text-sm font-semibold text-base-content">
                     {authenticated
-                      ? currentRole === 'admin' ? 'Administrateur'
-                      : currentRole === 'merchant' ? 'Commerçant'
-                      : 'Mon compte'
-                      : 'Invité'}
+                      ? currentRole === "admin"
+                        ? "Administrateur"
+                        : currentRole === "merchant"
+                          ? "Commerçant"
+                          : "Mon compte"
+                      : "Invité"}
                   </p>
                   <p className="text-xs text-base-content/60">
-                    {authenticated ? 'Gérer mon espace' : 'Connectez-vous'}
+                    {authenticated ? "Gérer mon espace" : "Connectez-vous"}
                   </p>
                 </div>
 
                 <ul className="p-2 text-sm">
-                  {authenticated && currentRole === 'admin' && (
+                  {authenticated && currentRole === "admin" && (
                     <>
                       <li>
                         <Link
@@ -122,7 +142,7 @@ export default function UnifiedNavbar() {
                       </li>
                     </>
                   )}
-                  {authenticated && currentRole === 'merchant' && (
+                  {authenticated && currentRole === "merchant" && (
                     <>
                       <li>
                         <Link
@@ -150,8 +170,8 @@ export default function UnifiedNavbar() {
                     <Link
                       to="/connexion"
                       onClick={() => {
-                        signOut()
-                        setMenuOpen(false)
+                        signOut();
+                        setMenuOpen(false);
                       }}
                       className="flex items-center gap-3 rounded-field px-3 py-2 text-base-content transition-colors hover:bg-base-200"
                     >
@@ -164,15 +184,27 @@ export default function UnifiedNavbar() {
                       <button
                         type="button"
                         onClick={() => {
-                          const newRole = currentRole === 'admin' ? 'merchant' : 'admin'
-                          switchDemoRole(newRole)
-                          navigate(newRole === 'merchant' ? '/marchand/tableau-de-bord' : '/admin/tableau-de-bord')
-                          setMenuOpen(false)
+                          const newRole =
+                            currentRole === "admin" ? "merchant" : "admin";
+                          switchDemoRole(newRole);
+                          navigate(
+                            newRole === "merchant"
+                              ? "/marchand/tableau-de-bord"
+                              : "/admin/tableau-de-bord",
+                          );
+                          setMenuOpen(false);
                         }}
                         className="flex w-full items-center gap-3 rounded-field px-3 py-2 text-base-content transition-colors hover:bg-base-200"
                       >
-                        {currentRole === 'admin' ? <Package size={18} /> : <LayoutDashboard size={18} />}
-                        Basculer en mode {currentRole === 'admin' ? 'Commerçant' : 'Administrateur'}
+                        {currentRole === "admin" ? (
+                          <Package size={18} />
+                        ) : (
+                          <LayoutDashboard size={18} />
+                        )}
+                        Basculer en mode{" "}
+                        {currentRole === "admin"
+                          ? "Commerçant"
+                          : "Administrateur"}
                       </button>
                     </li>
                   )}
@@ -194,5 +226,5 @@ export default function UnifiedNavbar() {
         </div>
       </div>
     </header>
-  )
+  );
 }
