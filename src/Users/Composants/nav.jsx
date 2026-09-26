@@ -35,7 +35,7 @@ export default function NavBar() {
   const authenticated = isAuthenticated()
 
   const displayName = user?.firstName || user?.first_name || user?.username || 'Utilisateur'
-  const initials = user?.initials || `${user?.firstName?.[0] || user?.first_name?.[0] || ''}${user?.lastName?.[0] || user?.last_name?.[0] || ''}`.toUpperCase() || 'U'
+  const initials = user?.initials || `${user?.firstName?.[0] || user?.first_name?.[0] || user?.username?.[0] || ''}`.toUpperCase() || 'U'
   const profileImage = user?.profile_pic || user?.profilePic || user?.avatar || user?.photo
 
   useEffect(() => {

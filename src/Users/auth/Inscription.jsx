@@ -11,7 +11,6 @@ export default function Inscription() {
     username: '',
     email: '',
     first_name: '',
-    last_name: '',
     phone: '',
     adresse: '',
     profile_pic: null,
@@ -61,7 +60,6 @@ export default function Inscription() {
     if (!formData.email.trim()) newErrors.email = "Email requis"
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Email invalide"
     if (!formData.first_name.trim()) newErrors.first_name = "Prénom requis"
-    if (!formData.last_name.trim()) newErrors.last_name = "Nom requis"
     if (formData.phone && !/^\+?\d{8,15}$/.test(formData.phone)) newErrors.phone = "Format: +33612345678 ou 0612345678"
     if (!formData.password) newErrors.password = "Mot de passe requis"
     else if (formData.password.length < 8) newErrors.password = "8 caractères minimum"
@@ -151,7 +149,7 @@ export default function Inscription() {
           </div>
         </section>
 
-        <section className='mx-auto w-full max-w-md p-7 sm:p-10 lg:p-14'>
+        <section className='mx-auto w-full max-w-2xl p-6 sm:p-8 lg:p-10'>
           <div className='mb-8 lg:hidden'>
             <Link to='/inscription' className='inline-flex items-center gap-2 text-lg font-bold text-base-content'>
               <span className='flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-content'><Store size={20} /></span>
@@ -166,7 +164,7 @@ export default function Inscription() {
 
           {errors.general && <div className='alert alert-error mb-5 text-sm'>{errors.general}</div>}
 
-          <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+          <form className='flex flex-col gap-6' onSubmit={handleSubmit}>
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-bold text-base-content' htmlFor='username'>Nom d&apos;utilisateur</label>
@@ -180,18 +178,11 @@ export default function Inscription() {
               </div>
             </div>
             <div className='grid gap-4 sm:grid-cols-2'>
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-bold text-base-content' htmlFor='last_name'>Nom</label>
-                <input id='last_name' className={`input input-lg w-full ${errors.last_name ? 'input-error' : ''}`} type='text' name='last_name' placeholder='Nom' value={formData.last_name} onChange={handleChange} required />
-                {errors.last_name && <p className='text-xs text-error'>{errors.last_name}</p>}
-              </div>
-              <div className='flex flex-col gap-2'>
+              <div className='flex flex-col gap-2 sm:col-span-2'>
                 <label className='text-sm font-bold text-base-content' htmlFor='email'>Adresse e-mail</label>
                 <input id='email' className={`input input-lg w-full ${errors.email ? 'input-error' : ''}`} type='email' name='email' placeholder='vous@exemple.com' value={formData.email} onChange={handleChange} required />
                 {errors.email && <p className='text-xs text-error'>{errors.email}</p>}
               </div>
-            </div>
-            <div className='grid gap-4 sm:grid-cols-2'>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-bold text-base-content' htmlFor='phone'>Téléphone</label>
                 <input id='phone' className={`input input-lg w-full ${errors.phone ? 'input-error' : ''}`} type='tel' name='phone' placeholder='+33 6 12 34 56 78' value={formData.phone} onChange={handlePhoneChange} />
@@ -203,27 +194,31 @@ export default function Inscription() {
                 <input id='adresse' className='input input-lg w-full' type='text' name='adresse' placeholder='Votre adresse' value={formData.adresse} onChange={handleChange} />
               </div>
             </div>
+
+            <div className='border-t border-base-300 pt-5'>
+              <h2 className='mb-4 text-sm font-bold uppercase tracking-wider text-base-content/70'>Sécurité du compte</h2>
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-bold text-base-content' htmlFor='password'>Mot de passe</label>
                 <div className='relative'>
                   <input id='password' className={`input input-lg w-full pr-12 ${errors.password ? 'input-error' : ''}`} type={showPassword ? 'text' : 'password'} name='password' placeholder='Mot de passe (8 min.)' value={formData.password} onChange={handleChange} required />
-                  {errors.password && <p className='text-xs text-error'>{errors.password}</p>}
                   <button type='button' onClick={() => setShowPassword((visible) => !visible)} className='btn btn-ghost btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2' aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}>
                     {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                   </button>
                 </div>
+                {errors.password && <p className='text-xs text-error'>{errors.password}</p>}
               </div>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-bold text-base-content' htmlFor='password_confirm'>Confirmation</label>
                 <div className='relative'>
                   <input id='password_confirm' className={`input input-lg w-full pr-12 ${errors.password_confirm ? 'input-error' : ''}`} type={showConfirmation ? 'text' : 'password'} name='password_confirm' placeholder='Répétez le mot de passe' value={formData.password_confirm} onChange={handleChange} required />
-                  {errors.password_confirm && <p className='text-xs text-error'>{errors.password_confirm}</p>}
                   <button type='button' onClick={() => setShowConfirmation((visible) => !visible)} className='btn btn-ghost btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2' aria-label={showConfirmation ? 'Masquer la confirmation' : 'Afficher la confirmation'}>
                     {showConfirmation ? <EyeOff size={17} /> : <Eye size={17} />}
                   </button>
                 </div>
+                {errors.password_confirm && <p className='text-xs text-error'>{errors.password_confirm}</p>}
               </div>
+            </div>
             </div>
             <button className='btn btn-primary mt-3 w-full gap-2' type='submit' disabled={loading}>
               {loading ? 'Inscription...' : "Créer mon compte"}

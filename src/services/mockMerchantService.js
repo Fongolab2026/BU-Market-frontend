@@ -2,7 +2,7 @@ const wait = (value, delay = 180) => new Promise((resolve) => setTimeout(() => r
 
 const formatPrice = (value) => String(Number(value) || 0).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 
-const demoMerchant = { id: 'usr-merchant-001', firstName: 'Espoir', lastName: 'Durand', initials: 'ED', role: 'merchant' }
+const demoMerchant = { id: 'usr-merchant-001', firstName: 'Espoir', initials: 'E', role: 'merchant' }
 
 let shop = {
   id: 'shop-merchant-001',

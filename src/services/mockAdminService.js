@@ -33,7 +33,7 @@ const timeline = (entries) => entries.map(([label, date, kind], index) => ({ id:
 
 const users = [
   {
-    id: 'usr-001', firstName: 'Espoir', lastName: 'Durand', initials: 'ED', email: 'espoir.durand@gmail.com', phone: '+257 79 45 62 18', role: 'merchant', status: 'active', joinedAt: '15 fév. 2026', lastActive: 'Il y a 12 min', location: 'Bujumbura, Rohero',
+    id: 'usr-001', firstName: 'Espoir', initials: 'E', email: 'espoir.durand@gmail.com', phone: '+257 79 45 62 18', role: 'merchant', status: 'active', joinedAt: '15 fév. 2026', lastActive: 'Il y a 12 min', location: 'Bujumbura, Rohero',
     shop: shop({
       id: 'shop-041', name: 'Maison Claire', category: 'Alimentation', status: 'validated', rating: 4.8, reviewCount: 46, createdAt: '18 fév. 2026', description: 'Épicerie fine : huiles, épices et condiments sélectionnés avec soin.', views: '8 426', messages: 184, products: 32,
       productList: [
@@ -50,7 +50,7 @@ const users = [
     timeline: timeline([['Compte créé', '15 fév. 2026', 'account'], ['Boutique « Maison Claire » inscrite', '18 fév. 2026', 'shop'], ['Boutique validée', '20 fév. 2026', 'validation'], ['32 produits publiés', '10 sept. 2026', 'products'], ['46 avis reçus', '12 sept. 2026', 'reviews'], ['Dernière connexion', 'Il y a 12 min', 'login']]),
   },
   {
-    id: 'usr-002', firstName: 'Benoît', lastName: 'Lambert', initials: 'BL', email: 'benoit.lambert@gmail.com', phone: '+257 68 31 29 90', role: 'merchant', status: 'active', joinedAt: '22 jan. 2026', lastActive: 'Il y a 1 h', location: 'Bujumbura, Kinindo',
+    id: 'usr-002', firstName: 'Benoît', initials: 'B', email: 'benoit.lambert@gmail.com', phone: '+257 68 31 29 90', role: 'merchant', status: 'active', joinedAt: '22 jan. 2026', lastActive: 'Il y a 1 h', location: 'Bujumbura, Kinindo',
     shop: shop({
       id: 'shop-038', name: 'Boutique Blanche', category: 'Mode & accessoires', status: 'validated', rating: 4.6, reviewCount: 27, createdAt: '12 fév. 2026', description: 'Vêtements et accessoires textiles, modernes et authentiques.', views: '5 912', messages: 102, products: 18,
       productList: [
@@ -66,7 +66,7 @@ const users = [
     timeline: timeline([['Compte créé', '22 jan. 2026', 'account'], ['Boutique « Boutique Blanche » inscrite', '12 fév. 2026', 'shop'], ['Boutique validée', '15 fév. 2026', 'validation'], ['18 produits publiés', '06 sept. 2026', 'products'], ['27 avis reçus', '08 sept. 2026', 'reviews'], ['Dernière connexion', 'Il y a 1 h', 'login']]),
   },
   {
-    id: 'usr-003', firstName: 'François', lastName: 'Mercier', initials: 'FM', email: 'francois.mercier@outlook.com', phone: '+257 71 99 42 54', role: 'merchant', status: 'pending', joinedAt: '05 sept. 2026', lastActive: 'Hier', location: 'Bujumbura, Nyakabiga',
+    id: 'usr-003', firstName: 'François', initials: 'F', email: 'francois.mercier@outlook.com', phone: '+257 71 99 42 54', role: 'merchant', status: 'pending', joinedAt: '05 sept. 2026', lastActive: 'Hier', location: 'Bujumbura, Nyakabiga',
     shop: shop({
       id: 'shop-104', name: 'Atelier Jade', category: 'Artisanat', status: 'pending', rating: null, reviewCount: 0, createdAt: '05 sept. 2026', description: 'Atelier d’artisanat contemporain : luminaires, paniers et objets décoratifs.', views: '0', messages: 0, products: 7,
       productList: [
@@ -78,9 +78,9 @@ const users = [
     }),
     timeline: timeline([['Compte créé', '05 sept. 2026', 'account'], ['Boutique « Atelier Jade » inscrite', '05 sept. 2026', 'shop'], ['7 produits publiés', '07 sept. 2026', 'products'], ['En attente de validation', 'Aujourd’hui', 'pending'], ['Dernière connexion', 'Hier', 'login']]),
   },
-  { id: 'usr-004', firstName: 'Jules', lastName: 'Bernard', initials: 'JB', email: 'jules.bernard@gmail.com', phone: '+257 76 88 10 15', role: 'client', status: 'active', joinedAt: '02 sept. 2026', lastActive: 'Il y a 2 jours', location: 'Bujumbura, Bwiza', shop: null, timeline: timeline([['Compte créé', '02 sept. 2026', 'account'], ['Dernière connexion', 'Il y a 2 jours', 'login']]) },
+  { id: 'usr-004', firstName: 'Jules', initials: 'J', email: 'jules.bernard@gmail.com', phone: '+257 76 88 10 15', role: 'client', status: 'active', joinedAt: '02 sept. 2026', lastActive: 'Il y a 2 jours', location: 'Bujumbura, Bwiza', shop: null, timeline: timeline([['Compte créé', '02 sept. 2026', 'account'], ['Dernière connexion', 'Il y a 2 jours', 'login']]) },
   {
-    id: 'usr-005', firstName: 'Camille', lastName: 'Lefèvre', initials: 'CL', email: 'camille.lefevre@gmail.com', phone: '+257 62 45 56 60', role: 'merchant', status: 'suspended', joinedAt: '20 fév. 2026', lastActive: 'Il y a 6 jours', location: 'Bujumbura, Mutanga',
+    id: 'usr-005', firstName: 'Camille', initials: 'C', email: 'camille.lefevre@gmail.com', phone: '+257 62 45 56 60', role: 'merchant', status: 'suspended', joinedAt: '20 fév. 2026', lastActive: 'Il y a 6 jours', location: 'Bujumbura, Mutanga',
     shop: shop({
       id: 'shop-019', name: 'Maison Dorée', category: 'Maison & décoration', status: 'suspended', rating: 3.9, reviewCount: 8, createdAt: '03 mars 2026', description: 'Objets de décoration et petit mobilier pour embellir le quotidien.', views: '2 111', messages: 31, products: 9,
       productList: [
@@ -96,9 +96,9 @@ const users = [
     }),
     timeline: timeline([['Compte créé', '20 fév. 2026', 'account'], ['Boutique « Maison Dorée » inscrite', '03 mars 2026', 'shop'], ['Boutique validée', '05 mars 2026', 'validation'], ['2 signalements reçus', '10 août 2026', 'reviews'], ['Compte suspendu', '27 août 2026', 'suspension'], ['Dernière connexion', 'Il y a 6 jours', 'login']]),
   },
-  { id: 'usr-006', firstName: 'Margaux', lastName: 'Petit', initials: 'MP', email: 'margaux.petit@gmail.com', phone: '+257 69 00 42 36', role: 'client', status: 'active', joinedAt: '25 août 2026', lastActive: 'Il y a 1 semaine', location: 'Bujumbura, Buyenzi', shop: null, timeline: timeline([['Compte créé', '25 août 2026', 'account'], ['Dernière connexion', 'Il y a 1 semaine', 'login']]) },
+  { id: 'usr-006', firstName: 'Margaux', initials: 'M', email: 'margaux.petit@gmail.com', phone: '+257 69 00 42 36', role: 'client', status: 'active', joinedAt: '25 août 2026', lastActive: 'Il y a 1 semaine', location: 'Bujumbura, Buyenzi', shop: null, timeline: timeline([['Compte créé', '25 août 2026', 'account'], ['Dernière connexion', 'Il y a 1 semaine', 'login']]) },
   {
-    id: 'usr-007', firstName: 'Martin', lastName: 'Duval', initials: 'MD', email: 'martin.duval@gmail.com', phone: '+257 67 12 34 56', role: 'merchant', status: 'active', joinedAt: '20 avr. 2026', lastActive: 'Aujourd’hui, 07:30', location: 'Gitega',
+    id: 'usr-007', firstName: 'Martin', initials: 'M', email: 'martin.duval@gmail.com', phone: '+257 67 12 34 56', role: 'merchant', status: 'active', joinedAt: '20 avr. 2026', lastActive: 'Aujourd’hui, 07:30', location: 'Gitega',
     shop: shop({
       id: 'shop-029', name: 'Coin Électro', category: 'Électronique', status: 'validated', rating: 4.2, reviewCount: 15, createdAt: '25 avr. 2026', description: 'Accessoires électroniques et petit électroménager à prix serrés.', views: '4 380', messages: 58, products: 24,
       productList: [
@@ -113,10 +113,10 @@ const users = [
     }),
     timeline: timeline([['Compte créé', '20 avr. 2026', 'account'], ['Boutique « Coin Électro » inscrite', '25 avr. 2026', 'shop'], ['Boutique validée', '28 avr. 2026', 'validation'], ['24 produits publiés', '01 sept. 2026', 'products'], ['15 avis reçus', '05 sept. 2026', 'reviews'], ['Dernière connexion', 'Aujourd’hui, 07:30', 'login']]),
   },
-  { id: 'usr-008', firstName: 'Noémie', lastName: 'Girard', initials: 'NG', email: 'noemie.girard@outlook.com', phone: '+257 61 33 11 08', role: 'client', status: 'active', joinedAt: '18 août 2026', lastActive: 'Il y a 3 jours', location: 'Bujumbura, Kamenge', shop: null, timeline: timeline([['Compte créé', '18 août 2026', 'account'], ['Dernière connexion', 'Il y a 3 jours', 'login']]) },
-  { id: 'usr-009', firstName: 'Élodie', lastName: 'Fournier', initials: 'EF', email: 'elodie.fournier@gmail.com', phone: '+257 75 45 78 30', role: 'client', status: 'active', joinedAt: '11 août 2026', lastActive: 'Il y a 5 jours', location: 'Ngozi', shop: null, timeline: timeline([['Compte créé', '11 août 2026', 'account'], ['Dernière connexion', 'Il y a 5 jours', 'login']]) },
+  { id: 'usr-008', firstName: 'Noémie', initials: 'N', email: 'noemie.girard@outlook.com', phone: '+257 61 33 11 08', role: 'client', status: 'active', joinedAt: '18 août 2026', lastActive: 'Il y a 3 jours', location: 'Bujumbura, Kamenge', shop: null, timeline: timeline([['Compte créé', '18 août 2026', 'account'], ['Dernière connexion', 'Il y a 3 jours', 'login']]) },
+  { id: 'usr-009', firstName: 'Élodie', initials: 'E', email: 'elodie.fournier@gmail.com', phone: '+257 75 45 78 30', role: 'client', status: 'active', joinedAt: '11 août 2026', lastActive: 'Il y a 5 jours', location: 'Ngozi', shop: null, timeline: timeline([['Compte créé', '11 août 2026', 'account'], ['Dernière connexion', 'Il y a 5 jours', 'login']]) },
   {
-    id: 'usr-010', firstName: 'Théo', lastName: 'Rousseau', initials: 'TR', email: 'theo.rousseau@gmail.com', phone: '+257 70 84 51 12', role: 'merchant', status: 'pending', joinedAt: '07 août 2026', lastActive: 'Hier', location: 'Muyinga',
+    id: 'usr-010', firstName: 'Théo', initials: 'T', email: 'theo.rousseau@gmail.com', phone: '+257 70 84 51 12', role: 'merchant', status: 'pending', joinedAt: '07 août 2026', lastActive: 'Hier', location: 'Muyinga',
     shop: shop({
       id: 'shop-087', name: 'Forge de Bronze', category: 'Artisanat', status: 'pending', rating: null, reviewCount: 0, createdAt: '12 août 2026', description: 'Objets en bronze fabriqués à la main.', views: '0', messages: 4, products: 11,
       productList: [
@@ -128,9 +128,9 @@ const users = [
     }),
     timeline: timeline([['Compte créé', '07 août 2026', 'account'], ['Boutique « Forge de Bronze » inscrite', '12 août 2026', 'shop'], ['11 produits publiés', '15 août 2026', 'products'], ['En attente de validation', 'Aujourd’hui', 'pending'], ['Dernière connexion', 'Hier', 'login']]),
   },
-  { id: 'usr-011', firstName: 'Liliane', lastName: 'Marchand', initials: 'LM', email: 'liliane.marchand@gmail.com', phone: '+257 74 14 22 65', role: 'client', status: 'active', joinedAt: '01 août 2026', lastActive: 'Il y a 1 semaine', location: 'Bujumbura, Kanyosha', shop: null, timeline: timeline([['Compte créé', '01 août 2026', 'account'], ['Dernière connexion', 'Il y a 1 semaine', 'login']]) },
+  { id: 'usr-011', firstName: 'Liliane', initials: 'L', email: 'liliane.marchand@gmail.com', phone: '+257 74 14 22 65', role: 'client', status: 'active', joinedAt: '01 août 2026', lastActive: 'Il y a 1 semaine', location: 'Bujumbura, Kanyosha', shop: null, timeline: timeline([['Compte créé', '01 août 2026', 'account'], ['Dernière connexion', 'Il y a 1 semaine', 'login']]) },
   {
-    id: 'usr-012', firstName: 'Lucas', lastName: 'Renard', initials: 'LR', email: 'lucas.renard@gmail.com', phone: '+257 65 20 99 40', role: 'merchant', status: 'active', joinedAt: '02 juin 2026', lastActive: 'Aujourd’hui, 09:15', location: 'Kayanza',
+    id: 'usr-012', firstName: 'Lucas', initials: 'L', email: 'lucas.renard@gmail.com', phone: '+257 65 20 99 40', role: 'merchant', status: 'active', joinedAt: '02 juin 2026', lastActive: 'Aujourd’hui, 09:15', location: 'Kayanza',
     shop: shop({
       id: 'shop-011', name: 'Cuirs Nobles', category: 'Mode & accessoires', status: 'validated', rating: 4.7, reviewCount: 22, createdAt: '10 juin 2026', description: 'Maroquinerie et bijoux artisanaux en cuir.', views: '6 240', messages: 87, products: 15,
       productList: [
@@ -145,9 +145,9 @@ const users = [
     }),
     timeline: timeline([['Compte créé', '02 juin 2026', 'account'], ['Boutique « Cuirs Nobles » inscrite', '10 juin 2026', 'shop'], ['Boutique validée', '12 juin 2026', 'validation'], ['15 produits publiés', '03 sept. 2026', 'products'], ['22 avis reçus', '06 sept. 2026', 'reviews'], ['Dernière connexion', 'Aujourd’hui, 09:15', 'login']]),
   },
-  { id: 'usr-013', firstName: 'Célia', lastName: 'Fontaine', initials: 'CF', email: 'celia.fontaine@gmail.com', phone: '+257 72 55 80 21', role: 'client', status: 'suspended', joinedAt: '15 juil. 2026', lastActive: 'Il y a 2 semaines', location: 'Rumonge', shop: null, timeline: timeline([['Compte créé', '15 juil. 2026', 'account'], ['Dernière connexion', 'Il y a 2 semaines', 'login']]) },
+  { id: 'usr-013', firstName: 'Célia', initials: 'C', email: 'celia.fontaine@gmail.com', phone: '+257 72 55 80 21', role: 'client', status: 'suspended', joinedAt: '15 juil. 2026', lastActive: 'Il y a 2 semaines', location: 'Rumonge', shop: null, timeline: timeline([['Compte créé', '15 juil. 2026', 'account'], ['Dernière connexion', 'Il y a 2 semaines', 'login']]) },
   {
-    id: 'usr-014', firstName: 'Paul', lastName: 'Garnier', initials: 'PG', email: 'paul.garnier@gmail.com', phone: '+257 77 21 46 09', role: 'merchant', status: 'suspended', joinedAt: '10 juin 2026', lastActive: 'Il y a 3 semaines', location: 'Cibitoke',
+    id: 'usr-014', firstName: 'Paul', initials: 'P', email: 'paul.garnier@gmail.com', phone: '+257 77 21 46 09', role: 'merchant', status: 'suspended', joinedAt: '10 juin 2026', lastActive: 'Il y a 3 semaines', location: 'Cibitoke',
     shop: shop({
       id: 'shop-055', name: 'Saveurs du Terroir', category: 'Alimentation', status: 'suspended', rating: 3.5, reviewCount: 4, createdAt: '19 juin 2026', description: 'Grossiste en produits d’épicerie et boissons.', views: '980', messages: 12, products: 6,
       productList: [
@@ -162,7 +162,7 @@ const users = [
     }),
     timeline: timeline([['Compte créé', '10 juin 2026', 'account'], ['Boutique « Saveurs du Terroir » inscrite', '19 juin 2026', 'shop'], ['Boutique validée', '22 juin 2026', 'validation'], ['Compte suspendu', '03 juil. 2026', 'suspension'], ['Dernière connexion', 'Il y a 3 semaines', 'login']]),
   },
-  { id: 'usr-015', firstName: 'Anaïs', lastName: 'Roussel', initials: 'AR', email: 'anais.roussel@gmail.com', phone: '+257 66 50 29 21', role: 'client', status: 'active', joinedAt: '20 juin 2026', lastActive: 'Il y a 1 semaine', location: 'Bujumbura, Kigobe', shop: null, timeline: timeline([['Compte créé', '20 juin 2026', 'account'], ['Dernière connexion', 'Il y a 1 semaine', 'login']]) },
+  { id: 'usr-015', firstName: 'Anaïs', initials: 'A', email: 'anais.roussel@gmail.com', phone: '+257 66 50 29 21', role: 'client', status: 'active', joinedAt: '20 juin 2026', lastActive: 'Il y a 1 semaine', location: 'Bujumbura, Kigobe', shop: null, timeline: timeline([['Compte créé', '20 juin 2026', 'account'], ['Dernière connexion', 'Il y a 1 semaine', 'login']]) },
 ]
 
 const publicationRequests = [
@@ -231,7 +231,7 @@ export const adminService = {
   listUsers: ({ query = '', role = 'all', status = 'all', page = 1, perPage = 5 } = {}) => {
     const normalizedQuery = query.trim().toLowerCase()
     const filtered = users.filter((user) => {
-      const content = `${user.firstName} ${user.lastName} ${user.email} ${user.shop?.name || ''}`.toLowerCase()
+      const content = `${user.firstName} ${user.email} ${user.shop?.name || ''}`.toLowerCase()
       const matchesQuery = !normalizedQuery || content.includes(normalizedQuery)
       const matchesRole = role === 'all' || user.role === role
       const matchesStatus = status === 'all' || user.status === status
@@ -246,11 +246,10 @@ export const adminService = {
   },
   getUser: (id) => wait(users.find((user) => user.id === id) || null),
   createUser: (input) => {
-    const initials = `${(input.firstName || '').trim()[0] || ''}${(input.lastName || '').trim()[0] || ''}`.toUpperCase()
+    const initials = `${(input.firstName || '').trim()[0] || ''}`.toUpperCase()
     const user = {
       id: `usr-${Date.now().toString(36)}`,
       firstName: input.firstName.trim(),
-      lastName: input.lastName.trim(),
       initials,
       email: input.email.trim(),
       phone: input.phone.trim(),
@@ -343,8 +342,7 @@ export const adminService = {
     const user = users.find((item) => item.id === id)
     if (user) {
       user.firstName = input.firstName.trim()
-      user.lastName = input.lastName.trim()
-      user.initials = `${(user.firstName[0] || '').toUpperCase()}${(user.lastName[0] || '').toUpperCase()}`
+      user.initials = `${(user.firstName[0] || '').toUpperCase()}`
       user.email = input.email.trim()
       user.phone = input.phone.trim()
       user.role = input.role
@@ -378,7 +376,7 @@ export const adminService = {
     const normalizedQuery = query.trim().toLowerCase()
     const shops = users
       .filter((user) => user.shop)
-      .map((user) => ({ ...user.shop, ownerId: user.id, owner: `${user.firstName} ${user.lastName}`, ownerInitials: user.initials }))
+      .map((user) => ({ ...user.shop, ownerId: user.id, owner: `${user.firstName}`, ownerInitials: user.initials }))
     const filtered = shops.filter((shop) => {
       const content = `${shop.name} ${shop.category} ${shop.owner}`.toLowerCase()
       const matchesQuery = !normalizedQuery || content.includes(normalizedQuery)
