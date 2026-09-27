@@ -5,6 +5,9 @@ import { authApi } from "../services/authService.js";
 const AuthContext = createContext(null);
 const SESSION_KEY = "vima_demo_session";
 const DEMO_ROLE_KEY = "vima_demo_role";
+// Le mode démo est opt-in : sans VITE_ENABLE_DEMO_ADMIN=true, la vraie session
+// JWT est utilisée.
+const DEMO_ENABLED = import.meta.env.VITE_ENABLE_DEMO_ADMIN === "true";
 const demoAdmin = {
   id: "usr-admin-001",
   firstName: "Julien",
@@ -22,7 +25,7 @@ const demoMerchant = {
 const demoUserFor = (role) => (role === "merchant" ? demoMerchant : demoAdmin);
 
 function readSession() {
-  if (import.meta.env.VITE_ENABLE_DEMO_ADMIN !== "false") {
+  if (DEMO_ENABLED) {
     const role =
       localStorage.getItem(DEMO_ROLE_KEY) === "merchant" ? "merchant" : "admin";
     const user = demoUserFor(role);
@@ -43,21 +46,39 @@ function readSession() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readSession);
 
+  // À chaque rechargement de page, on resynchronise la session avec le backend :
+  // le profil mis en cache peut être incomplet (champ manquant) ou périmé.
   useEffect(() => {
-    // If demo mode or no token, don't fetch
-    if (import.meta.env.VITE_ENABLE_DEMO_ADMIN !== "false" || !getAccessToken())
-      return;
-    // If we already have a user, don't fetch again
-    if (user) return;
+    if (DEMO_ENABLED) return;
 
+    if (!getAccessToken()) {
+      localStorage.removeItem(SESSION_KEY);
+      setUser(null);
+      return;
+    }
+
+    let cancelled = false;
     authApi
       .me()
       .then(({ data }) => {
+        if (cancelled) return;
         localStorage.setItem(SESSION_KEY, JSON.stringify(data));
         setUser(data);
       })
-      .catch(() => setUser(null));
-  }, [user]);
+      .catch((err) => {
+        if (cancelled) return;
+        // 401/403 : le jeton n'est plus valable, on déconnecte vraiment.
+        // Autre erreur (réseau, 5xx) : on garde la session en cache plutôt que
+        // de déconnecter l'utilisateur pour une panne passagère.
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          localStorage.removeItem(SESSION_KEY);
+          setUser(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const value = useMemo(
     () => ({
