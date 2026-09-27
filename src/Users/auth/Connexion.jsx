@@ -14,6 +14,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useTheme } from "../../context/ThemeContext.jsx";
 import { authApi, setTokens } from "../../services";
+import { resolveRole } from "../../utils/roles.js";
 
 export default function Connexion() {
   const navigate = useNavigate();
@@ -44,9 +45,16 @@ export default function Connexion() {
           profile = { username: formData.username };
         }
       }
-      signIn(profile);
+      const role = resolveRole(profile);
+      signIn({ ...profile, role });
       toast.success("Connexion réussie");
-      navigate("/");
+      if (role === "admin") {
+        navigate("/admin/tableau-de-bord", { replace: true });
+      } else if (role === "merchant") {
+        navigate("/marchand/tableau-de-bord", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     } catch (err) {
       const detail = err.response?.data?.detail;
       setError(detail || "Nom d'utilisateur ou mot de passe incorrect");

@@ -30,7 +30,10 @@ export const demandesLocationService = {
     });
     return boutiques.map(mapBoutique);
   },
-  validate: async (id) => mapBoutique(await apiPatch(demandesLocationEndpoints.validate(id), {})),
+  validate: async (id) => {
+    const boutique = await apiPatch(demandesLocationEndpoints.validate(id), {});
+    return mapBoutique(boutique);
+  },
   reject: async (id) => mapBoutique(await apiPatch(demandesLocationEndpoints.reject(id), {})),
   pendingCount: async () => {
     const response = await apiGet(demandesLocationEndpoints.pendingCount);

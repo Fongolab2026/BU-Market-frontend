@@ -4,6 +4,9 @@ import toast from 'react-hot-toast'
 import { demandesLocationService } from '../services/demandesLocationService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import { useAuth } from '../../../../../context/AuthContext.jsx'
+import { authApi } from '../../../../../services/authService.js'
+import { useNavigate } from 'react-router-dom'
 
 const STATUS_LABELS = {
   pending: { label: 'En attente', class: 'bg-yellow-100 text-yellow-700' },
@@ -13,6 +16,8 @@ const STATUS_LABELS = {
 }
 
 export function DemandesLocationPage() {
+  const { user, signIn } = useAuth()
+  const navigate = useNavigate()
   const [demandes, setDemandes] = useState([])
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1 })
   const [search, setSearch] = useState('')
@@ -43,12 +48,28 @@ export function DemandesLocationPage() {
 
   const reload = () => setReloadToken((token) => token + 1)
 
+  const checkAndRedirectIfCurrentUser = async (boutique) => {
+    // Check if the validated boutique belongs to the current user
+    if (user && boutique.owner && boutique.owner.id === user.id) {
+      // Refresh user profile to get updated role
+      try {
+        const { data: profile } = await authApi.me()
+        signIn(profile)
+        toast.success('Votre boutique a été validée ! Redirection vers votre espace commerçant…')
+        setTimeout(() => navigate('/marchand/tableau-de-bord', { replace: true }), 1000)
+      } catch (err) {
+        console.error('Erreur mise à jour profil:', err)
+      }
+    }
+  }
+
   const handleValidate = async (demande) => {
     setValidateTarget(demande.id)
     try {
-      await demandesLocationService.validate(demande.id)
+      const boutique = await demandesLocationService.validate(demande.id)
       toast.success('Demande validée : le commerçant est promu')
       reload()
+      await checkAndRedirectIfCurrentUser(boutique)
     } catch (err) {
       console.error('Erreur validation demande:', err)
       toast.error('Erreur lors de la validation')

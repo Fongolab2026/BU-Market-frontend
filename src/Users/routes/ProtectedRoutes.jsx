@@ -1,5 +1,4 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext.jsx";
 import { AdminLayout } from "../../pages/admin/components/AdminLayout.jsx";
 import { ProtectedRoute } from "../../pages/admin/components/ProtectedRoute.jsx";
 import { CategoriesPage } from "../../pages/admin/modules/categories/pages/CategoriesPage.jsx";
@@ -26,13 +25,6 @@ import { MerchantShopPage } from "../../pages/merchant/modules/shop/pages/Mercha
 import { isAuthenticated } from "../../services/api.js";
 import DetailProduit from "../Pages/DetailProduit.jsx";
 import Home from "../Pages/Home.jsx";
-
-function MerchantRootRedirect() {
-  const { user } = useAuth();
-  if (user?.role === "merchant")
-    return <Navigate to="/marchand/tableau-de-bord" replace />;
-  return <Navigate to="/" replace />;
-}
 
 function RequireUser() {
   return isAuthenticated() ? <Outlet /> : <Navigate to="/connexion" replace />;
@@ -86,20 +78,33 @@ export const protectedRoutes = [
     ],
   },
   {
+    path: "marchand",
+    element: <Outlet />,
     children: [
-      { path: "/", element: <MerchantRootRedirect /> },
+      { index: true, element: <Navigate to="connexion" replace /> },
+      { path: "connexion", element: <Navigate to="/connexion" replace /> },
       {
-        path: "marchand",
-        element: <MerchantLayout />,
+        element: (
+          <ProtectedRoute
+            allowedRoles={["merchant"]}
+            loginPath="/connexion"
+            deniedPath="/connexion"
+          />
+        ),
         children: [
-          { index: true, element: <Navigate to="tableau-de-bord" replace /> },
-          { path: "tableau-de-bord", element: <MerchantDashboardPage /> },
-          { path: "boutique", element: <MerchantShopPage /> },
-          { path: "produits", element: <MerchantProductsPage /> },
-          { path: "commandes", element: <MerchantOrdersPage /> },
-          { path: "messages", element: <MerchantMessagesPage /> },
-          { path: "categories", element: <MerchantCategoriesPage /> },
-          { path: "concurrents", element: <MerchantCompetitorsPage /> },
+          {
+            element: <MerchantLayout />,
+            children: [
+              { index: true, element: <Navigate to="tableau-de-bord" replace /> },
+              { path: "tableau-de-bord", element: <MerchantDashboardPage /> },
+              { path: "boutique", element: <MerchantShopPage /> },
+              { path: "produits", element: <MerchantProductsPage /> },
+              { path: "commandes", element: <MerchantOrdersPage /> },
+              { path: "messages", element: <MerchantMessagesPage /> },
+              { path: "categories", element: <MerchantCategoriesPage /> },
+              { path: "concurrents", element: <MerchantCompetitorsPage /> },
+            ],
+          },
         ],
       },
     ],
