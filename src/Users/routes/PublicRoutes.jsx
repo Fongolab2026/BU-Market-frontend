@@ -3,6 +3,7 @@ import Connexion from "../auth/Connexion.jsx";
 import LouerEspace from "../Pages/LouerEspace.jsx";
 import ConfirmationLocation from "../Pages/ConfirmationLocation.jsx";
 import PageErreur from "../Pages/PageErreur.jsx";
+import RequireNoOpenRequest from "./RequireNoOpenRequest.jsx";
 
 export const publicRoutes = [
     {
@@ -15,7 +16,11 @@ export const publicRoutes = [
     },
     {
         path: "louer-espace",
-        element: <LouerEspace />
+        element: (
+            <RequireNoOpenRequest>
+                <LouerEspace />
+            </RequireNoOpenRequest>
+        )
     },
     {
         path: "confirmation-location",
