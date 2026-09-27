@@ -25,16 +25,18 @@ import { MerchantShopPage } from "../../pages/merchant/modules/shop/pages/Mercha
 import { isAuthenticated } from "../../services/api.js";
 import DetailProduit from "../Pages/DetailProduit.jsx";
 import Home from "../Pages/Home.jsx";
+import Landing from "../Pages/Landing.jsx";
 
 function RequireUser() {
-  return isAuthenticated() ? <Outlet /> : <Navigate to="/connexion" replace />;
+  return isAuthenticated() ? <Outlet /> : <Navigate to="/" replace />;
 }
 
 export const protectedRoutes = [
+  { index: true, element: <Landing /> },
   {
     element: <RequireUser />,
     children: [
-      { index: true, element: <Home /> },
+      { path: "accueil", element: <Home /> },
       { path: "produit/:id", element: <DetailProduit /> },
     ],
   },

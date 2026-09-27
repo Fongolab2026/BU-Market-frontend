@@ -18,13 +18,13 @@ import { useTheme } from "../../context/ThemeContext.jsx";
 import { clearTokens, isAuthenticated } from "../../services/api";
 
 const NAV_LINKS = [
-  { label: "Accueil", path: "/" },
-  { label: "Produits", path: "/#produits" },
-  { label: "À propos", path: "/#a-propos" },
-  { label: "Contact", path: "/#contact" },
+  { label: "Accueil", path: "/accueil" },
+  { label: "Produits", path: "/accueil#produits" },
+  { label: "À propos", path: "/accueil#a-propos" },
+  { label: "Contact", path: "/accueil#contact" },
 ];
 
-export default function NavBar({ mobileOpen: controlledOpen, onToggleMobile, onCloseMobile }) {
+export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMobile, onCloseMobile }) {
   const navigate = useNavigate();
   const menuRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -42,6 +42,7 @@ export default function NavBar({ mobileOpen: controlledOpen, onToggleMobile, onC
   const { isDark, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
   const authenticated = isAuthenticated();
+  const showLandingAuth = variant === "landing";
 
   const displayName =
     user?.firstName || user?.first_name || user?.username || "Utilisateur";
@@ -71,10 +72,10 @@ export default function NavBar({ mobileOpen: controlledOpen, onToggleMobile, onC
 
   const handleNavLink = (path) => {
     closeMobile();
-    if (path.startsWith("/#")) {
-      navigate("/", { replace: false });
+    const [base, id] = path.split("#");
+    if (id) {
+      navigate(base || "/accueil", { replace: false });
       setTimeout(() => {
-        const id = path.replace("/#", "");
         const el = document.getElementById(id);
         if (el) el.scrollIntoView({ behavior: "smooth" });
       }, 100);
@@ -100,26 +101,47 @@ export default function NavBar({ mobileOpen: controlledOpen, onToggleMobile, onC
           </span>
         </Link>
 
-        <nav
-          className="hidden flex-1 justify-center md:flex"
-          aria-label="Navigation principale"
-        >
-          <ul className="flex items-center gap-1 rounded-full border border-base-300/70 bg-base-200/55 p-1">
-            {NAV_LINKS.map(({ label, path }) => (
-              <li key={label}>
-                <button
-                  type="button"
-                  onClick={() => handleNavLink(path)}
-                  className="rounded-full px-4 py-2 text-[13px] font-semibold text-base-content/65 transition-colors hover:bg-base-100 hover:text-primary hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  {label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        {showLandingAuth ? (
+          <nav className="ml-auto flex items-center gap-1.5 sm:gap-2" aria-label="Authentification">
+            <Button
+              type="button"
+              onClick={toggleTheme}
+              icon={isDark ? <Sun size={21} /> : <Moon size={21} />}
+              title={isDark ? "Activer le mode clair" : "Activer le mode sombre"}
+              aria-label={isDark ? "Activer le mode clair" : "Activer le mode sombre"}
+              text
+              rounded
+              className="flex! size-10! items-center! justify-center! text-base-content/65! transition-colors hover:bg-base-200! hover:text-primary!"
+            />
+            <Link to="/inscription" className="btn btn-ghost btn-sm px-3 sm:px-4">
+              Inscription
+            </Link>
+            <Link to="/connexion" className="btn btn-accent btn-sm px-3 sm:px-5">
+              Connexion
+            </Link>
+          </nav>
+        ) : (
+          <>
+            <nav
+              className="hidden flex-1 justify-center md:flex"
+              aria-label="Navigation principale"
+            >
+              <ul className="flex items-center gap-1 rounded-full border border-base-300/70 bg-base-200/55 p-1">
+                {NAV_LINKS.map(({ label, path }) => (
+                  <li key={label}>
+                    <button
+                      type="button"
+                      onClick={() => handleNavLink(path)}
+                      className="rounded-full px-4 py-2 text-[13px] font-semibold text-base-content/65 transition-colors hover:bg-base-100 hover:text-primary hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      {label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+            <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           <Button
             type="button"
             onClick={toggleTheme}
@@ -223,12 +245,14 @@ export default function NavBar({ mobileOpen: controlledOpen, onToggleMobile, onC
                 </div>
               </div>
             )}
-          </div>
-        </div>
+            </div>
+            </div>
+          </>
+        )}
       </div>
 
-      {mobileOpen && (
-        <div className="border-t border-base-300/70 bg-base-100/95 px-4 py-4 shadow-lg shadow-base-content/4 backdrop-blur-xl md:hidden">
+      {!showLandingAuth && mobileOpen && (
+        <div className="absolute inset-x-0 top-full z-40 border-t border-base-300/70 bg-base-100/95 px-4 py-4 shadow-lg shadow-base-content/10 backdrop-blur-xl md:hidden">
           <nav className="mx-auto max-w-7xl" aria-label="Navigation mobile">
             <ul className="flex flex-col gap-1.5">
               {NAV_LINKS.map(({ label, path }) => (

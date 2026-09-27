@@ -15,7 +15,7 @@ export default function RequireNoOpenRequest({ children }) {
   const location = useLocation()
 
   if (loading) return <Loading />
-  if (hasOpenRequest) return <Navigate to="/" replace state={{ from: location.pathname }} />
+  if (hasOpenRequest) return <Navigate to="/accueil" replace state={{ from: location.pathname }} />
 
   return children
 }

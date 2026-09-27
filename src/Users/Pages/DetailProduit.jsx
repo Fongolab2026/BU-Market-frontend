@@ -85,7 +85,7 @@ export default function DetailProduit() {
           <div className="max-w-md text-center">
             <p className="text-5xl font-bold text-primary/25">404</p>
             <p className="mt-3 font-semibold text-base-content">{error || 'Produit introuvable.'}</p>
-            <Link to="/" className="btn btn-primary mt-6 gap-2">
+            <Link to="/accueil" className="btn btn-primary mt-6 gap-2">
               <ArrowLeft size={17} aria-hidden="true" />
               Retour à l&apos;accueil
             </Link>
@@ -102,7 +102,7 @@ export default function DetailProduit() {
       <main>
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:py-12">
         <Link
-          to="/"
+          to="/accueil"
           className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-base-content/60 transition-colors hover:text-primary"
         >
           <ArrowLeft size={16} aria-hidden="true" />
