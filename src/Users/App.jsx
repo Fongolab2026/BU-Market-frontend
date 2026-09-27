@@ -17,13 +17,20 @@ const router = createBrowserRouter([
   },
 ])
 
+const STARTUP_SEEN_KEY = 'bu-market-startup-seen'
+
 export default function App() {
-  const [booted, setBooted] = useState(false)
+  const [booted, setBooted] = useState(() =>
+    sessionStorage.getItem(STARTUP_SEEN_KEY) === 'true'
+  )
 
   useEffect(() => {
+    if (booted) return
+
+    sessionStorage.setItem(STARTUP_SEEN_KEY, 'true')
     const t = setTimeout(() => setBooted(true), 2800)
     return () => clearTimeout(t)
-  }, [])
+  }, [booted])
 
   return (
     <AuthProvider>

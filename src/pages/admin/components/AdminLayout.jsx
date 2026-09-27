@@ -64,7 +64,7 @@ export function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-base-100 text-base-content">
+    <div className="admin-layout min-h-screen bg-base-100 text-base-content">
       <UnifiedNavbar onOpenMenu={() => setIsSidebarOpen(true)} />
       {isSidebarOpen && (
         <button

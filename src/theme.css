@@ -183,6 +183,73 @@
     background-color: var(--surface) !important;
   }
 
+  [data-theme="bumarket-dark"] .admin-layout .bg-white {
+    background-color: #000000 !important;
+  }
+
+  [data-theme="bumarket-dark"] .admin-layout svg {
+    color: #ffffff !important;
+  }
+
+  [data-theme="bumarket-dark"] .dashboard-icon-surface {
+    background-color: var(--color-base-300);
+  }
+
+  /* Pastilles et conteneurs d'icônes : fond sombre + icône blanche en mode sombre. */
+  [data-theme="bumarket-dark"] .admin-layout span:has(> svg),
+  [data-theme="bumarket-dark"] .admin-layout div:has(> svg) {
+    background-color: var(--color-base-300) !important;
+    color: #ffffff !important;
+  }
+
+  /* Icônes d'action : le fond reste sombre au survol en mode sombre. */
+  [data-theme="bumarket-dark"] .admin-layout button:has(> svg:only-child):hover {
+    background-color: var(--color-base-300) !important;
+  }
+
+  /* Module utilisateurs : textes sombres → blancs et zone sensible adaptée. */
+  [data-theme="bumarket-dark"] .admin-layout .text-rose-900,
+  [data-theme="bumarket-dark"] .admin-layout .text-rose-800\/80 {
+    color: #ffffff !important;
+  }
+
+  [data-theme="bumarket-dark"] .admin-layout section.bg-rose-50 {
+    background-color: var(--color-base-300) !important;
+    border-color: color-mix(in srgb, var(--color-error) 45%, transparent) !important;
+  }
+
+  [data-theme="bumarket-dark"] .admin-layout section.bg-rose-50 button.border-rose-300 {
+    color: #ffffff !important;
+    border-color: color-mix(in srgb, var(--color-error) 55%, transparent) !important;
+  }
+
+  [data-theme="bumarket-dark"] .admin-layout section.bg-rose-50 button.border-rose-300:hover {
+    background-color: var(--color-base-100) !important;
+  }
+
+  /* Boutiques : bouton Détail adapté au mode sombre (texte blanc, hover sombre). */
+  [data-theme="bumarket-dark"] .admin-layout a.bg-brand:hover {
+    background-color: var(--color-base-300) !important;
+  }
+
+  /* Produits : bouton Réactiver, fond adapté au mode sombre. */
+  [data-theme="bumarket-dark"] .admin-layout button.text-orange-700:hover {
+    background-color: var(--color-base-300) !important;
+  }
+
+  /* Avis : bouton Rendre visible, vert clair en mode clair, vert sombre en mode sombre. */
+  [data-theme="bumarket-dark"] .admin-layout button.text-black {
+    background-color: #065f46 !important;
+  }
+
+  [data-theme="bumarket-dark"] .admin-layout button.text-black:hover {
+    background-color: #047857 !important;
+  }
+
+  [data-theme="bumarket-dark"] .admin-layout button.text-black svg {
+    color: #000000 !important;
+  }
+
   [data-theme="bumarket-dark"] .border-gray-300 {
     border-color: var(--color-base-300) !important;
   }

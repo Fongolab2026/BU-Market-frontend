@@ -167,7 +167,7 @@ export function BoutiquesPage() {
                     <td className="py-4 text-sm text-base-content/55">{shop.createdAt}</td>
                     <td className="py-4 pr-5">
                       <div className="flex items-center justify-end gap-1">
-                        <Link to={`/admin/utilisateurs/${shop.ownerId}`} className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-brand hover:bg-brand/10">
+                        <Link to={`/admin/utilisateurs/${shop.ownerId}`} className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-2 py-1.5 text-sm font-semibold text-white transition hover:bg-brand-soft">
                           <Eye size={16} /> Détail
                         </Link>
                         {shop.status !== 'validated' && (

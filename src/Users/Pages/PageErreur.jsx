@@ -12,9 +12,8 @@ export default function PageErreur() {
           <Compass size={38} strokeWidth={1.5} aria-hidden="true" />
         </div>
         <p className="text-sm font-bold uppercase tracking-[0.28em] text-primary">Erreur 404</p>
-        <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">Cette page a disparu</h1>
         <p className="mx-auto mt-5 max-w-md text-base leading-7 text-base-content/65">
-          L&apos;adresse demandée n&apos;existe pas ou n&apos;est plus disponible. Revenez à l&apos;accueil pour continuer vos achats.
+          L'adresse demandée n'existe pas ou n'est plus disponible. Revenez à l'accueil pour continuer vos achats.
         </p>
         <Link to="/" className="btn btn-primary mt-8 gap-2 px-6">
           <Home size={18} aria-hidden="true" />

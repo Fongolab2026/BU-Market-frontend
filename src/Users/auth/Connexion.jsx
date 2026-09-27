@@ -74,7 +74,7 @@ export default function Connexion() {
             className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl"
             aria-hidden="true"
           />
-          <div className="relative">
+          <div className="relative text-white flex flex-col gap-1">
             <Link
               to="/connexion"
               className="inline-flex items-center gap-3 text-xl font-bold tracking-tight"

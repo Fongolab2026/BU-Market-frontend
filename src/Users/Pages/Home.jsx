@@ -472,14 +472,14 @@ export default function Home() {
 
         {/* ---------- Bandeau CTA ---------- */}
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary" aria-hidden="true" />
-          <div className="absolute -left-16 -top-16 h-64 w-64 rounded-full bg-accent/20 blur-3xl" aria-hidden="true" />
+          <div className="absolute inset-0" aria-hidden="true" />
+          <div className="absolute -left-16 -top-16 h-64 w-64 rounded-full bg-accent/10 blur-3xl" aria-hidden="true" />
           <div className="absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-accent/10 blur-3xl" aria-hidden="true" />
-          <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 py-16 text-center text-primary-content sm:px-6 md:py-20">
+          <div className="relative mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 py-16 text-center text-white sm:px-6 md:py-20">
             <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
               Prêt à commencer vos achats ?
             </h2>
-            <p className="max-w-xl text-lg text-primary-content/80">
+            <p className="max-w-xl text-lg text-white">
               Rejoignez notre communauté et découvrez des milliers de produits
               de qualité à des prix imbattables.
             </p>
@@ -488,7 +488,7 @@ export default function Home() {
                 Créer un compte gratuitement
                 <ArrowRight size={18} aria-hidden="true" />
               </Link>
-              <a href="#produits" className="btn gap-2 border border-white/30 bg-white/10 text-primary-content hover:bg-white/20">
+              <a href="#produits" className="btn gap-2 border border-white/30 bg-white/10 text-white hover:bg-white/20">
                 Explorer les produits
               </a>
             </div>
@@ -545,12 +545,13 @@ export default function Home() {
                       <label htmlFor="contact-name" className="mb-1 block text-sm font-semibold text-base-content">
                         Nom complet
                       </label>
-                      <InputText
+                      <input
+                        type="text"
                         id="contact-name"
                         required
                         value={contactForm.name}
                         onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                        className="w-full"
+                        className="w-full h-[8vh] "
                         placeholder="Votre nom"
                       />
                     </div>
@@ -558,13 +559,13 @@ export default function Home() {
                       <label htmlFor="contact-email" className="mb-1 block text-sm font-semibold text-base-content">
                         Adresse e-mail
                       </label>
-                      <InputText
-                        id="contact-email"
+                      <input
                         type="email"
+                        id="contact-email"
                         required
                         value={contactForm.email}
                         onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                        className="w-full"
+                        className="w-full h-[8vh] "
                         placeholder="votre@email.com"
                       />
                     </div>
@@ -572,13 +573,13 @@ export default function Home() {
                       <label htmlFor="contact-subject" className="mb-1 block text-sm font-semibold text-base-content">
                         Sujet
                       </label>
-                      <InputText
-                        id="contact-subject"
+                      <input
                         type="text"
+                        id="contact-subject"
                         required
                         value={contactForm.subject}
                         onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
-                        className="w-full"
+                        className="w-full h-[8vh] "
                         placeholder="Objet de votre message"
                       />
                     </div>
@@ -586,13 +587,14 @@ export default function Home() {
                       <label htmlFor="contact-message" className="mb-1 block text-sm font-semibold text-base-content">
                         Message
                       </label>
-                      <InputTextarea
+                      <input
+                        type="textArea"
                         id="contact-message"
                         rows={5}
                         required
                         value={contactForm.message}
                         onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                        className="w-full resize-none"
+                        className="w-full h-[20vh] pb-20 resize-none"
                         placeholder="Votre message..."
                       />
                     </div>

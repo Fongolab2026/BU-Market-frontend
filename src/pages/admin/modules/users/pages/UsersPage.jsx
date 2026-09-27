@@ -162,7 +162,7 @@ export function UsersPage() {
                     <td className="py-3.5 text-sm text-base-content/55">{user.lastActive}</td>
                     <td className="py-3.5">
                       <div className="flex items-center justify-end gap-1">
-                        <Link to={`/admin/utilisateurs/${user.id}`} className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-brand hover:bg-brand/10">
+                        <Link to={`/admin/utilisateurs/${user.id}`} className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold text-base-content/40 transition hover:bg-gray-800" aria-label={`Voir le profil de ${user.firstName}`}>
                           <Eye size={16} /> Détail
                         </Link>
                         <button onClick={() => handleEdit(user)} className="rounded-lg p-2 text-base-content/40 transition hover:bg-brand/10 hover:text-brand" aria-label={`Modifier ${user.firstName}`}>

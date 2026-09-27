@@ -125,7 +125,7 @@ export default function Inscription() {
       <div className='mx-auto grid min-h-[calc(100vh-3rem)] max-w-6xl items-center overflow-hidden rounded-3xl border border-base-300 bg-[var(--surface)] shadow-2xl shadow-base-content/10 lg:grid-cols-2'>
         <section className='home-hero relative hidden min-h-[700px] flex-col justify-between overflow-hidden p-10 text-primary-content lg:flex xl:p-14'>
           <div className='absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-accent/20 blur-3xl' aria-hidden='true' />
-          <div className='relative'>
+          <div className='relative text-white flex jcontent-start flex-col gap-1'>
             <Link to='/inscription' className='inline-flex items-center gap-3 text-xl font-bold tracking-tight'>
               <span className='flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25'>
                 <Store size={23} aria-hidden='true' />
@@ -167,7 +167,7 @@ export default function Inscription() {
           <form className='flex flex-col gap-6' onSubmit={handleSubmit}>
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='flex flex-col gap-2'>
-                <label className='text-sm font-bold text-base-content' htmlFor='username'>Nom d&apos;utilisateur</label>
+                <label className='text-sm font-bold text-base-content' htmlFor='username'>Nom d'utilisateur</label>
                 <input id='username' className={`input input-lg w-full ${errors.username ? 'input-error' : ''}`} type='text' name='username' placeholder='Votre identifiant' value={formData.username} onChange={handleChange} required />
                 {errors.username && <p className='text-xs text-error'>{errors.username}</p>}
               </div>
@@ -185,9 +185,9 @@ export default function Inscription() {
               </div>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-bold text-base-content' htmlFor='phone'>Téléphone</label>
-                <input id='phone' className={`input input-lg w-full ${errors.phone ? 'input-error' : ''}`} type='tel' name='phone' placeholder='+33 6 12 34 56 78' value={formData.phone} onChange={handlePhoneChange} />
+                <input id='phone' className={`input input-lg w-full ${errors.phone ? 'input-error' : ''}`} type='tel' name='phone' placeholder='+257 - - - -'value={formData.phone} onChange={handlePhoneChange} />
                 {errors.phone && <p className='text-xs text-error'>{errors.phone}</p>}
-                <p className='text-xs text-base-content/50'>Format: +33612345678 ou 0612345678</p>
+                <p className='text-xs text-base-content/50'>Format: +257 - - - -ou 66 - - -</p>
               </div>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-bold text-base-content' htmlFor='adresse'>Adresse</label>

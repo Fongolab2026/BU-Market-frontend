@@ -144,7 +144,7 @@ export function AvisPage() {
                     <EyeOff size={15} /> Masquer
                   </button>
                 ) : (
-                  <button onClick={() => toggleReview(review)} className="inline-flex items-center gap-1.5 rounded-lg bg-brand/10 px-2.5 py-1.5 text-sm font-semibold text-brand transition hover:bg-brand/20">
+                  <button onClick={() => toggleReview(review)} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-100 px-2.5 py-1.5 text-sm font-semibold text-black transition hover:bg-emerald-200">
                     <Eye size={15} /> Rendre visible
                   </button>
                 )}

@@ -14,6 +14,7 @@ import { SettingsPage } from "../../pages/admin/modules/settings/pages/SettingsP
 import { BoutiquesPage } from "../../pages/admin/modules/shops/pages/BoutiquesPage.jsx";
 import { UserDetailPage } from "../../pages/admin/modules/users/pages/UserDetailPage.jsx";
 import { UsersPage } from "../../pages/admin/modules/users/pages/UsersPage.jsx";
+import { DemandesPage } from "../../pages/admin/modules/requests/pages/DemandesPage.jsx";
 import { MerchantLayout } from "../../pages/merchant/components/MerchantLayout.jsx";
 import { MerchantCategoriesPage } from "../../pages/merchant/modules/categories/pages/MerchantCategoriesPage.jsx";
 import { MerchantCompetitorsPage } from "../../pages/merchant/modules/competitors/pages/MerchantCompetitorsPage.jsx";
@@ -58,6 +59,7 @@ export const protectedRoutes = [
           { path: "utilisateurs/:userId", element: <UserDetailPage /> },
           { path: "boutiques", element: <BoutiquesPage /> },
           { path: "demandes-location", element: <DemandesLocationPage /> },
+          { path: "demandes", element: <DemandesPage /> },
           { path: "produits", element: <ProduitsPage /> },
           { path: "categories", element: <CategoriesPage /> },
           { path: "commandes", element: <CommandesPage /> },

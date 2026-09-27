@@ -38,7 +38,7 @@ export function DashboardPage() {
               <h2 className="font-semibold text-base-content">Activité de la plateforme</h2>
               <p className="mt-1 text-sm text-base-content/55">Nouvelles inscriptions et publications cette semaine.</p>
             </div>
-            <span className="bg-brand/10 p-2 text-brand">
+            <span className="dashboard-icon-surface bg-brand/10 p-2 text-brand">
               <Activity size={18} />
             </span>
           </div>
@@ -64,7 +64,7 @@ export function DashboardPage() {
           <div className="mt-4 divide-y divide-base-200">
             {data.moderationQueue.map((item) => (
               <Link key={item.id} to={queueTarget(item.type)} className="flex gap-3 py-3 first:pt-0 transition hover:bg-base-100">
-                <span className="grid size-8 shrink-0 place-items-center bg-amber-50 text-amber-700">
+                <span className="dashboard-icon-surface grid size-8 shrink-0 place-items-center bg-amber-50 text-amber-700">
                   <AlertTriangle size={16} />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -96,7 +96,7 @@ export function DashboardPage() {
             const Icon = activityIcon[entry.kind]
             return (
               <div key={entry.id} className="bg-white p-4">
-                <span className="grid size-7 place-items-center bg-brand/10 text-brand">
+                <span className="dashboard-icon-surface grid size-7 place-items-center bg-brand/10 text-brand">
                   <Icon size={15} />
                 </span>
                 <p className="mt-3 text-sm font-semibold text-base-content">{entry.title}</p>
