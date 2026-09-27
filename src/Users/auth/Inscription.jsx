@@ -226,7 +226,7 @@ export default function Inscription() {
             </button>
           </form>
           <p className='mt-8 text-center text-sm text-base-content/65'>
-            Vous avez déjà un compte ? <Link className='font-bold text-primary hover:underline' to='/connexion'>Se connecter</Link>
+            Vous avez déjà un compte ? <Link className='font-bold text-primary hover:underline' to='/connexion'> Se connecter</Link>
           </p>
         </section>
       </div>
