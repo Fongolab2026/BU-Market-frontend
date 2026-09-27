@@ -104,6 +104,7 @@ export default function Home() {
 
   const [contactForm, setContactForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [contactSent, setContactSent] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -162,9 +163,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-base-100">
-      <NavBar />
+      <NavBar
+        mobileOpen={mobileNavOpen}
+        onToggleMobile={() => setMobileNavOpen((open) => !open)}
+        onCloseMobile={() => setMobileNavOpen(false)}
+      />
 
-      <main>
+      <main
+        onClick={() => setMobileNavOpen(false)}
+        className={mobileNavOpen ? 'blur-sm md:blur-none' : ''}
+      >
         {/* ---------- Bandeau d'accueil ---------- */}
         <section className="home-hero relative overflow-hidden text-primary-content">
           <div className="absolute -left-20 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />

@@ -24,11 +24,20 @@ const NAV_LINKS = [
   { label: "Contact", path: "/#contact" },
 ];
 
-export default function NavBar() {
+export default function NavBar({ mobileOpen: controlledOpen, onToggleMobile, onCloseMobile }) {
   const navigate = useNavigate();
   const menuRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [internalMobileOpen, setInternalMobileOpen] = useState(false);
+  const mobileOpen = controlledOpen ?? internalMobileOpen;
+  const toggleMobile = () => {
+    if (controlledOpen !== undefined) onToggleMobile?.();
+    else setInternalMobileOpen((open) => !open);
+  };
+  const closeMobile = () => {
+    if (controlledOpen !== undefined) onCloseMobile?.();
+    else setInternalMobileOpen(false);
+  };
 
   const { isDark, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
@@ -61,7 +70,7 @@ export default function NavBar() {
   };
 
   const handleNavLink = (path) => {
-    setMobileOpen(false);
+    closeMobile();
     if (path.startsWith("/#")) {
       navigate("/", { replace: false });
       setTimeout(() => {
@@ -80,7 +89,7 @@ export default function NavBar() {
         <Link
           to="/"
           className="group flex shrink-0 items-center gap-2.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-          onClick={() => setMobileOpen(false)}
+          onClick={closeMobile}
           aria-label="BU-Market, accueil"
         >
           <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-content shadow-md shadow-primary/20 transition-transform duration-200 group-hover:-rotate-3 group-hover:scale-105">
@@ -126,7 +135,7 @@ export default function NavBar() {
 
           <Button
             type="button"
-            onClick={() => setMobileOpen((v) => !v)}
+            onClick={toggleMobile}
             icon={mobileOpen ? <X size={22} /> : <Menu size={22} />}
             aria-label="Menu"
             text
