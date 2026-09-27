@@ -543,15 +543,15 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-3 text-base-content/75">
                     <Phone size={20} className="shrink-0 text-primary" aria-hidden="true" />
-                    <span>+33 1 23 45 67 89</span>
+                    <span>+257 66 57 55 86</span>
                   </div>
                   <div className="flex items-center gap-3 text-base-content/75">
                     <MapPin size={20} className="shrink-0 text-primary" aria-hidden="true" />
-                    <span>45 Rue du Commerce, 75001 Paris</span>
+                    <span>Bujumbura, Burundi</span>
                   </div>
                   <div className="flex items-center gap-3 text-base-content/75">
                     <Clock size={20} className="shrink-0 text-primary" aria-hidden="true" />
-                    <span>Lun – Ven : 9h – 18h</span>
+                    <span>Lun – Ven : 7h – 18h</span>
                   </div>
                 </div>
               </div>

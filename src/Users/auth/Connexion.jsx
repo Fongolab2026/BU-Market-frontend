@@ -48,12 +48,12 @@ export default function Connexion() {
       const role = resolveRole(profile);
       signIn({ ...profile, role });
       toast.success("Connexion réussie");
-      if (role === "admin") {
+if (role === "admin") {
         navigate("/admin/tableau-de-bord", { replace: true });
       } else if (role === "merchant") {
         navigate("/marchand/tableau-de-bord", { replace: true });
       } else {
-        navigate("/", { replace: true });
+        navigate("/accueil", { replace: true });
       }
     } catch (err) {
       const detail = err.response?.data?.detail;

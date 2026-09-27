@@ -189,7 +189,7 @@ export default function LouerEspace() {
     <div className="min-h-screen bg-base-100 text-base-content">
       <NavBar />
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
-        <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-base-content/65 transition hover:text-primary">
+        <Link to="/accueil" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-base-content/65 transition hover:text-primary">
           <ArrowLeft size={16} aria-hidden="true" /> Retour à l’accueil
         </Link>
 
@@ -343,7 +343,7 @@ export default function LouerEspace() {
           <div className="flex flex-col-reverse gap-3 rounded-lg border border-base-300 bg-base-200/60 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <p className="text-xs leading-5 text-base-content/55">Votre demande est transmise à notre équipe partenaire.</p>
             <div className="flex flex-col-reverse gap-3 sm:flex-row">
-              <Link to="/" className="btn btn-ghost">Annuler</Link>
+              <Link to="/accueil" className="btn btn-ghost">Annuler</Link>
               {activeStep > 0 && (
                 <button type="button" onClick={() => { setActiveStep((current) => current - 1); setFeedback(null) }} className="btn btn-ghost">
                   Retour

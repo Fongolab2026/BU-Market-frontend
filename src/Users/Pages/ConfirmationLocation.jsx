@@ -7,7 +7,7 @@ export default function ConfirmationLocation() {
     <div className="min-h-screen bg-base-100 text-base-content">
       <NavBar />
       <main className="mx-auto flex max-w-5xl flex-col px-4 py-8 sm:px-6 lg:py-12">
-        <Link to="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-base-content/65 transition hover:text-primary">
+        <Link to="/accueil" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-base-content/65 transition hover:text-primary">
           <ArrowLeft size={16} aria-hidden="true" /> Retour à l’accueil
         </Link>
 
@@ -35,7 +35,7 @@ export default function ConfirmationLocation() {
             </div>
           </div>
 
-          <Link to="/" className="btn btn-primary mt-8 gap-2">
+          <Link to="/accueil" className="btn btn-primary mt-8 gap-2">
             Retourner à l’accueil
           </Link>
         </section>
