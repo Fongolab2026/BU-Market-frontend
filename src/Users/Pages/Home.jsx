@@ -33,6 +33,7 @@ import CardProducts from '../products/ui/cardProduct'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
 import { productApi, categoryApi } from '../../services'
+import { useSpaceRequest } from '../../hooks/useSpaceRequest.js'
 
 const TRUST_POINTS = [
   { icon: Truck, title: 'Livraison rapide', text: 'Expédition sous 24h' },
@@ -91,6 +92,8 @@ export default function Home() {
   // Un commerçant possède déjà une boutique : plus de bouton « Louer l'espace ».
   // Le backend renvoie role "seller", le mock de session utilise "merchant".
   const isMerchant = user?.role === 'seller' || user?.role === 'merchant'
+  // Statut de la demande de location : sert à basculer le bouton d'accueil.
+  const { isSellerByRequest, hasOpenRequest } = useSpaceRequest(user)
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
@@ -124,6 +127,10 @@ export default function Home() {
   const filtered = selectedCategory
     ? products.filter((p) => p.category === selectedCategory)
     : products
+
+  // La validation fait basculer l'utilisateur en « seller » côté backend. Tant que
+  // la session locale n'est pas rafraîchie, on déduit le statut vendeur de la demande.
+  const showSeller = isMerchant || isSellerByRequest
   const searchQuery = searchParams.get('q')?.trim().toLowerCase() || ''
   const searchedProducts = searchQuery
     ? filtered.filter((product) => {
@@ -186,11 +193,24 @@ export default function Home() {
               <a href="#garanties" className="btn gap-2 border border-white/30 bg-white/10 text-primary-content hover:bg-white/20">
                 Nos garanties
               </a>
-              {!isMerchant && (
-                <Link to="/louer-espace" className="btn gap-2 border border-white/30 bg-white/10 text-primary-content hover:bg-white/20">
-                  <Building2 size={18} aria-hidden="true" />
-                  Louer l&apos;espace
-                </Link>
+              {!showSeller && (
+                hasOpenRequest ? (
+                  <span
+                    className="btn pointer-events-none gap-2 border border-white/30 bg-white/10 text-primary-content opacity-70"
+                    aria-disabled="true"
+                  >
+                    <Clock size={18} aria-hidden="true" />
+                    Demande en attente
+                  </span>
+                ) : (
+                  <Link
+                    to="/louer-espace"
+                    className="btn gap-2 border border-white/30 bg-white/10 text-primary-content hover:bg-white/20"
+                  >
+                    <Building2 size={18} aria-hidden="true" />
+                    Louer l&apos;espace
+                  </Link>
+                )
               )}
             </div>
           </div>

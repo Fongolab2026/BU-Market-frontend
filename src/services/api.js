@@ -154,6 +154,7 @@ export const endpoints = {
     detail: (id) => `/shops/boutiques/${id}/`,
     validate: (id) => `/shops/boutiques/${id}/validate/`,
     reject: (id) => `/shops/boutiques/${id}/reject/`,
+    myRequest: "/shops/boutiques/my-request/",
   },
   carts: {
     list: "/carts/carts/",
