@@ -29,12 +29,16 @@ export function UserDetailPage() {
   const [busy, setBusy] = useState(false)
   const [confirm, setConfirm] = useState(null)
 
-  useEffect(() => { utilisateursService.detail(userId).then(setUser) }, [userId])
+  const reload = () => utilisateursService.detail(userId).then(setUser)
+
+  useEffect(() => {
+    utilisateursService.detail(userId).then(setUser)
+  }, [userId])
 
   const updateStatus = async (status) => {
     setBusy(true)
-    const nextUser = await utilisateursService.updateStatus(user.id, status)
-    setUser({ ...nextUser })
+    await utilisateursService.updateStatus(user.id, status)
+    await reload()
     setBusy(false)
     toast.success(status === 'active' ? 'Le compte et la boutique ont été validés.' : 'Le compte a été suspendu.')
   }
@@ -42,8 +46,8 @@ export function UserDetailPage() {
   const toggleProduct = async (product) => {
     const nextStatus = product.status === 'active' ? 'inactive' : 'active'
     setBusy(true)
-    const nextUser = await produitsService.updateStatus(user.shop.id, product.id, nextStatus)
-    setUser({ ...nextUser })
+    await produitsService.updateStatus(product.id, nextStatus)
+    await reload()
     setBusy(false)
     toast.success(nextStatus === 'active' ? 'Le produit est de nouveau visible sur la plateforme.' : 'Le produit a été retiré de la plateforme.')
   }
@@ -51,16 +55,16 @@ export function UserDetailPage() {
   const toggleReview = async (review) => {
     const nextStatus = review.status === 'visible' ? 'hidden' : 'visible'
     setBusy(true)
-    const nextUser = await avisService.updateStatus(user.shop.id, review.id, nextStatus)
-    setUser({ ...nextUser })
+    await avisService.updateStatus(review.id, nextStatus)
+    await reload()
     setBusy(false)
     toast.success(nextStatus === 'visible' ? 'L’avis est de nouveau visible.' : 'L’avis a été masqué.')
   }
 
   const handleDeleteShop = async () => {
     setBusy(true)
-    const nextUser = await boutiquesService.remove(user.shop.id)
-    setUser({ ...nextUser })
+    await boutiquesService.remove(user.shop.id)
+    await reload()
     setBusy(false)
     setConfirm(null)
     toast.success('La boutique a été supprimée.')

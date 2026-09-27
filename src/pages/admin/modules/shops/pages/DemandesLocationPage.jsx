@@ -14,21 +14,24 @@ const STATUS_LABELS = {
 
 export function DemandesLocationPage() {
   const [demandes, setDemandes] = useState([])
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1 })
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [validateTarget, setValidateTarget] = useState(null)
+  const [reloadToken, setReloadToken] = useState(0)
 
   const PAGE_SIZE = 10
 
-  const reload = () => {
+  useEffect(() => {
     setLoading(true)
-    demandesLocationService.list({ query: search, status, page, perPage: PAGE_SIZE })
+    demandesLocationService
+      .list({ query: search, status, page, perPage: PAGE_SIZE })
       .then((response) => {
-        const results = Array.isArray(response) ? response : (response.results || [])
-        setDemandes(results)
+        setDemandes(response.results || [])
+        setPagination({ page: response.page || 1, totalPages: response.totalPages || 1 })
         setLoading(false)
       })
       .catch((err) => {
@@ -36,9 +39,9 @@ export function DemandesLocationPage() {
         toast.error('Impossible de charger les demandes')
         setLoading(false)
       })
-  }
+  }, [search, status, page, reloadToken])
 
-  useEffect(() => { reload() }, [search, status, page])
+  const reload = () => setReloadToken((token) => token + 1)
 
   const handleValidate = async (demande) => {
     setValidateTarget(demande.id)
@@ -47,6 +50,7 @@ export function DemandesLocationPage() {
       toast.success('Demande validée : le commerçant est promu')
       reload()
     } catch (err) {
+      console.error('Erreur validation demande:', err)
       toast.error('Erreur lors de la validation')
     } finally {
       setValidateTarget(null)
@@ -60,6 +64,7 @@ export function DemandesLocationPage() {
       toast.success('Demande rejetée')
       reload()
     } catch (err) {
+      console.error('Erreur rejet demande:', err)
       toast.error('Erreur lors du rejet')
     } finally {
       setDeleteTarget(null)
@@ -194,8 +199,8 @@ export function DemandesLocationPage() {
                 </table>
               </div>
               <Pagination
-                currentPage={page}
-                totalPages={Math.ceil(demandes.length / PAGE_SIZE)}
+                currentPage={pagination.page}
+                totalPages={pagination.totalPages}
                 onPageChange={setPage}
               />
             </>

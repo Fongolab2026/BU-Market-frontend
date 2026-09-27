@@ -13,8 +13,8 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
-import UnifiedNavbar from "../../../components/UnifiedNavbar.jsx";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { AdminNavbar } from "./AdminNavbar.jsx";
 
 const navigationGroups = [
   {
@@ -62,10 +62,21 @@ const navigationGroups = [
 
 export function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { pathname } = useLocation();
+
+  const activeSection =
+    navigationGroups
+      .flatMap((group) => group.items)
+      .find(
+        (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
+      )?.label || "Administration";
 
   return (
-    <div className="admin-layout min-h-screen bg-base-100 text-base-content">
-      <UnifiedNavbar onOpenMenu={() => setIsSidebarOpen(true)} />
+    <div className="min-h-screen bg-base-100 text-base-content">
+      <AdminNavbar
+        onOpenMenu={() => setIsSidebarOpen(true)}
+        section={activeSection}
+      />
       {isSidebarOpen && (
         <button
           aria-label="Fermer le menu"

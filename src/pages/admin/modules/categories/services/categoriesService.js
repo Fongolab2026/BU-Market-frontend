@@ -1,5 +1,5 @@
-import { endpoints } from "../../../../../services/api.js";
-import { adminService } from "../../../../../services/mockAdminService.js";
+import { endpoints, apiPost, apiPatch, apiDelete } from "../../../../../services/api.js";
+import { fetchAllPages } from "../../shared/adminApi.js";
 
 export const categorieEndpoints = {
   list: endpoints.categories.list,
@@ -9,17 +9,30 @@ export const categorieEndpoints = {
   remove: (id) => endpoints.categories.delete(id),
 };
 
+const mapCategory = (category) => ({
+  id: category.id,
+  name: category.name || "",
+  count: Number(category.count) || 0,
+});
+
 export const categoriesService = {
+  /** CategoriesPage compte et filtre cote client : on renvoie la liste entiere. */
   list: async () => {
-    return await adminService.listCategories();
+    const categories = await fetchAllPages(categorieEndpoints.list);
+    return categories.map(mapCategory);
   },
   create: async (input) => {
-    return await adminService.addCategory(input.name);
+    await apiPost(categorieEndpoints.create, { name: (input.name || "").trim() });
+    return categoriesService.list();
   },
   update: async (id, input) => {
-    return await adminService.renameCategory(id, input.name);
+    await apiPatch(categorieEndpoints.update(id), { name: (input.name || "").trim() });
+    return categoriesService.list();
   },
   remove: async (id) => {
-    return await adminService.removeCategory(id);
+    await apiDelete(categorieEndpoints.remove(id));
+    return categoriesService.list();
   },
 };
+
+export { mapCategory };

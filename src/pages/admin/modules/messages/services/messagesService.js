@@ -1,23 +1,34 @@
-import { endpoints } from "../../../../../services/api.js";
-import { adminService } from "../../../../../services/mockAdminService.js";
+import { endpoints, apiGet, apiPatch } from "../../../../../services/api.js";
+import { formatRelative } from "../../shared/adminApi.js";
 
 export const messageEndpoints = {
-  list: endpoints.messages.list,
+  list: endpoints.messages.conversations,
   detail: (id) => endpoints.messages.detail(id),
   markRead: (id) => endpoints.messages.markRead(id),
   readAll: endpoints.messages.readAll,
-  conversations: endpoints.messages.conversations,
 };
 
+const mapConversation = (conversation) => ({
+  id: conversation.id,
+  sender: conversation.sender || "",
+  shop: conversation.shop || "",
+  avatar: conversation.avatar || "",
+  message: conversation.message || "",
+  time: formatRelative(conversation.time),
+  unread: Number(conversation.unread) || 0,
+  status: conversation.status || "open",
+});
+
 export const messagesService = {
-  list: async ({ query = "", status = "all", page = 1, perPage = 20 } = {}) => {
-    const params = { search: query, status, page, per_page: perPage };
-    return await adminService.listConversations({ ...params, perPage });
-  },
+  /** L'endpoint conversations renvoie deja la liste plate des fils de discussion. */
+  list: async () => (await apiGet(messageEndpoints.list)).map(mapConversation),
   markRead: async (id) => {
-    return await adminService.markConversationRead(id);
+    await apiPatch(messageEndpoints.markRead(id), {});
+    return mapConversation({ id, unread: 0, status: "closed" });
   },
   markAllRead: async () => {
-    return await adminService.markAllConversationsRead();
+    await apiPatch(messageEndpoints.readAll, {});
+    const conversations = await apiGet(messageEndpoints.list);
+    return conversations.map((conversation) => mapConversation({ ...conversation, unread: 0 }));
   },
 };

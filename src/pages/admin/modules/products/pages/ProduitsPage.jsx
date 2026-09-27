@@ -2,16 +2,18 @@ import { useEffect, useState } from 'react'
 import { Eye, EyeOff, Package, Pencil, Plus, Search, Store, Trash2, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { produitsService } from '../services/produitsService.js'
+import { categoriesService } from '../../categories/services/categoriesService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
 
 const PAGE_SIZE = 8
 const MAX_IMAGES = 5
-const emptyForm = { shopId: '', name: '', price: '', stock: '' }
+const emptyForm = { shopId: '', categoryId: '', name: '', price: '', stock: '' }
 
 export function ProduitsPage() {
   const [products, setProducts] = useState([])
   const [shops, setShops] = useState([])
+  const [categories, setCategories] = useState([])
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
   const [page, setPage] = useState(1)
@@ -38,6 +40,10 @@ export function ProduitsPage() {
     produitsService.listShopOptions({ perPage: 50 }).then((result) => setShops(result.results))
   }, [])
 
+  useEffect(() => {
+    categoriesService.list().then(setCategories)
+  }, [])
+
   const activeCount = products.filter((product) => product.status === 'active').length
   const inactiveCount = products.length - activeCount
 
@@ -53,11 +59,11 @@ export function ProduitsPage() {
   const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   const setFormField = (name, value) => setForm((current) => ({ ...current, [name]: value }))
-  const canSubmit = form.shopId && form.name.trim() && form.price.trim()
+  const canSubmit = form.shopId && form.name.trim() && form.price.trim() && (!editing || form.categoryId)
 
   const openCreate = () => {
     setEditing(null)
-    setForm({ ...emptyForm, shopId: shops[0]?.id || '' })
+    setForm({ ...emptyForm, shopId: shops[0]?.id || '', categoryId: categories[0]?.id || '' })
     setSelectedFiles([])
     setShowForm(true)
   }
@@ -189,7 +195,7 @@ export function ProduitsPage() {
                       </span>
                       <div>
                         <p className="font-semibold text-base-content">{product.name}</p>
-                        <p className="text-xs text-base-content/50">{product.shopCategory}</p>
+                        <p className="text-xs text-base-content/50">{product.category}</p>
                       </div>
                     </div>
                   </td>
@@ -233,6 +239,7 @@ export function ProduitsPage() {
         <ProductFormModal
           editing={editing}
           shops={shops}
+          categories={categories}
           form={form}
           setFormField={setFormField}
           canSubmit={Boolean(canSubmit)}
@@ -256,7 +263,7 @@ export function ProduitsPage() {
   )
 }
 
-function ProductFormModal({ editing, shops, form, setFormField, canSubmit, submitting, onSubmit, onClose, selectedFiles, setSelectedFiles }) {
+function ProductFormModal({ editing, shops, categories, form, setFormField, canSubmit, submitting, onSubmit, onClose, selectedFiles, setSelectedFiles }) {
   const handleFileChange = (event) => {
     const files = Array.from(event.target.files || [])
     const remaining = MAX_IMAGES - selectedFiles.length
@@ -290,6 +297,16 @@ function ProductFormModal({ editing, shops, form, setFormField, canSubmit, submi
             </label>
           )}
           <ProductField label="Nom du produit" value={form.name} onChange={(value) => setFormField('name', value)} placeholder="Ex. Sac en raphia naturel" className="sm:col-span-2" />
+          {!editing && (
+            <label className="block sm:col-span-2">
+              <span className="mb-1.5 block text-sm font-semibold text-base-content/80">Catégorie</span>
+              <select value={form.categoryId} onChange={(event) => setFormField('categoryId', event.target.value)} className="h-10 w-full border border-base-300 bg-white px-3 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10">
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>{category.name}</option>
+                ))}
+              </select>
+            </label>
+          )}
           <ProductField label="Prix (F)" type="number" value={form.price} onChange={(value) => setFormField('price', value)} placeholder="Ex. 45000" />
           <ProductField label="Quantité en stock" type="number" value={form.stock} onChange={(value) => setFormField('stock', value)} placeholder="Ex. 20" />
 

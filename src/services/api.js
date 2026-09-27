@@ -79,6 +79,7 @@ api.interceptors.response.use(
 );
 
 export default api;
+export { api };
 
 export const endpoints = {
   auth: {
@@ -90,6 +91,7 @@ export const endpoints = {
     list: "/users/users/",
     create: "/users/users/",
     detail: (id) => `/users/users/${id}/`,
+    update: (id) => `/users/users/${id}/`,
     delete: (id) => `/users/users/${id}/`,
     setStatus: (id) => `/users/users/${id}/status/`,
   },
@@ -100,6 +102,8 @@ export const endpoints = {
     update: (id) => `/products/products/${id}/`,
     delete: (id) => `/products/products/${id}/`,
     setStatus: (id) => `/products/products/${id}/status/`,
+    uploadImages: (id) => `/products/products/${id}/images/`,
+    removeImage: (id, imageId) => `/products/products/${id}/images/${imageId}/`,
   },
   categories: {
     list: "/categories/categories/",
@@ -147,6 +151,11 @@ export const endpoints = {
   shops: {
     list: "/shops/shops/",
     detail: (id) => `/shops/shops/${id}/`,
+    updateInfo: (id) => `/shops/shops/${id}/info/`,
+    validate: (id) => `/shops/shops/${id}/validate/`,
+    suspend: (id) => `/shops/shops/${id}/suspend/`,
+    setStatus: (id) => `/shops/shops/${id}/status/`,
+    remove: (id) => `/shops/shops/${id}/remove/`,
   },
   boutiques: {
     list: "/shops/boutiques/",
@@ -155,6 +164,13 @@ export const endpoints = {
     validate: (id) => `/shops/boutiques/${id}/validate/`,
     reject: (id) => `/shops/boutiques/${id}/reject/`,
     myRequest: "/shops/boutiques/my-request/",
+    pendingCount: "/shops/boutiques/pending-count/",
+  },
+  publicationRequests: {
+    list: "/publications/publication-requests/",
+    detail: (id) => `/publications/publication-requests/${id}/`,
+    approve: (id) => `/publications/publication-requests/${id}/approve/`,
+    reject: (id) => `/publications/publication-requests/${id}/reject/`,
   },
   carts: {
     list: "/carts/carts/",

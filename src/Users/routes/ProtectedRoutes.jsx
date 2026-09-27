@@ -47,26 +47,40 @@ export const protectedRoutes = [
     ],
   },
   {
-    element: <ProtectedRoute allowedRoles={["admin"]} />,
+    path: "admin",
+    element: <Outlet />,
     children: [
+      { index: true, element: <Navigate to="connexion" replace /> },
+      { path: "connexion", element: <Navigate to="/admin/connexion" replace /> },
+      { path: "acces-refuse", element: <Navigate to="/admin/acces-refuse" replace /> },
       {
-        path: "admin",
-        element: <AdminLayout />,
+        element: (
+          <ProtectedRoute
+            allowedRoles={["admin"]}
+            loginPath="/admin/connexion"
+            deniedPath="/admin/acces-refuse"
+          />
+        ),
         children: [
-          { index: true, element: <Navigate to="tableau-de-bord" replace /> },
-          { path: "tableau-de-bord", element: <DashboardPage /> },
-          { path: "utilisateurs", element: <UsersPage /> },
-          { path: "utilisateurs/:userId", element: <UserDetailPage /> },
-          { path: "boutiques", element: <BoutiquesPage /> },
-          { path: "demandes-location", element: <DemandesLocationPage /> },
-          { path: "demandes", element: <DemandesPage /> },
-          { path: "produits", element: <ProduitsPage /> },
-          { path: "categories", element: <CategoriesPage /> },
-          { path: "commandes", element: <CommandesPage /> },
-          { path: "avis", element: <AvisPage /> },
-          { path: "messages", element: <MessagesPage /> },
-          { path: "notifications", element: <NotificationsPage /> },
-          { path: "parametres", element: <SettingsPage /> },
+          {
+            element: <AdminLayout />,
+            children: [
+              { index: true, element: <Navigate to="tableau-de-bord" replace /> },
+              { path: "tableau-de-bord", element: <DashboardPage /> },
+              { path: "utilisateurs", element: <UsersPage /> },
+              { path: "utilisateurs/:userId", element: <UserDetailPage /> },
+              { path: "boutiques", element: <BoutiquesPage /> },
+              { path: "demandes-location", element: <DemandesLocationPage /> },
+              { path: "demandes", element: <DemandesPage /> },
+              { path: "produits", element: <ProduitsPage /> },
+              { path: "categories", element: <CategoriesPage /> },
+              { path: "commandes", element: <CommandesPage /> },
+              { path: "avis", element: <AvisPage /> },
+              { path: "messages", element: <MessagesPage /> },
+              { path: "notifications", element: <NotificationsPage /> },
+              { path: "parametres", element: <SettingsPage /> },
+            ],
+          },
         ],
       },
     ],

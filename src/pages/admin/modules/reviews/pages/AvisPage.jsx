@@ -43,14 +43,14 @@ export function AvisPage() {
 
   const toggleReview = async (review) => {
     const nextStatus = review.status === 'visible' ? 'hidden' : 'visible'
-    await avisService.updateStatus(review.shopId, review.id, nextStatus)
+    await avisService.updateStatus(review.id, nextStatus)
     setReviews((current) => current.map((item) => (item.id === review.id ? { ...item, status: nextStatus } : item)))
     toast.success(nextStatus === 'visible' ? 'L’avis est de nouveau visible.' : 'L’avis a été masqué.')
   }
 
   const handleDelete = async () => {
     if (!deleteTarget) return
-    await avisService.remove(deleteTarget.shopId, deleteTarget.id)
+    await avisService.remove(deleteTarget.id)
     setReviews((current) => current.filter((item) => item.id !== deleteTarget.id))
     setDeleteTarget(null)
     toast.success('L’avis a été supprimé.')

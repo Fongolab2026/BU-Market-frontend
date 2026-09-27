@@ -1,22 +1,40 @@
-import { endpoints } from "../../../../../services/api.js";
-import { adminService } from "../../../../../services/mockAdminService.js";
+import { endpoints, apiPost, apiPatch, apiDelete } from "../../../../../services/api.js";
+import { fetchAllPages, formatRelative } from "../../shared/adminApi.js";
 
 export const notificationEndpoints = {
   list: endpoints.notifications.list,
   detail: (id) => endpoints.notifications.detail(id),
   markRead: (id) => endpoints.notifications.markRead(id),
+  markAllRead: endpoints.notifications.markAllRead,
   remove: (id) => endpoints.notifications.detail(id),
 };
 
+/** L'API renvoie `type` (shop, order, product, alert, message...). */
+const mapNotification = (notification) => ({
+  id: notification.id,
+  title: notification.title || "",
+  description: notification.message || "",
+  time: formatRelative(notification.time || notification.created_at),
+  kind: notification.kind || notification.type || "alert",
+  read: Boolean(notification.read ?? notification.is_read),
+});
+
 export const notificationsService = {
-  list: async ({ query = "", page = 1, perPage = 20 } = {}) => {
-    const params = { search: query, page, per_page: perPage };
-    return await adminService.listNotifications({ ...params, perPage });
+  /** NotificationsPage filtre cote client : on renvoie toutes les notifications. */
+  list: async ({ query = "" } = {}) => {
+    const notifications = await fetchAllPages(notificationEndpoints.list, { search: query });
+    return notifications.map(mapNotification);
   },
   markRead: async (id) => {
-    return await adminService.markNotificationRead(id);
+    const updated = await apiPatch(notificationEndpoints.markRead(id), {});
+    return mapNotification(updated);
+  },
+  markAllRead: async () => {
+    await apiPost(notificationEndpoints.markAllRead, {});
+    return notificationsService.list();
   },
   remove: async (id) => {
-    return await adminService.deleteNotification(id);
+    await apiDelete(notificationEndpoints.remove(id));
+    return true;
   },
 };

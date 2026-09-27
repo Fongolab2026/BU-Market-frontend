@@ -5,8 +5,24 @@ import { notificationsService } from '../services/notificationsService.js'
 import { PageHeader } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
 
-const iconByKind = { shop: Store, alert: AlertTriangle, order: ShoppingBag, product: Package, message: MessageSquareText }
-const toneByKind = { shop: 'bg-brand/10 text-brand', alert: 'bg-rose-50 text-rose-600', order: 'bg-emerald-50 text-emerald-600', product: 'bg-violet-50 text-violet-600', message: 'bg-amber-50 text-amber-600' }
+const iconByKind = { 
+  shop: Store, 
+  alert: AlertTriangle, 
+  order: ShoppingBag, 
+  product: Package, 
+  message: MessageSquareText,
+  system: BellRing,
+  promotion: AlertTriangle,
+}
+const toneByKind = { 
+  shop: 'bg-brand/10 text-brand', 
+  alert: 'bg-rose-50 text-rose-600', 
+  order: 'bg-emerald-50 text-emerald-600', 
+  product: 'bg-violet-50 text-violet-600', 
+  message: 'bg-amber-50 text-amber-600',
+  system: 'bg-blue-50 text-blue-600',
+  promotion: 'bg-rose-50 text-rose-600',
+}
 
 export function NotificationsPage() {
   const [notifications, setNotifications] = useState([])
