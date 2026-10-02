@@ -29,7 +29,7 @@ export default function CardProduit({ product }) {
         <p className="mt-auto pt-1 font-bold text-base-content">
           {Number(product.price).toLocaleString('fr-FR', {
             style: 'currency',
-            currency: 'EUR',
+            currency: 'BIF',
           })}
         </p>
       </div>

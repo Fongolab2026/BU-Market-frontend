@@ -87,7 +87,7 @@ export function SettingsPage() {
               <Field label="E-mail de contact" type="email" icon={Mail} value={settings.supportEmail} onChange={(value) => update('supportEmail', value)} />
               <Field label="Téléphone de contact" icon={Phone} value={settings.phone} onChange={(value) => update('phone', value)} />
               <FieldSelect label="Langue par défaut" icon={Languages} value={settings.defaultLanguage} onChange={(value) => update('defaultLanguage', value)} options={[{ value: 'fr', label: 'Français' }, { value: 'en', label: 'English' }]} />
-              <FieldSelect label="Devise" icon={Banknote} value={settings.currency} onChange={(value) => update('currency', value)} options={[{ value: 'BIF', label: 'Franc burundais (BIF)' }, { value: 'USD', label: 'Dollar américain (USD)' }, { value: 'EUR', label: 'Euro (EUR)' }]} />
+              <FieldSelect label="Devise" icon={Banknote} value="BIF" onChange={() => update('currency', 'BIF')} options={[{ value: 'BIF', label: 'Franc burundais (BIF)' }]} />
             </div>
           </SettingsCard>
 

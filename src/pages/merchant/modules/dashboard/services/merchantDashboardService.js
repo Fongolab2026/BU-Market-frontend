@@ -33,7 +33,7 @@ export const merchantDashboardService = {
       ...(products.results || []).slice(0, 5).map((product) => ({
         id: `product-${product.id}`,
         title: `Produit ajouté: ${product.name}`,
-        description: `${product.categoryName || product.category} - ${product.price} F`,
+        description: `${product.categoryName || product.category} - ${product.price} BIF`,
         time: product.created_at,
         kind: "product",
       })),
@@ -45,7 +45,7 @@ export const merchantDashboardService = {
 
     return {
       stats: [
-        { id: "sales", label: "Ventes (7j)", value: weeklySales.toLocaleString() + " F", change: "+12%", trend: "up", tone: "brand" },
+        { id: "sales", label: "Ventes (7j)", value: weeklySales.toLocaleString() + " BIF", change: "+12%", trend: "up", tone: "brand" },
         { id: "orders", label: "Commandes", value: orders.results?.length || 0, change: "+5%", trend: "up", tone: "emerald" },
         { id: "products", label: "Produits actifs", value: activeProductCount, change: `${productCount - activeProductCount} inactifs`, trend: "up", tone: "violet" },
         { id: "views", label: "Vues boutique", value: totalViews.toLocaleString(), change: "+8%", trend: "up", tone: "amber" },

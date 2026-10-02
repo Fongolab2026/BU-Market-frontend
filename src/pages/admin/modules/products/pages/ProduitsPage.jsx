@@ -204,7 +204,7 @@ export function ProduitsPage() {
                       <Store size={14} className="text-secondary" /> {product.shopName}
                     </span>
                   </td>
-                  <td className="py-3.5 font-semibold text-base-content">{product.price} F</td>
+                  <td className="py-3.5 font-semibold text-base-content">{product.price} BIF</td>
                   <td className="py-3.5 text-sm text-base-content/70">{product.stock} en stock</td>
                   <td className="py-3.5"><StatusBadge status={product.status} /></td>
                   <td className="py-3.5">
@@ -307,7 +307,7 @@ function ProductFormModal({ editing, shops, categories, form, setFormField, canS
               </select>
             </label>
           )}
-          <ProductField label="Prix (F)" type="number" value={form.price} onChange={(value) => setFormField('price', value)} placeholder="Ex. 45000" />
+          <ProductField label="Prix (BIF)" type="number" value={form.price} onChange={(value) => setFormField('price', value)} placeholder="Ex. 45000" />
           <ProductField label="Quantité en stock" type="number" value={form.stock} onChange={(value) => setFormField('stock', value)} placeholder="Ex. 20" />
 
           {/* Upload d'images */}

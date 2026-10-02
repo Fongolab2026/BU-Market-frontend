@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import NavBar from '../Composants/nav'
 import api, { endpoints } from '../../services/api'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 const industries = [
   'Alimentation et boissons',
@@ -59,7 +60,7 @@ const initialForm = {
   otherNeighborhood: '',
 }
 
-function Field({ label, name, value, onChange, type = 'text', required = false, placeholder, error, children }) {
+function Field({ label, name, value, onChange, type = 'text', required = false, placeholder, error, readOnly = false, children }) {
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <label htmlFor={name} className="text-sm font-semibold text-base-content">
@@ -74,6 +75,8 @@ function Field({ label, name, value, onChange, type = 'text', required = false, 
           onChange={onChange}
           placeholder={placeholder}
           required={required}
+          readOnly={readOnly}
+          aria-readonly={readOnly ? 'true' : undefined}
           aria-invalid={error ? 'true' : undefined}
           className={`input input-bordered w-full bg-base-100 ${error ? 'input-error' : ''}`}
         />
@@ -85,6 +88,7 @@ function Field({ label, name, value, onChange, type = 'text', required = false, 
 
 export default function LouerEspace() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [form, setForm] = useState(initialForm)
   const [feedback, setFeedback] = useState(null)
   const [errors, setErrors] = useState({})
@@ -96,6 +100,12 @@ export default function LouerEspace() {
   const neighborhoodOptions = neighborhoods[form.commune] || ['Centre-ville', 'Autre']
   const steps = ['Boutique', 'Réseaux sociaux', 'Emplacement']
   const progress = Math.round((completedSteps.length / steps.length) * 100)
+
+  useEffect(() => {
+    if (!user) return
+    const ownerName = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.username || ''
+    setForm((current) => ({ ...current, ownerName }))
+  }, [user])
 
   useEffect(() => {
     if (activeStep > 0) {
@@ -275,7 +285,7 @@ export default function LouerEspace() {
             </div>
             <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
               <Field label="Nom de l’entreprise" name="companyName" value={form.companyName} error={errors.companyName} onChange={updateField} required placeholder="Ex. Atelier du Burundi" />
-              <Field label="Nom du propriétaire" name="ownerName" value={form.ownerName} error={errors.ownerName} onChange={updateField} required placeholder="Nom complet" />
+              <Field label="Nom du propriétaire" name="ownerName" value={form.ownerName} error={errors.ownerName} onChange={updateField} required readOnly placeholder="Nom du compte connecté" />
               <Field label="Industrie" name="industry" error={errors.industry} required>
                 <select id="industry" name="industry" value={form.industry} onChange={updateField} required className="select select-bordered w-full bg-base-100">
                   <option value="" disabled>Sélectionner une industrie</option>

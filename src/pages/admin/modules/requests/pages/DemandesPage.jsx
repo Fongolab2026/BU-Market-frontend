@@ -128,7 +128,7 @@ const updateStatus = (id, nextStatus) => {
             </div>
 
             <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 md:justify-end">
-              <span className="pr-2 text-base font-extrabold text-base-content">{request.product.price} F</span>
+              <span className="pr-2 text-base font-extrabold text-base-content">{request.product.price} BIF</span>
               <StatusBadge status={request.status} />
               <button type="button" onClick={() => setSelected(request)} className="btn btn-ghost btn-sm gap-1.5">
                 <Eye size={15} /> Détail
@@ -165,7 +165,7 @@ const updateStatus = (id, nextStatus) => {
               <div>
                 <h3 className="font-bold text-base-content">{selected.product.name}</h3>
                 <p className="text-sm text-base-content/60">{selected.product.category}</p>
-                <p className="mt-1 text-xl font-extrabold text-brand">{selected.product.price} F</p>
+                <p className="mt-1 text-xl font-extrabold text-brand">{selected.product.price} BIF</p>
               </div>
             </div>
 

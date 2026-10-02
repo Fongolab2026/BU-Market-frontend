@@ -243,7 +243,7 @@ function ProductsCard({ shop, busy, onToggle }) {
                   <p className="font-semibold text-base-content">{product.name}</p>
                   <p className="mt-0.5 text-xs text-base-content/45">Publié le {product.date}</p>
                 </td>
-                <td className="px-5 py-3.5 font-semibold text-base-content">{product.price} F</td>
+                <td className="px-5 py-3.5 font-semibold text-base-content">{product.price} BIF</td>
                 <td className="px-5 py-3.5 text-sm text-base-content/70">{product.stock} en stock</td>
                 <td className="px-5 py-3.5"><StatusBadge status={product.status} /></td>
                 <td className="px-5 py-3.5 text-right">

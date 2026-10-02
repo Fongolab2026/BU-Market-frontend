@@ -1,5 +1,4 @@
-import { endpoints } from "../../../../../services/api.js";
-import { merchantService } from "../../../../../services/mockMerchantService.js";
+import api, { endpoints } from "../../../../../services/api.js";
 
 export const merchantShopEndpoints = {
   detail: endpoints.shops.list,
@@ -9,12 +8,28 @@ export const merchantShopEndpoints = {
 
 export const merchantShopService = {
   get: async () => {
-    return await merchantService.getMyShop();
+    try {
+      const { data } = await api.get(endpoints.shops.myShop);
+      return data;
+    } catch (error) {
+      if (error.response?.status === 404) return null;
+      throw error;
+    }
   },
   create: async (input) => {
-    return await merchantService.createShop(input);
+    const { data } = await api.patch(endpoints.users.me, {
+      shop_name: input.name.trim(),
+      shop_description: input.description.trim(),
+    });
+    return data.shop;
   },
   update: async (input) => {
-    return await merchantService.updateShop(input);
+    const formData = new FormData();
+    formData.append("name", input.name);
+    formData.append("description", input.description);
+    formData.append("category", input.category);
+    if (input.imageFile) formData.append("shop_image", input.imageFile);
+    const { data } = await api.patch(endpoints.shops.updateInfo(input.id), formData);
+    return data;
   },
 };

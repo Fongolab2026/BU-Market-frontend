@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, BadgeCheck, Heart, ShieldCheck, ShoppingBag, Store, Truck } from 'lucide-react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, ArrowRight, BadgeCheck, Globe2, Heart, Mail, MapPin, Phone, ShieldCheck, ShoppingBag, Store, Truck } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { productApi, categoryApi, favoriteApi, isAuthenticated } from '../../services'
+import { productApi, categoryApi, favoriteApi, cartApi, isAuthenticated } from '../../services'
 import Loading from '../Composants/Loading'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
 
 export default function DetailProduit() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [product, setProduct] = useState(null)
   const [categories, setCategories] = useState([])
   const [selectedImage, setSelectedImage] = useState(null)
@@ -65,6 +66,17 @@ export default function DetailProduit() {
       toast.success('Ajouté aux favoris')
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Déjà dans vos favoris')
+    }
+  }
+
+  const handleAddToCart = async () => {
+    if (!isAuthenticated()) return toast.error('Connectez-vous pour ajouter au panier')
+    try {
+      await cartApi.addItem(product.id)
+      toast.success('Produit ajouté au panier')
+      navigate('/panier')
+    } catch (err) {
+      toast.error(err.response?.data?.quantity?.[0] || err.response?.data?.detail || "Impossible d'ajouter ce produit au panier")
     }
   }
 
@@ -165,7 +177,20 @@ export default function DetailProduit() {
               </span>
               <div>
                 <p className="text-xs uppercase tracking-wider text-base-content/45">Vendu par</p>
-                <p className="font-semibold text-base-content">Vendeur n°{product.owner}</p>
+                <p className="font-semibold text-base-content">{product.sellerName || product.shopName || `Vendeur n°${product.owner}`}</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-base-300 bg-[var(--surface)] p-4 text-sm text-base-content/70">
+              <p className="mb-3 text-xs font-bold uppercase tracking-wider text-base-content/45">Coordonnées du vendeur</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {product.sellerEmail && <a href={`mailto:${product.sellerEmail}`} className="flex items-center gap-2 text-primary hover:underline"><Mail size={15} /> {product.sellerEmail}</a>}
+                {product.sellerPhone && <a href={`tel:${product.sellerPhone}`} className="flex items-center gap-2 text-primary hover:underline"><Phone size={15} /> {product.sellerPhone}</a>}
+                {product.sellerAddress && <p className="flex items-center gap-2"><MapPin size={15} /> {product.sellerAddress}</p>}
+                {product.sellerWebsite && <a href={product.sellerWebsite} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe2 size={15} /> Site web</a>}
+                {product.sellerInstagram && <a href={product.sellerInstagram} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe2 size={15} /> Instagram</a>}
+                {product.sellerFacebook && <a href={product.sellerFacebook} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe2 size={15} /> Facebook</a>}
+                {product.sellerTiktok && <a href={product.sellerTiktok} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe2 size={15} /> TikTok</a>}
               </div>
             </div>
 
@@ -174,7 +199,7 @@ export default function DetailProduit() {
               <p className="mt-1 text-4xl font-extrabold tracking-tight text-primary">
                 {Number(product.price).toLocaleString('fr-FR', {
                   style: 'currency',
-                  currency: 'EUR',
+                  currency: 'BIF',
                 })}
               </p>
             </div>
@@ -195,7 +220,7 @@ export default function DetailProduit() {
                 <Heart size={18} className="text-red-500" aria-hidden="true" />
                 Favori
               </button>
-              <button type="button" className="btn btn-primary flex-1 gap-2 sm:flex-none">
+              <button type="button" onClick={handleAddToCart} className="btn btn-primary flex-1 gap-2 sm:flex-none">
                 <ShoppingBag size={18} aria-hidden="true" />
                 Ajouter au panier
                 <ArrowRight size={17} aria-hidden="true" />

@@ -22,22 +22,56 @@ import { MerchantMessagesPage } from "../../pages/merchant/modules/messages/page
 import { MerchantOrdersPage } from "../../pages/merchant/modules/orders/pages/MerchantOrdersPage.jsx";
 import { MerchantProductsPage } from "../../pages/merchant/modules/products/pages/MerchantProductsPage.jsx";
 import { MerchantShopPage } from "../../pages/merchant/modules/shop/pages/MerchantShopPage.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 import { isAuthenticated } from "../../services/api.js";
 import DetailProduit from "../Pages/DetailProduit.jsx";
 import Home from "../Pages/Home.jsx";
 import Landing from "../Pages/Landing.jsx";
+import ProfilVendeur from "../Pages/ProfilVendeur.jsx";
+import Panier from "../Pages/Panier.jsx";
+import MesCommandes from "../Pages/MesCommandes.jsx";
 
 function RequireUser() {
   return isAuthenticated() ? <Outlet /> : <Navigate to="/" replace />;
 }
 
+function RequireBuyer() {
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+  if (!isAuthenticated()) return <Navigate to="/" replace />;
+  if (user?.role === "merchant" || user?.role === "seller") {
+    return <Navigate to="/marchand/tableau-de-bord" replace />;
+  }
+  if (user?.role === "admin" || user?.role === "superadmin") {
+    return <Navigate to="/admin/tableau-de-bord" replace />;
+  }
+  return <Outlet />;
+}
+
+function DefaultEntry() {
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+  if (user?.role === "merchant" || user?.role === "seller") {
+    return <Navigate to="/marchand/tableau-de-bord" replace />;
+  }
+  if (user?.role === "admin" || user?.role === "superadmin") {
+    return <Navigate to="/admin/tableau-de-bord" replace />;
+  }
+  return <Landing />;
+}
+
 export const protectedRoutes = [
-  { index: true, element: <Landing /> },
+  { index: true, element: <DefaultEntry /> },
   {
-    element: <RequireUser />,
+    element: <RequireBuyer />,
     children: [
       { path: "accueil", element: <Home /> },
       { path: "produit/:id", element: <DetailProduit /> },
+      { path: "profil-vendeur/:id", element: <ProfilVendeur /> },
+      { path: "panier", element: <Panier /> },
+      { path: "commandes", element: <MesCommandes /> },
     ],
   },
   {

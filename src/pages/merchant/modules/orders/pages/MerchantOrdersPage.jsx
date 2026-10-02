@@ -126,7 +126,7 @@ export function MerchantOrdersPage() {
                       <Package size={14} className="text-secondary" /> {order.items}
                     </span>
                   </td>
-                  <td className="py-3.5 font-semibold text-base-content">{order.total} F</td>
+                  <td className="py-3.5 font-semibold text-base-content">{order.total} BIF</td>
                   <td className="py-3.5"><StatusBadge status={order.status} label={statusLabels[order.status]} /></td>
                   <td className="py-3.5 text-sm text-base-content/55">{order.date}</td>
                   <td className="py-3.5">

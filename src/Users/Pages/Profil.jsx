@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, CheckCircle2, KeyRound, Loader2, Lock, Shield, UserRound } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, ImagePlus, KeyRound, Loader2, Lock, Shield, UserRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import NavBar from '../Composants/nav'
@@ -34,6 +34,8 @@ export default function Profil() {
 
   const [form, setForm] = useState({})
   const [saving, setSaving] = useState(false)
+  const [profileFile, setProfileFile] = useState(null)
+  const [profilePreview, setProfilePreview] = useState('')
   const [pwd, setPwd] = useState({ current: '', next: '', confirm: '' })
   const [pwdErrors, setPwdErrors] = useState({})
   const [changingPwd, setChangingPwd] = useState(false)
@@ -65,12 +67,19 @@ export default function Profil() {
     })
   }, [user])
 
+  useEffect(() => {
+    return () => {
+      if (profilePreview.startsWith('blob:')) URL.revokeObjectURL(profilePreview)
+    }
+  }, [profilePreview])
+
   const initials =
     user?.initials ||
     `${user?.firstName?.[0] || user?.first_name?.[0] || user?.username?.[0] || ''}`.toUpperCase() ||
     'U'
   const displayName =
     user?.firstName || user?.first_name || user?.username || 'Utilisateur'
+  const profileImage = profilePreview || user?.profile_pic || user?.profilePic || ''
 
   const profileSections = [
     { id: 'infos', label: 'Informations personnelles', icon: UserRound },
@@ -87,23 +96,42 @@ export default function Profil() {
     setForm((current) => ({ ...current, [name]: value }))
   }
 
+  const handleProfileImageChange = (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      toast.error('Sélectionnez un fichier image valide.')
+      return
+    }
+    setProfileFile(file)
+    setProfilePreview(URL.createObjectURL(file))
+  }
+
   const handleProfileSubmit = async (event) => {
     event.preventDefault()
     if (saving) return
     setSaving(true)
     try {
+      let updatedProfile = user
       if (user?.id) {
         try {
-          await api.patch(endpoints.users.update(user.id), {
+          const { data } = await api.patch(endpoints.users.update(user.id), {
             first_name: form.firstName,
             last_name: form.lastName,
             phone: form.phone,
           })
+          updatedProfile = { ...updatedProfile, ...data }
         } catch {
         }
       }
+      if (profileFile) {
+        const imageData = new FormData()
+        imageData.append('profile_pic', profileFile)
+        const { data } = await api.patch(endpoints.users.me, imageData)
+        updatedProfile = { ...updatedProfile, ...data }
+      }
       signIn({
-        ...user,
+        ...updatedProfile,
         firstName: form.firstName,
         lastName: form.lastName,
         first_name: form.firstName,
@@ -111,6 +139,7 @@ export default function Profil() {
         phone: form.phone,
         email: form.email,
       })
+      setProfileFile(null)
       toast.success('Vos informations ont été mises à jour.')
     } catch (err) {
       if (err.response?.data && typeof err.response.data === 'object' && !Array.isArray(err.response.data)) {
@@ -179,7 +208,7 @@ export default function Profil() {
             <div className="rounded-lg border border-base-300 bg-(--surface) p-2 shadow-sm">
               <div className="flex items-center gap-3 border-b border-base-300/70 px-3 py-4">
                 <span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-base font-bold text-primary ring-1 ring-primary/25">
-                  {initials}
+                  {profileImage ? <img src={profileImage} alt="" className="h-full w-full object-cover" /> : initials}
                 </span>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold text-base-content">{displayName}</p>
@@ -209,9 +238,13 @@ export default function Profil() {
 
           <div className="min-w-0">
         <header className="mb-8 flex flex-col items-start gap-4 border-b border-base-300 pb-6 sm:mb-10 sm:flex-row sm:items-center sm:gap-5 sm:pb-8">
-          <span className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-lg font-bold text-primary ring-1 ring-primary/25 sm:size-16 sm:text-xl">
-            {initials}
-          </span>
+          <label className="group relative flex size-14 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary/10 text-lg font-bold text-primary ring-1 ring-primary/25 sm:size-16 sm:text-xl" title="Modifier la photo de profil">
+            {profileImage ? <img src={profileImage} alt="Photo de profil" className="h-full w-full object-cover" /> : initials}
+            <span className="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 transition group-hover:opacity-100">
+              <ImagePlus size={20} />
+            </span>
+            <input type="file" accept="image/*" className="sr-only" onChange={handleProfileImageChange} />
+          </label>
           <div>
             <h1 className="text-3xl font-extrabold leading-tight sm:text-4xl">Paramètres du profil</h1>
             <p className="mt-2 text-base-content/65">

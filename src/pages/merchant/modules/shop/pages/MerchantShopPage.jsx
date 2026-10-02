@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AlertTriangle, ArrowUpRight, Building2, CheckCircle2, Clock3, Eye, Package, Pencil, Plus, Star, Store, X } from 'lucide-react'
+import { AlertTriangle, ArrowUpRight, Building2, CheckCircle2, Clock3, Eye, ImagePlus, Package, Pencil, Plus, Star, Store, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { merchantShopService } from '../services/merchantShopService.js'
 import { PageHeader, StatusBadge } from '../../../components/ui.jsx'
@@ -18,7 +18,7 @@ export function MerchantShopPage() {
   const [loading, setLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [form, setForm] = useState({ name: '', category: '', description: '' })
+  const [form, setForm] = useState({ name: '', category: '', description: '', imageFile: null, imagePreview: '' })
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
@@ -40,8 +40,8 @@ export function MerchantShopPage() {
     toast.success(shop && shop.id ? 'Votre boutique a été mise à jour.' : 'Votre boutique a été créée et attend la validation.')
   }
 
-  const openCreate = () => { setForm({ name: '', category: shopCategories[0], description: '' }); setIsCreating(true); setIsEditing(false) }
-  const openEdit = () => { setForm({ name: shop.name, category: shop.category, description: shop.description }); setIsEditing(true); setIsCreating(false) }
+  const openCreate = () => { setForm({ name: '', category: shopCategories[0], description: '', imageFile: null, imagePreview: '' }); setIsCreating(true); setIsEditing(false) }
+  const openEdit = () => { setForm({ id: shop.id, name: shop.name, category: shop.category, description: shop.description, imageFile: null, imagePreview: shop.shopImage || '' }); setIsEditing(true); setIsCreating(false) }
 
   if (loading) return <Skeleton />
 
@@ -71,8 +71,8 @@ export function MerchantShopPage() {
             <div className="h-32 bg-gradient-to-br from-brand/20 via-brand/10 to-transparent" />
             <div className="-mt-14 flex flex-col gap-5 p-6 sm:flex-row sm:items-end sm:px-6 sm:pb-6">
               <div className="relative">
-                <span className="grid size-24 shrink-0 place-items-center rounded-2xl border-4 border-white bg-base-100 text-brand shadow-lg">
-                  <Building2 size={38} />
+                <span className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-white bg-base-100 text-brand shadow-lg">
+                  {shop.shopImage ? <img src={shop.shopImage} alt={shop.name} className="h-full w-full object-cover" /> : <Building2 size={38} />}
                 </span>
                 {shop.status === 'validated' && (
                   <span className="absolute -bottom-2 -right-2 grid size-6 place-items-center rounded-full bg-emerald-500 text-white ring-2 ring-white">
@@ -190,6 +190,14 @@ function ShopStatCard({ icon: Icon, label, value, tone, trend }) {
 }
 
 function ShopForm({ title, subtitle, form, setFormField, submitting, onSubmit, onClose }) {
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) return
+    setFormField('imageFile', file)
+    setFormField('imagePreview', URL.createObjectURL(file))
+  }
+
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4 animate-in fade-in zoom-in-95 duration-200">
       <form onSubmit={onSubmit} className="card w-full max-w-lg p-6 shadow-2xl">
@@ -204,6 +212,15 @@ function ShopForm({ title, subtitle, form, setFormField, submitting, onSubmit, o
         </div>
 
         <div className="mt-5 grid gap-4">
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold text-base-content/80">Photo de la boutique</span>
+            <div className="flex items-center gap-4">
+              <span className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-xl bg-brand/10 text-brand">
+                {form.imagePreview ? <img src={form.imagePreview} alt="Aperçu de la boutique" className="h-full w-full object-cover" /> : <ImagePlus size={26} />}
+              </span>
+              <input type="file" accept="image/*" onChange={handleImageChange} className="file-input file-input-bordered w-full text-sm" />
+            </div>
+          </label>
           <label className="block">
             <span className="mb-1.5 block text-sm font-semibold text-base-content/80">Nom de la boutique</span>
             <input value={form.name} onChange={(event) => setFormField('name', event.target.value)} placeholder="Ex : Maison Claire" className="input input-bordered w-full text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20" />

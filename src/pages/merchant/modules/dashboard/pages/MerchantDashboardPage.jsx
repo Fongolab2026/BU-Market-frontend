@@ -44,7 +44,7 @@ export function MerchantDashboardPage() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="font-semibold text-base-content">Évolution des ventes (7 jours)</h2>
-                <p className="mt-0.5 text-sm text-base-content/60">Chiffre d'affaires quotidien en F CFA</p>
+                <p className="mt-0.5 text-sm text-base-content/60">Chiffre d'affaires quotidien en BIF</p>
               </div>
               <span className="grid size-9 place-items-center rounded-xl bg-brand/10 text-brand">
                 <TrendingUp size={18} />
@@ -65,7 +65,7 @@ export function MerchantDashboardPage() {
                       className={`w-full max-w-10 rounded-t-md transition-all duration-500 ${isPeak ? 'bg-brand' : 'bg-brand/20'}`}
                       style={{ height: `${heightPct}%` }}
                       role="img"
-                      aria-label={`${weekDays[index]} : ${value.toLocaleString()} F`}
+                      aria-label={`${weekDays[index]} : ${value.toLocaleString()} BIF`}
                     />
                     <span className="text-xs font-medium text-base-content/40">{weekDays[index]}</span>
                   </div>
@@ -75,7 +75,7 @@ export function MerchantDashboardPage() {
           </div>
           <div className="border-t border-base-200 bg-base-50/50 px-5 py-3 sm:px-6">
             <p className="text-xs text-base-content/55 text-center">
-              Pic : <span className="font-semibold text-brand">{Math.max(...data.weeklySales).toLocaleString()} F</span> &nbsp;|&nbsp; Moyenne : <span className="font-semibold text-base-content">{(data.weeklySales.reduce((a, b) => a + b, 0) / data.weeklySales.length).toFixed(0)} F</span>
+              Pic : <span className="font-semibold text-brand">{Math.max(...data.weeklySales).toLocaleString()} BIF</span> &nbsp;|&nbsp; Moyenne : <span className="font-semibold text-base-content">{(data.weeklySales.reduce((a, b) => a + b, 0) / data.weeklySales.length).toFixed(0)} BIF</span>
             </p>
           </div>
         </article>

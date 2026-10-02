@@ -144,14 +144,14 @@ if (role === "admin") {
                 className="text-sm font-bold text-base-content"
                 htmlFor="username"
               >
-                Nom d&apos;utilisateur
+                Nom d&apos;utilisateur ou e-mail
               </label>
               <input
                 id="username"
                 className="input input-lg w-full"
                 type="text"
                 name="username"
-                placeholder="Votre nom d'utilisateur"
+                placeholder="Votre nom d'utilisateur ou votre e-mail"
                 value={formData.username}
                 onChange={handleChange}
                 required

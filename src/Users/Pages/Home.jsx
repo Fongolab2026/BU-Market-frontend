@@ -11,6 +11,7 @@ import {
   RotateCcw,
   ShieldCheck,
   ShoppingBag,
+  Store,
   Search,
   Sparkles,
   Truck,
@@ -24,6 +25,7 @@ import {
   Clock,
   Send,
   Heart,
+  X,
 } from 'lucide-react'
 import { Divider } from 'primereact/divider'
 import { Button } from 'primereact/button'
@@ -32,7 +34,8 @@ import { InputTextarea } from 'primereact/inputtextarea'
 import CardProducts from '../products/ui/cardProduct'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
-import { productApi, categoryApi } from '../../services'
+import ZoomableImage from '../Composants/ZoomableImage.jsx'
+import { productApi, categoryApi, shopApi } from '../../services'
 import { useSpaceRequest } from '../../hooks/useSpaceRequest.js'
 
 const TRUST_POINTS = [
@@ -97,6 +100,8 @@ export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
+  const [shops, setShops] = useState([])
+  const [selectedShop, setSelectedShop] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [initialLoading, setInitialLoading] = useState(true)
@@ -109,12 +114,14 @@ export default function Home() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [prodRes, catRes] = await Promise.all([
-          productApi.list(),
+        const [prodRes, catRes, shopRes] = await Promise.all([
+          productApi.list({ status: 'active' }),
           categoryApi.list(),
+          shopApi.list({ status: 'validated', perPage: 100 }),
         ])
         setProducts(prodRes.data.results ?? prodRes.data)
         setCategories(Array.isArray(catRes.data) ? catRes.data : catRes.data.results ?? [])
+        setShops(shopRes.data.results ?? shopRes.data ?? [])
       } catch (e) {
         setError('Erreur lors du chargement des produits')
         console.error('home:', e)
@@ -375,6 +382,51 @@ export default function Home() {
               </button>
             </nav>
           )}
+
+          <section className="mt-16 border-t border-base-300 pt-12" aria-labelledby="boutiques-title">
+            <div className="mb-7 flex flex-col items-center gap-3 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left">
+              <div>
+                <span className="badge badge-accent badge-sm mb-2 uppercase tracking-widest">Vendeurs</span>
+                <h2 id="boutiques-title" className="text-3xl font-bold tracking-tight text-base-content md:text-4xl">
+                  Nos boutiques
+                </h2>
+              </div>
+              <p className="text-sm text-base-content/60">Découvrez les boutiques validées de la marketplace.</p>
+            </div>
+
+            {shops.length === 0 ? (
+              <p className="text-center text-base-content/60">Aucune boutique disponible pour le moment.</p>
+            ) : (
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {shops.map((shop) => (
+                  <button
+                    key={shop.id}
+                    type="button"
+                    onClick={async () => {
+                      const { data } = await shopApi.detail(shop.id)
+                      setSelectedShop(data)
+                    }}
+                    className="group rounded-2xl border border-base-300 bg-[var(--surface)] p-5 text-left shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+                  >
+                    <div className="flex items-start gap-4">
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-primary">
+                        {shop.shopImage ? <img src={shop.shopImage} alt={shop.name} className="h-full w-full object-cover" /> : <Store size={23} aria-hidden="true" />}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate text-lg font-bold text-base-content group-hover:text-primary">{shop.name}</h3>
+                        <p className="mt-1 text-sm text-base-content/60">{shop.category || 'Boutique'}</p>
+                      </div>
+                    </div>
+                    <div className="mt-5 grid grid-cols-3 gap-2 border-t border-base-200 pt-4 text-center text-xs text-base-content/60">
+                      <span><strong className="block text-base font-bold text-base-content">{shop.products}</strong>produits</span>
+                      <span><strong className="block text-base font-bold text-base-content">{shop.rating || '—'}</strong>note</span>
+                      <span><strong className="block text-base font-bold text-base-content">{shop.views || 0}</strong>vues</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
 
           {initialLoading && searchedProducts.length > 0 && (
             <section className="relative mt-16 overflow-hidden rounded-3xl bg-gradient-to-r from-primary to-secondary p-8 text-primary-content md:p-12">
@@ -638,8 +690,82 @@ export default function Home() {
         </section>
       </main>
 
+      {selectedShop && <ShopDetail shop={selectedShop} onClose={() => setSelectedShop(null)} />}
+
       {/* ---------- Pied de page ---------- */}
       <Footer />
+    </div>
+  )
+}
+
+function ShopDetail({ shop, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="shop-detail-title">
+      <article className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-[var(--surface)] p-6 shadow-2xl sm:p-8">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wider text-primary">Boutique validée</p>
+            <div className="flex items-center gap-3">
+              {shop.shopImage && <ZoomableImage src={shop.shopImage} alt={shop.name} className="size-12 rounded-xl" />}
+              {shop.creatorPhoto && <ZoomableImage src={shop.creatorPhoto} alt={shop.creatorName || shop.owner} className="size-10 rounded-full" />}
+              <h2 id="shop-detail-title" className="mt-1 text-3xl font-extrabold text-base-content">{shop.name}</h2>
+            </div>
+            <p className="mt-1 text-sm text-base-content/60">{shop.category || 'Catégorie non renseignée'} · Vendeur : {shop.creatorName || shop.owner}</p>
+            <Link
+              to={`/profil-vendeur/${shop.ownerId}`}
+              onClick={onClose}
+              className="mt-3 inline-flex text-sm font-semibold text-primary hover:underline"
+            >
+              Voir le profil du vendeur
+            </Link>
+            <div className="mt-4 space-y-1 text-sm text-base-content/65">
+              <p className="flex items-center gap-2"><Users size={15} /> {shop.creatorName || shop.owner}</p>
+              {shop.email && <p className="flex items-center gap-2"><Mail size={15} /> {shop.email}</p>}
+              {shop.phone && <p className="flex items-center gap-2"><Phone size={15} /> {shop.phone}</p>}
+              {shop.address && <p className="flex items-center gap-2"><MapPin size={15} /> {shop.address}</p>}
+              {shop.website && <a href={shop.website} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe size={15} /> Site web</a>}
+              {shop.instagram && <a href={shop.instagram} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe size={15} /> Instagram</a>}
+              {shop.facebook && <a href={shop.facebook} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe size={15} /> Facebook</a>}
+              {shop.tiktok && <a href={shop.tiktok} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe size={15} /> TikTok</a>}
+            </div>
+          </div>
+          <button type="button" onClick={onClose} className="btn btn-ghost btn-circle" aria-label="Fermer le détail de la boutique">
+            <X size={20} />
+          </button>
+        </div>
+
+        <p className="mt-6 leading-7 text-base-content/75">{shop.description || 'Cette boutique n’a pas encore ajouté de description.'}</p>
+
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <ShopMetric label="Produits" value={shop.products} />
+          <ShopMetric label="Note" value={shop.rating || '—'} />
+          <ShopMetric label="Avis" value={shop.reviewCount || 0} />
+          <ShopMetric label="Vues" value={shop.views || 0} />
+        </div>
+
+        <h3 className="mt-8 text-xl font-bold text-base-content">Produits de la boutique</h3>
+        {shop.productList?.length ? (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {shop.productList.map((product) => (
+              <Link key={product.id} to={`/produit/${product.id}`} onClick={onClose} className="rounded-xl border border-base-300 p-4 transition hover:border-primary/40 hover:bg-primary/5">
+                <p className="font-semibold text-base-content">{product.name}</p>
+                <p className="mt-1 text-sm text-primary">{Number(product.price).toLocaleString('fr-FR')} BIF</p>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-base-content/60">Aucun produit publié dans cette boutique.</p>
+        )}
+      </article>
+    </div>
+  )
+}
+
+function ShopMetric({ label, value }) {
+  return (
+    <div className="rounded-xl bg-base-200/60 p-3 text-center">
+      <p className="text-lg font-bold text-base-content">{value}</p>
+      <p className="text-xs text-base-content/60">{label}</p>
     </div>
   )
 }

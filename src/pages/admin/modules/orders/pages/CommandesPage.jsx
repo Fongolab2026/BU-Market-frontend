@@ -70,7 +70,7 @@ export function CommandesPage() {
         </article>
         <article className="card p-4">
           <p className="text-sm font-medium text-base-content/60">Ventes encaissées</p>
-          <p className="mt-2 text-3xl font-extrabold tracking-tight text-base-content">{formattedTotal} F</p>
+          <p className="mt-2 text-3xl font-extrabold tracking-tight text-base-content">{formattedTotal} BIF</p>
         </article>
         <article className="card p-4">
           <p className="text-sm font-medium text-base-content/60">En attente</p>
@@ -137,7 +137,7 @@ export function CommandesPage() {
                       <Package size={14} className="text-secondary" /> {order.items}
                     </span>
                   </td>
-                  <td className="py-3.5 font-semibold text-base-content">{order.total} F</td>
+                  <td className="py-3.5 font-semibold text-base-content">{order.total} BIF</td>
                   <td className="py-3.5"><StatusBadge status={order.status} label={statusLabels[order.status]} /></td>
                   <td className="py-3.5 text-sm text-base-content/55">{order.date}</td>
                   <td className="py-3.5">

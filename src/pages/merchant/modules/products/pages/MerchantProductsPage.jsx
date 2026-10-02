@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Eye, EyeOff, Package, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 import { merchantProductService } from '../services/merchantProductService.js'
 import { categoryApi } from '../../../../../services/categoryService.js'
 import { PageHeader, StatusBadge } from '../../../components/ui.jsx'
@@ -36,6 +37,7 @@ function getPlaceholderImage(name) {
 }
 
 export function MerchantProductsPage() {
+  const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [search, setSearch] = useState('')
@@ -56,36 +58,60 @@ export function MerchantProductsPage() {
 
   useEffect(() => {
     categoryApi.list().then(({ data }) => {
-      setCategories(Array.isArray(data) ? data : data?.results ?? [])
+      const availableCategories = (Array.isArray(data) ? data : data?.results ?? [])
+        .filter((category) => category.active !== false)
+      setCategories(availableCategories)
+    }).catch((error) => {
+      if (error.response?.status === 401) {
+        toast.error('Votre session a expiré. Veuillez vous reconnecter.')
+        navigate('/connexion', { replace: true })
+      } else {
+        toast.error('Impossible de charger les catégories.')
+      }
     })
-  }, [])
+  }, [navigate])
 
   const reload = () => merchantProductService.list({ query: search, status }).then(setProducts)
 
-  const openCreate = () => { setForm({ name: '', category: '', price: '', stock: '' }); setSelectedFiles([]); setModal('create') }
+  const openCreate = () => {
+    setForm({ name: '', category: categories[0]?.id ?? '', price: '', stock: '' })
+    setSelectedFiles([])
+    setModal('create')
+  }
   const openEdit = (product) => { setForm({ name: product.name, category: product.category, price: String(product.price).replace(/\s/g, ''), stock: String(product.stock) }); setSelectedFiles([]); setModal(product.id) }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (!form.name.trim() || !form.price) return
     setSubmitting(true)
-    if (modal === 'create') {
-      const created = await merchantProductService.create(form)
-      if (selectedFiles.length > 0 && created?.id) {
-        try { await merchantProductService.uploadImages(created.id, selectedFiles, true) } catch (e) { console.error('Upload images:', e) }
+    try {
+      if (modal === 'create') {
+        const created = await merchantProductService.create(form)
+        if (selectedFiles.length > 0 && created?.id) {
+          await merchantProductService.uploadImages(created.id, selectedFiles, true)
+        }
+        toast.success('Votre produit a été publié.')
+      } else {
+        await merchantProductService.update(modal, form)
+        if (selectedFiles.length > 0) {
+          await merchantProductService.uploadImages(modal, selectedFiles, true)
+        }
+        toast.success('Votre produit a été mis à jour.')
       }
-      toast.success('Votre produit a été publié.')
-    } else {
-      await merchantProductService.update(modal, form)
-      if (selectedFiles.length > 0) {
-        try { await merchantProductService.uploadImages(modal, selectedFiles, true) } catch (e) { console.error('Upload images:', e) }
+      setModal(null)
+      setSelectedFiles([])
+      await reload()
+    } catch (error) {
+      if (error.response?.status === 401) {
+        toast.error('Votre session a expiré. Veuillez vous reconnecter.')
+        navigate('/connexion', { replace: true })
+      } else {
+        const detail = error.response?.data?.detail
+        toast.error(detail || 'Impossible de publier le produit.')
       }
-      toast.success('Votre produit a été mis à jour.')
+    } finally {
+      setSubmitting(false)
     }
-    setSubmitting(false)
-    setModal(null)
-    setSelectedFiles([])
-    await reload()
   }
 
   const toggleStatus = async (product) => {
@@ -183,7 +209,7 @@ export function MerchantProductsPage() {
                       </div>
                       <div className="flex items-center justify-between pt-2 border-t border-base-100">
                         <div>
-                          <p className="text-lg font-bold text-base-content">{product.price} F</p>
+                          <p className="text-lg font-bold text-base-content">{product.price} BIF</p>
                           <p className="text-xs text-base-content/50">Stock : {product.stock}</p>
                         </div>
                       </div>
@@ -211,24 +237,24 @@ export function MerchantProductsPage() {
                 onConfirm={handleDelete}
                 onCancel={() => setDeleteTarget(null)}
               />
-
-              {modal && (
-                <ProductForm
-                  isCreate={modal === 'create'}
-                  form={form}
-                  setFormField={(name, value) => setForm((current) => ({ ...current, [name]: value }))}
-                  categories={categories}
-                  submitting={submitting}
-                  onSubmit={handleSubmit}
-                  onClose={() => setModal(null)}
-                  selectedFiles={selectedFiles}
-                  setSelectedFiles={setSelectedFiles}
-                />
-              )}
             </>
           )}
         </div>
       </section>
+
+      {modal && (
+        <ProductForm
+          isCreate={modal === 'create'}
+          form={form}
+          setFormField={(name, value) => setForm((current) => ({ ...current, [name]: value }))}
+          categories={categories}
+          submitting={submitting}
+          onSubmit={handleSubmit}
+          onClose={() => setModal(null)}
+          selectedFiles={selectedFiles}
+          setSelectedFiles={setSelectedFiles}
+        />
+      )}
     </div>
   )
 }
@@ -276,7 +302,7 @@ function ProductForm({ isCreate, form, setFormField, categories, submitting, onS
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label className="block">
-              <span className="mb-1.5 block text-sm font-semibold text-base-content/80">Prix (F)</span>
+              <span className="mb-1.5 block text-sm font-semibold text-base-content/80">Prix (BIF)</span>
               <input type="number" min="0" value={form.price} onChange={(event) => setFormField('price', event.target.value)} placeholder="12 000" className="input input-bordered w-full text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20" />
             </label>
             <label className="block">

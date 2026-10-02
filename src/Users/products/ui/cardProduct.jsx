@@ -51,9 +51,12 @@ export default function CardProducts({ product, categoryName }) {
       <div className="flex flex-1 flex-col gap-2 p-4">
         <h2 className="line-clamp-1 font-bold capitalize text-base-content">{product.name}</h2>
         <span className="uppercase text-xs text-base-content/50">{categoryName ?? 'Produit'}</span>
+        <p className="line-clamp-1 text-xs font-semibold text-base-content/60">
+          Vendeur : {product.shopName || product.owner_username || 'Vendeur'}
+        </p>
         <p className="text-sm text-base-content/70 line-clamp-2">{product.details}</p>
         <h2 className="mt-auto font-bold text-primary">
-          {Number(product.price).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+          {Number(product.price).toLocaleString('fr-FR')} BIF
         </h2>
       </div>
     </Link>

@@ -14,3 +14,8 @@ export const boutiqueApi = {
    */
   myRequest: () => api.get(endpoints.boutiques.myRequest),
 };
+
+export const shopApi = {
+  list: (params) => api.get(endpoints.shops.list, { params }),
+  detail: (id) => api.get(endpoints.shops.detail(id)),
+};

@@ -20,6 +20,7 @@ import { clearTokens, isAuthenticated } from "../../services/api";
 const NAV_LINKS = [
   { label: "Accueil", path: "/accueil" },
   { label: "Produits", path: "/accueil#produits" },
+  { label: "Panier", path: "/panier" },
   { label: "À propos", path: "/accueil#a-propos" },
   { label: "Contact", path: "/accueil#contact" },
 ];
