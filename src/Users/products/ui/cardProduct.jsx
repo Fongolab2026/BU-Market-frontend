@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import { isAuthenticated } from '../../../services'
 import { useFavorites } from '../../../hooks/useFavorites'
 
-export default function CardProducts({ product, categoryName }) {
+export default function CardProducts({ product, categoryName, onToggle }) {
   const { isFavorite, toggleFavorite, loading } = useFavorites()
   const liked = isFavorite(product.id)
 
@@ -15,6 +15,7 @@ export default function CardProducts({ product, categoryName }) {
       return toast.error('Connectez-vous pour ajouter aux favoris')
     }
     await toggleFavorite(product.id)
+    onToggle?.(product.id, liked)
   }
 
   return (

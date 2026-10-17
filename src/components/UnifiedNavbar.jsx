@@ -17,6 +17,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
 import { useFavorites } from "../hooks/useFavorites";
+import Avatar from "./Avatar.jsx";
 
 export default function UnifiedNavbar({ onOpenMenu }) {
   const navigate = useNavigate();
@@ -115,9 +116,13 @@ export default function UnifiedNavbar({ onOpenMenu }) {
               onClick={() => setMenuOpen((open) => !open)}
               className="flex items-center gap-1 rounded-full p-1 transition-colors hover:bg-base-200"
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-primary/20">
-                <User size={20} />
-              </span>
+              <Avatar
+                src={user?.profile_pic || user?.profilePic}
+                name={user?.firstName || user?.first_name || user?.username}
+                fallback={<User size={20} />}
+                alt="Photo de profil"
+                className="size-9 rounded-full bg-primary/10 text-primary ring-1 ring-primary/20"
+              />
               <ChevronDown
                 size={16}
                 className={`hidden text-base-content/60 transition-transform sm:block ${menuOpen ? "rotate-180" : ""}`}

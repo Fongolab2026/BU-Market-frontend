@@ -14,14 +14,6 @@ const formatTime = (value) => {
   });
 };
 
-const initials = (value) => String(value || "?")
-  .trim()
-  .split(/\s+/)
-  .map((part) => part[0] || "")
-  .join("")
-  .slice(0, 2)
-  .toUpperCase();
-
 const toThread = (messages, currentUserId) => messages.map((message) => ({
   from: message.sender === currentUserId ? "me" : "them",
   content: message.content,
@@ -37,7 +29,7 @@ const loadConversations = async (params = {}) => {
     const messages = asPage(conversation);
     return {
       ...summary,
-      avatar: summary.avatar || initials(summary.sender),
+      avatar: summary.avatar || null,
       time: formatTime(summary.time),
       thread: toThread(messages, profile.id),
     };

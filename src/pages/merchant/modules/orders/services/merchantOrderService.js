@@ -7,16 +7,22 @@ export const merchantOrderEndpoints = {
 
 export const merchantOrderService = {
   list: async ({ query = "", status = "all", page = 1, perPage = 100 } = {}) => {
-    const params = { search: query, status, page, per_page: perPage };
-    const { data } = await api.get(endpoints.orders.shopOrders, { params });
-    const orders = data.results ?? data;
-    return Array.isArray(orders)
-      ? orders.map((order) => ({
-          ...order,
-          items: order.items?.length ?? 0,
-          total: order.total_price ?? 0,
-        }))
-      : [];
+    const all = []
+    let currentPage = page
+    let totalPages = page
+    do {
+      const params = { search: query, status, page: currentPage, per_page: perPage };
+      const { data } = await api.get(endpoints.orders.shopOrders, { params });
+      const orders = data.results ?? data;
+      if (Array.isArray(orders)) all.push(...orders);
+      totalPages = data.totalPages ?? data.total_pages ?? currentPage;
+      currentPage += 1;
+    } while (currentPage <= totalPages);
+    return all.map((order) => ({
+      ...order,
+      items: order.items?.length ?? 0,
+      total: order.total_price ?? 0,
+    }));
   },
   updateStatus: async (id, status) => {
     const { data } = await api.patch(endpoints.orders.setStatus(id), { status });

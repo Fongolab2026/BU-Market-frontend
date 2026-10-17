@@ -7,4 +7,5 @@ export const userApi = {
   update: (id, data) => api.put(endpoints.users.detail(id), data),
   partialUpdate: (id, data) => api.patch(endpoints.users.detail(id), data),
   remove: (id) => api.delete(endpoints.users.detail(id)),
+  changePassword: (data) => api.post(endpoints.users.changePassword, data),
 };

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { AuthProvider } from '../context/AuthContext.jsx'
 import { ThemeProvider } from '../context/ThemeContext.jsx'
+import { RouteError } from '../components/ErrorBoundary.jsx'
 import { useSellerUpgrade } from '../hooks/useSellerUpgrade.js'
 import { publicRoutes } from './routes/PublicRoutes.jsx'
 import { protectedRoutes } from './routes/ProtectedRoutes.jsx'
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
+    errorElement: <RouteError />,
     children: [
       ...publicRoutes,
       ...protectedRoutes,

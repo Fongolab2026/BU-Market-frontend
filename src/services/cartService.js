@@ -2,7 +2,7 @@ import api from "./api";
 
 export const cartApi = {
   list: (params) => api.get("/carts/carts/", { params }),
-  detail: (id) => api.get(`/carts/${id}/`),
+  detail: (id) => api.get(`/carts/carts/${id}/`),
   create: (data) => api.post("/carts/carts/", data),
   update: (id, data) => api.put(`/carts/carts/${id}/`, data),
   partialUpdate: (id, data) => api.patch(`/carts/carts/${id}/`, data),

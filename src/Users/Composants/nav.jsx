@@ -68,7 +68,7 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
     clearTokens();
     signOut();
     setMenuOpen(false);
-    navigate("/connexion");
+    navigate("/");
   };
 
   const handleNavLink = (path) => {

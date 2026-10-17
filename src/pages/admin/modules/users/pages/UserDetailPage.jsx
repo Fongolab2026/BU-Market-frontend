@@ -8,6 +8,7 @@ import { avisService } from '../../reviews/services/avisService.js'
 import { boutiquesService } from '../../shops/services/boutiquesService.js'
 import { StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import Avatar from '../../../../../components/Avatar.jsx'
 
 const roleLabel = { admin: 'Gestionnaire', merchant: 'Commerçant', client: 'Client' }
 
@@ -127,9 +128,12 @@ function IdentityCard({ user }) {
       <div className="h-1.5 bg-gradient-to-r from-brand via-brand-soft to-accent" />
       <div className="p-5 sm:p-6">
         <div className="flex items-center gap-4">
-          <span className="grid size-14 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-soft text-base font-bold text-white shadow-md">
-            {user.initials}
-          </span>
+          <Avatar
+            src={user.profilePic}
+            name={user.firstName}
+            alt=""
+            className="size-14 shrink-0 rounded-xl bg-gradient-to-br from-brand to-brand-soft text-base font-bold text-white shadow-md"
+          />
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl font-bold tracking-tight text-base-content sm:text-2xl">{user.firstName}</h1>
@@ -283,9 +287,7 @@ function ReviewsCard({ shop, busy, onToggle }) {
         {shop.reviewList.map((review) => (
           <div key={review.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand/10 text-xs font-semibold text-brand">
-                {review.author.split(' ').map((part) => part[0]).join('')}
-              </span>
+              <Avatar src={review.avatar} name={review.author} alt="" className="size-9 shrink-0 rounded-full bg-brand/10 text-xs font-semibold text-brand" />
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-sm font-semibold text-base-content">{review.author}</p>

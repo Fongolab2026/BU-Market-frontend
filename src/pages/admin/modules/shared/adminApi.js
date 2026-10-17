@@ -164,6 +164,7 @@ export const mapProduct = (product) => ({
 export const mapReview = (review, shopLocation = "") => ({
   id: review.id,
   author: review.author || review.user_username || "",
+  avatar: review.authorAvatar || null,
   note: Number(review.note ?? review.stars) || 0,
   comment: review.comment || "",
   status: review.status || "visible",

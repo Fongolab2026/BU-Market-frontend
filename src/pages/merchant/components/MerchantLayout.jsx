@@ -1,4 +1,5 @@
 import {
+  Bell,
   Building2,
   Layers,
   LayoutDashboard,
@@ -14,8 +15,9 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { authApi } from "../../../services/authService.js";
 import UnifiedNavbar from "../../../components/UnifiedNavbar.jsx";
+import { merchantNotificationService } from "../modules/notifications/services/merchantNotificationService.js";
 
-const navigationGroups = (hasShop) => [
+const navigationGroups = (hasShop, unreadCount = 0) => [
   {
     label: "Gestion",
     items: [
@@ -39,7 +41,17 @@ const navigationGroups = (hasShop) => [
   },
   {
     label: "Communication",
-    items: hasShop ? [{ to: "/marchand/messages", label: "Messages", icon: Mail }] : [],
+    items: hasShop
+      ? [
+          { to: "/marchand/messages", label: "Messages", icon: Mail },
+          {
+            to: "/marchand/notifications",
+            label: "Notifications",
+            icon: Bell,
+            badge: unreadCount,
+          },
+        ]
+      : [],
   },
   {
     label: "Marché",
@@ -64,6 +76,29 @@ export function MerchantLayout() {
   }, [user]);
 
   const showAlert = hasShop === false && location.pathname !== "/marchand/boutique";
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.role !== "merchant") return undefined;
+    let active = true;
+    const loadUnread = () => {
+      merchantNotificationService
+        .unreadCount()
+        .then((count) => {
+          if (active) setUnreadCount(count);
+        })
+        .catch(() => {});
+    };
+    loadUnread();
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible") loadUnread();
+    }, 20000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [user, location.pathname]);
 
   return (
     <div className="min-h-screen bg-base-100 text-base-content">
@@ -110,7 +145,7 @@ export function MerchantLayout() {
           className="mt-8 space-y-5 overflow-y-auto pr-1"
           aria-label="Navigation principale"
         >
-          {navigationGroups(hasShop).map((group) => (
+          {navigationGroups(hasShop, unreadCount).map((group) => (
             <div key={group.label}>
               {group.items.length > 0 && (
                 <>
@@ -118,7 +153,7 @@ export function MerchantLayout() {
                     {group.label}
                   </p>
                   <div className="space-y-1">
-                    {group.items.map(({ to, label, icon: Icon }) => (
+                    {group.items.map(({ to, label, icon: Icon, badge }) => (
                       <NavLink
                         key={to}
                         to={to}
@@ -128,7 +163,12 @@ export function MerchantLayout() {
                         }
                       >
                         <Icon size={18} strokeWidth={2} />
-                        {label}
+                        <span className="flex-1 truncate">{label}</span>
+                        {badge > 0 && (
+                          <span className="grid min-w-5 place-items-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[11px] font-bold text-white">
+                            {badge > 99 ? "99+" : badge}
+                          </span>
+                        )}
                       </NavLink>
                     ))}
                   </div>

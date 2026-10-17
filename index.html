@@ -1,9 +1,16 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr" translate="no">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      L'application est entièrement en français. On interdit explicitement la
+      traduction automatique : Google Translate (et consorts) réécrit les nœuds
+      texte en éléments <font>, ce qui casse l'arbre DOM de React et provoque
+      l'erreur "insertBefore : le nœud n'est pas un enfant de ce nœud".
+    -->
+    <meta name="google" content="notranslate" />
     <title>BU Market</title>
   </head>
   <body>

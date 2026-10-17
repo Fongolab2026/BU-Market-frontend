@@ -19,6 +19,7 @@ import { MerchantCategoriesPage } from "../../pages/merchant/modules/categories/
 import { MerchantCompetitorsPage } from "../../pages/merchant/modules/competitors/pages/MerchantCompetitorsPage.jsx";
 import { MerchantDashboardPage } from "../../pages/merchant/modules/dashboard/pages/MerchantDashboardPage.jsx";
 import { MerchantMessagesPage } from "../../pages/merchant/modules/messages/pages/MerchantMessagesPage.jsx";
+import { MerchantNotificationsPage } from "../../pages/merchant/modules/notifications/pages/MerchantNotificationsPage.jsx";
 import { MerchantOrdersPage } from "../../pages/merchant/modules/orders/pages/MerchantOrdersPage.jsx";
 import { MerchantProductsPage } from "../../pages/merchant/modules/products/pages/MerchantProductsPage.jsx";
 import { MerchantShopPage } from "../../pages/merchant/modules/shop/pages/MerchantShopPage.jsx";
@@ -30,6 +31,7 @@ import Landing from "../Pages/Landing.jsx";
 import ProfilVendeur from "../Pages/ProfilVendeur.jsx";
 import Panier from "../Pages/Panier.jsx";
 import MesCommandes from "../Pages/MesCommandes.jsx";
+import Favoris from "../Pages/Favoris.jsx";
 
 function RequireUser() {
   return isAuthenticated() ? <Outlet /> : <Navigate to="/" replace />;
@@ -64,6 +66,10 @@ function DefaultEntry() {
 
 export const protectedRoutes = [
   { index: true, element: <DefaultEntry /> },
+  {
+    element: <RequireUser />,
+    children: [{ path: "favoris", element: <Favoris /> }],
+  },
   {
     element: <RequireBuyer />,
     children: [
@@ -137,6 +143,7 @@ export const protectedRoutes = [
               { path: "produits", element: <MerchantProductsPage /> },
               { path: "commandes", element: <MerchantOrdersPage /> },
               { path: "messages", element: <MerchantMessagesPage /> },
+              { path: "notifications", element: <MerchantNotificationsPage /> },
               { path: "categories", element: <MerchantCategoriesPage /> },
               { path: "concurrents", element: <MerchantCompetitorsPage /> },
             ],

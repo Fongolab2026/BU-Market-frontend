@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { avisService } from '../services/avisService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import Avatar from '../../../../../components/Avatar.jsx'
 
 const PAGE_SIZE = 8
 
@@ -117,9 +118,7 @@ export function AvisPage() {
           visible.map((review) => (
             <article key={review.id} className="card flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex min-w-0 gap-3">
-                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand/10 text-xs font-semibold text-brand">
-                  {review.author.split(' ').map((part) => part[0]).join('')}
-                </span>
+                <Avatar src={review.avatar} name={review.author} alt="" className="size-10 shrink-0 rounded-full bg-brand/10 text-xs font-semibold text-brand" />
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-semibold text-base-content">{review.author}</p>

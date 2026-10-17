@@ -3,6 +3,7 @@ import { CheckCheck, Mail, MailOpen, MessageSquareText, Search, Store } from 'lu
 import toast from 'react-hot-toast'
 import { messagesService } from '../services/messagesService.js'
 import { PageHeader } from '../../../components/ui.jsx'
+import Avatar from '../../../../../components/Avatar.jsx'
 
 export function MessagesPage() {
   const [conversations, setConversations] = useState([])
@@ -90,9 +91,12 @@ export function MessagesPage() {
                   onClick={() => openConversation(conversation)}
                   className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${selectedId === conversation.id ? 'border-brand bg-brand/5' : 'border-transparent hover:bg-base-100'}`}
                 >
-                  <span className={`grid size-10 shrink-0 place-items-center rounded-full text-xs font-bold ${conversation.unread > 0 ? 'bg-brand text-white' : 'bg-brand/10 text-brand'}`}>
-                    {conversation.avatar}
-                  </span>
+                  <Avatar
+                    src={conversation.avatar}
+                    name={conversation.sender}
+                    alt=""
+                    className={`size-10 shrink-0 rounded-full text-xs font-bold ${conversation.unread > 0 ? 'bg-brand text-white' : 'bg-brand/10 text-brand'}`}
+                  />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center justify-between gap-2">
                       <span className={`truncate text-sm ${conversation.unread > 0 ? 'font-bold text-base-content' : 'font-semibold text-base-content/80'}`}>{conversation.sender}</span>
@@ -114,7 +118,12 @@ export function MessagesPage() {
             <>
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand text-sm font-bold text-white">{selected.avatar}</span>
+                  <Avatar
+                    src={selected.avatar}
+                    name={selected.sender}
+                    alt=""
+                    className="size-11 shrink-0 rounded-full bg-brand text-sm font-bold text-white"
+                  />
                   <div>
                     <p className="flex items-center gap-1.5 font-bold text-base-content">
                       {selected.sender}

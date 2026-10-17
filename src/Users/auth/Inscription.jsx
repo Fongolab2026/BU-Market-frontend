@@ -47,8 +47,11 @@ export default function Inscription() {
     if (!formData.email.trim()) newErrors.email = "Email requis"
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Email invalide"
     if (!formData.first_name.trim()) newErrors.first_name = "Prénom requis"
-    if (!formData.phone.trim()) newErrors.phone = "Numéro de téléphone requis"
-    else newErrors.phone = getPhoneError(formData.phone, 'bi')
+    // Le téléphone est optionnel côté backend : on le valide seulement s'il est saisi
+    if (formData.phone && formData.phone.trim()) {
+      const phoneError = getPhoneError(formData.phone, 'bi')
+      if (phoneError) newErrors.phone = phoneError
+    }
     if (!formData.password) newErrors.password = "Mot de passe requis"
     else if (formData.password.length < 8) newErrors.password = "8 caractères minimum"
     if (formData.password !== formData.password_confirm) newErrors.password_confirm = "Les mots de passe ne correspondent pas"

@@ -18,7 +18,7 @@ import { useTheme } from "../../../../../context/ThemeContext.jsx";
 import { isAuthenticated } from "../../../../../services/api.js";
 import { AdminAccessError, authAdminService } from "../services/authAdminService.js";
 
-const emptyForm = { username: "", password: "" };
+const emptyForm = { email: "", password: "" };
 
 export function ConnexionAdminPage() {
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ export function ConnexionAdminPage() {
 
   const validateForm = () => {
     const nextErrors = {};
-    if (!form.username.trim()) nextErrors.username = "Identifiant requis";
+    if (!form.email.trim()) nextErrors.email = "Adresse e-mail requise";
     if (!form.password) nextErrors.password = "Mot de passe requis";
     else if (form.password.length < 8) nextErrors.password = "8 caractères minimum";
     setErrors(nextErrors);
@@ -70,7 +70,7 @@ export function ConnexionAdminPage() {
         toast.error(err.message);
       } else {
         const detail = err.response?.data?.detail;
-        setError(detail || "Nom d'utilisateur ou mot de passe incorrect");
+        setError(detail || "E-mail ou mot de passe incorrect");
         toast.error("Connexion impossible");
       }
       console.error("connexion administrateur:", err);
@@ -156,21 +156,21 @@ export function ConnexionAdminPage() {
 
           <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
             <Field
-              id="admin-username"
-              label="Identifiant"
+              id="admin-email"
+              label="Adresse e-mail"
               icon={User}
-              error={errors.username}
+              error={errors.email}
             >
               <input
-                id="admin-username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                placeholder="admin ou admin@bumarket.app"
-                value={form.username}
-                onChange={(event) => setFormField("username", event.target.value)}
-                aria-invalid={Boolean(errors.username)}
-                className={`${inputClass} ${errorClass(errors.username)}`}
+                id="admin-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                placeholder="admin@bumarket.app"
+                value={form.email}
+                onChange={(event) => setFormField("email", event.target.value)}
+                aria-invalid={Boolean(errors.email)}
+                className={`${inputClass} ${errorClass(errors.email)}`}
               />
             </Field>
 

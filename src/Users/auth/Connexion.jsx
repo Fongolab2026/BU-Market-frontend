@@ -18,7 +18,7 @@ import { resolveRole } from "../../utils/roles.js";
 
 export default function Connexion() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -34,10 +34,8 @@ export default function Connexion() {
     setLoading(true);
     setError("");
     try {
-      const identifier = formData.username.trim();
       const { data } = await authApi.login({
-        email: identifier,
-        username: identifier,
+        email: formData.email.trim(),
         password: formData.password,
       });
       setTokens(data);
@@ -47,7 +45,7 @@ export default function Connexion() {
           profile = (await authApi.me()).data;
         } catch (profileError) {
           console.error("profil après connexion:", profileError);
-          profile = { username: formData.username };
+          profile = { email: formData.email };
         }
       }
       const role = resolveRole(profile);
@@ -62,7 +60,7 @@ if (role === "admin") {
       }
     } catch (err) {
       const detail = err.response?.data?.detail;
-      setError(detail || "Nom d'utilisateur ou mot de passe incorrect");
+      setError(detail || "E-mail ou mot de passe incorrect");
       console.error("connexion:", err);
     } finally {
       setLoading(false);
@@ -147,17 +145,18 @@ if (role === "admin") {
             <div className="flex flex-col gap-2">
               <label
                 className="text-sm font-bold text-base-content"
-                htmlFor="username"
+                htmlFor="email"
               >
-                E-mail ou nom d&apos;utilisateur
+                Adresse e-mail
               </label>
               <input
-                id="username"
+                id="email"
                 className="input input-lg w-full"
-                type="text"
-                name="username"
-                placeholder="Votre e-mail ou nom d'utilisateur"
-                value={formData.username}
+                type="email"
+                name="email"
+                autoComplete="email"
+                placeholder="vous@exemple.com"
+                value={formData.email}
                 onChange={handleChange}
                 required
               />

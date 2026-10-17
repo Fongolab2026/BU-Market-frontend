@@ -2,17 +2,13 @@ import { Bell, LogOut, Menu, Moon, ShieldCheck, Sun } from "lucide-react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { useTheme } from "../../../context/ThemeContext.jsx";
+import Avatar from "../../../components/Avatar.jsx";
 
 const displayName = (user) =>
   [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
   user?.username ||
   user?.email ||
   "Administrateur";
-
-const initialsOf = (user) => {
-  const source = user?.firstName || user?.username || user?.email || "A";
-  return String(source).trim().charAt(0).toUpperCase();
-};
 
 /**
  * Barre supérieure de l'espace administrateur. Volontairement distincte de
@@ -73,9 +69,12 @@ export function AdminNavbar({ onOpenMenu, section }) {
           </button>
 
           <div className="ml-1 flex items-center gap-2 border-l border-base-300/70 pl-2 sm:ml-2 sm:pl-3">
-            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand/10 text-sm font-bold text-brand ring-1 ring-brand/20">
-              {initialsOf(user)}
-            </span>
+            <Avatar
+              src={user?.profile_pic || user?.profilePic}
+              name={displayName(user)}
+              alt="Photo de profil"
+              className="size-9 shrink-0 rounded-full bg-brand/10 text-sm font-bold text-brand ring-1 ring-brand/20"
+            />
             <span className="hidden min-w-0 sm:block">
               <span className="block truncate text-sm font-semibold text-base-content">
                 {displayName(user)}

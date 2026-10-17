@@ -6,6 +6,7 @@ import { utilisateursService } from '../services/utilisateursService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
 import PhoneInput from '../../../../../components/PhoneInput.jsx'
+import Avatar from '../../../../../components/Avatar.jsx'
 
 const roleLabel = { admin: 'Gestionnaire', merchant: 'Commerçant', client: 'Client' }
 const emptyForm = { firstName: '', email: '', phone: '+257', location: '', role: 'client' }
@@ -61,7 +62,13 @@ export function UsersPage() {
   }
 
   const handleEdit = (user) => {
-    setForm({ firstName: user.firstName, email: user.email, phone: user.phone, location: user.location, role: user.role })
+    setForm({
+      firstName: user.firstName && user.firstName !== 'Sans nom' ? user.firstName : '',
+      email: user.email || '',
+      phone: user.phone || '',
+      location: user.location && user.location !== 'Non précisée' ? user.location : '',
+      role: user.role || 'client',
+    })
     setEditing(user)
     setShowForm(true)
   }
@@ -148,7 +155,7 @@ export function UsersPage() {
                   <tr key={user.id} className="transition hover:bg-base-100">
                     <td className="py-3.5 pl-2">
                       <div className="flex items-center gap-3">
-                        <span className="grid size-9 place-items-center rounded-full bg-brand/10 text-xs font-semibold text-brand">{user.initials}</span>
+                        <Avatar src={user.profilePic} name={user.firstName} alt="" className="size-9 rounded-full bg-brand/10 text-xs font-semibold text-brand" />
                         <div>
                           <p className="font-semibold text-base-content">{user.firstName}</p>
                           <p className="mt-0.5 text-xs text-base-content/50">{user.email}</p>

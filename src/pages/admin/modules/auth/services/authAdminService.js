@@ -29,8 +29,8 @@ export const authAdminService = {
    * Connecte l'administrateur puis vérifie que le compte possède
    * bien le rôle admin avant d'enregistrer la session.
    */
-  login: async ({ username, password }) => {
-    const { data } = await authApi.login({ username, password });
+  login: async ({ email, password }) => {
+    const { data } = await authApi.login({ email, password });
     setTokens(data);
 
     let profile = readField(data, ["user", "profile"]);
@@ -38,7 +38,7 @@ export const authAdminService = {
       try {
         profile = (await authApi.me()).data;
       } catch {
-        profile = { username };
+        profile = { email };
       }
     }
 

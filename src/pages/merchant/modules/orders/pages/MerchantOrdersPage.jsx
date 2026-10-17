@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { ClipboardCheck, MapPin, Package, Search, ShoppingBag } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { ClipboardCheck, MapPin, Package, Search, ShoppingBag, RefreshCw, Radio } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { merchantOrderService } from '../services/merchantOrderService.js'
 import { PageHeader, StatusBadge } from '../../../components/ui.jsx'
@@ -12,6 +12,9 @@ const statusOptions = [
   { value: 'cancelled', label: 'Annulée' },
 ]
 const statusLabels = { pending: 'En attente', confirmed: 'Confirmée', shipped: 'Expédiée', completed: 'Livrée', cancelled: 'Annulée' }
+
+/** Intervalle de rechargement automatique (nouvelles commandes du client). */
+const POLL_INTERVAL_MS = 15000
 
 const formatDateTime = (value) => {
   if (!value) return '—'
@@ -28,16 +31,74 @@ export function MerchantOrdersPage() {
   const [status, setStatus] = useState('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const [lastRefresh, setLastRefresh] = useState(null)
+  const [newOrderIds, setNewOrderIds] = useState([])
+  const [live, setLive] = useState(true)
+  const knownIds = useRef(new Set())
+  const initialLoad = useRef(true)
+  const timer = useRef(null)
+
+  const loadOrders = useCallback(async ({ silent = false } = {}) => {
+    if (silent) setRefreshing(true)
+    else if (initialLoad.current) setLoading(true)
+    try {
+      const result = await merchantOrderService.list()
+      if (initialLoad.current) {
+        // Premier chargement : pas de surlignage, on mémorise juste les IDs.
+        knownIds.current = new Set(result.map((order) => order.id))
+        initialLoad.current = false
+      } else {
+        // Rechargements suivants : détecte les nouvelles commandes du client.
+        const fresh = result.filter((order) => !knownIds.current.has(order.id))
+        if (fresh.length > 0) {
+          knownIds.current = new Set(result.map((order) => order.id))
+          setNewOrderIds(fresh.map((order) => order.id))
+          setTimeout(() => setNewOrderIds([]), 8000)
+          toast.success(
+            fresh.length === 1
+              ? `Nouvelle commande #${fresh[0].id} reçue.`
+              : `${fresh.length} nouvelles commandes reçues.`
+          )
+        }
+      }
+      setOrders(result)
+      setError(false)
+      setLastRefresh(new Date())
+    } catch {
+      if (!silent && initialLoad.current) setError(true)
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }, [])
 
   useEffect(() => {
-    merchantOrderService.list().then((result) => {
-      setOrders(result)
-      setLoading(false)
-    }).catch(() => {
-      setLoading(false)
-      setError(true)
-    })
-  }, [])
+    loadOrders()
+    return () => {
+      if (timer.current) clearInterval(timer.current)
+    }
+  }, [loadOrders])
+
+  // Actualisation automatique tant que l'onglet est visible.
+  useEffect(() => {
+    if (!live) {
+      if (timer.current) clearInterval(timer.current)
+      return undefined
+    }
+    const tick = () => {
+      if (document.visibilityState === 'visible') loadOrders({ silent: true })
+    }
+    timer.current = setInterval(tick, POLL_INTERVAL_MS)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') loadOrders({ silent: true })
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      if (timer.current) clearInterval(timer.current)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [live, loadOrders])
 
   const pendingCount = orders.filter((order) => order.status === 'pending').length
 
@@ -66,11 +127,39 @@ export function MerchantOrdersPage() {
         title="Commandes"
         description="Suivez et mettez à jour le statut des commandes de votre boutique."
         action={
-          <span className="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1.5 text-sm font-semibold text-brand">
-            <ClipboardCheck size={17} /> {pendingCount} à traiter
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setLive((value) => !value)}
+              className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold transition ${
+                live ? 'bg-emerald-600 text-white' : 'bg-base-200 text-base-content/70 hover:bg-base-300'
+              }`}
+              title={live ? 'Actualisation automatique activée' : 'Actualisation automatique désactivée'}
+            >
+              <Radio size={15} className={live && !refreshing ? 'animate-pulse' : ''} />
+              {live ? 'En direct' : 'En pause'}
+            </button>
+            <button
+              type="button"
+              onClick={() => loadOrders({ silent: true })}
+              disabled={refreshing}
+              className="inline-flex items-center gap-2 rounded-full border border-base-300 px-3 py-1.5 text-sm font-semibold text-base-content/70 transition hover:bg-base-100 disabled:opacity-50"
+            >
+              <RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />
+              {refreshing ? 'Actualisation…' : 'Actualiser'}
+            </button>
+            <span className="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1.5 text-sm font-semibold text-brand">
+              <ClipboardCheck size={17} /> {pendingCount} à traiter
+            </span>
+          </div>
         }
       />
+      {lastRefresh && (
+        <p className="mt-2 text-xs text-base-content/50">
+          Dernière synchronisation : {formatDateTime(lastRefresh)}
+          {refreshing ? ' · actualisation en cours…' : ''}
+        </p>
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <article className="card p-4">

@@ -1,16 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, CheckCircle2, ImagePlus, KeyRound, Loader2, Lock, Shield, UserRound } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import NavBar from '../Composants/nav'
 import { useAuth } from '../../context/AuthContext.jsx'
 import api, { endpoints } from '../../services/api'
+import { authApi } from '../../services/authService'
+import { userApi } from '../../services/userService'
+import { resolveRole } from '../../utils/roles.js'
 import PhoneInput from '../../components/PhoneInput.jsx'
 import { getPhoneError } from '../../utils/phone.js'
 
-function Field({ label, name, value, onChange, type = 'text', required = false, placeholder, error, readOnly = false, isPhone = false, defaultCountry }) {
+function formFromUser(source) {
+  return {
+    firstName: source?.firstName ?? source?.first_name ?? '',
+    lastName: source?.lastName ?? source?.last_name ?? '',
+    phone: source?.phone ?? source?.phone_number ?? '',
+    adresse: source?.adresse ?? source?.address ?? source?.location ?? '',
+    email: source?.email ?? '',
+  }
+}
+
+function Field({ label, name, value, onChange, type = 'text', required = false, placeholder, error, readOnly = false, isPhone = false, defaultCountry, className = '' }) {
   return (
-    <div className="flex min-w-0 flex-col gap-2">
+    <div className={`flex min-w-0 flex-col gap-2 ${className}`}>
       <label htmlFor={name} className="text-sm font-semibold text-base-content">
         {label}{required && <span className="ml-1 text-error" aria-hidden="true">*</span>}
       </label>
@@ -37,8 +50,10 @@ function Field({ label, name, value, onChange, type = 'text', required = false, 
 
 export default function Profil() {
   const { user, signIn, signOut } = useAuth()
+  const navigate = useNavigate()
 
-  const [form, setForm] = useState({})
+  const [form, setForm] = useState(() => formFromUser(user))
+  const editedRef = useRef(false)
   const [phoneError, setPhoneError] = useState(null)
   const [saving, setSaving] = useState(false)
   const [profileFile, setProfileFile] = useState(null)
@@ -65,14 +80,33 @@ export default function Profil() {
     return () => observer.disconnect()
   }, [])
 
+  const syncedIdRef = useRef(undefined)
   useEffect(() => {
-    setForm({
-      firstName: user?.firstName ?? user?.first_name ?? '',
-      lastName: user?.lastName ?? user?.last_name ?? '',
-      phone: user?.phone ?? user?.phone_number ?? '',
-      email: user?.email ?? '',
-    })
+    // On ne réinitialise le formulaire que lorsque l'utilisateur connecté
+    // change (connexion/déconnexion), pas à chaque rafraîchissement du profil.
+    if (syncedIdRef.current === user?.id) return
+    syncedIdRef.current = user?.id
+    setForm(formFromUser(user))
   }, [user])
+
+  // On recharge le profil depuis le serveur pour toujours afficher des
+  // informations complètes et à jour, même si la session stockée est ancienne.
+  useEffect(() => {
+    if (!user?.id) return
+    let active = true
+    authApi
+      .me()
+      .then(({ data }) => {
+        if (!active) return
+        const profile = { ...data, role: resolveRole(data) }
+        signIn(profile)
+        if (!editedRef.current) setForm(formFromUser(profile))
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [user?.id, signIn])
 
   useEffect(() => {
     return () => {
@@ -99,6 +133,7 @@ export default function Profil() {
   }
 
   const updateField = (event) => {
+    editedRef.current = true
     const { name, value } = event.target
     setForm((current) => ({ ...current, [name]: value }))
   }
@@ -126,17 +161,13 @@ export default function Profil() {
     setSaving(true)
     try {
       let updatedProfile = user
-      if (user?.id) {
-        try {
-          const { data } = await api.patch(endpoints.users.update(user.id), {
-            first_name: form.firstName,
-            last_name: form.lastName,
-            phone: form.phone,
-          })
-          updatedProfile = { ...updatedProfile, ...data }
-        } catch {
-        }
-      }
+      const { data } = await api.patch(endpoints.users.me, {
+        first_name: form.firstName,
+        last_name: form.lastName,
+        phone: form.phone,
+        adresse: form.adresse,
+      })
+      updatedProfile = { ...updatedProfile, ...data }
       if (profileFile) {
         const imageData = new FormData()
         imageData.append('profile_pic', profileFile)
@@ -150,8 +181,10 @@ export default function Profil() {
         first_name: form.firstName,
         last_name: form.lastName,
         phone: form.phone,
+        adresse: form.adresse,
         email: form.email,
       })
+      editedRef.current = false
       setProfileFile(null)
       toast.success('Vos informations ont été mises à jour.')
     } catch (err) {
@@ -172,16 +205,27 @@ export default function Profil() {
 
     const errors = {}
     if (!pwd.current) errors.current = 'Le mot de passe actuel est requis.'
-    if (pwd.next.length < 6) errors.next = 'Le nouveau mot de passe doit contenir au moins 6 caractères.'
+    if (pwd.next.length < 8) errors.next = 'Le nouveau mot de passe doit contenir au moins 8 caractères.'
     if (pwd.confirm !== pwd.next) errors.confirm = 'Les mots de passe ne correspondent pas.'
     setPwdErrors(errors)
     if (Object.keys(errors).length > 0) return
 
     setChangingPwd(true)
     try {
+      await userApi.changePassword({ current_password: pwd.current, new_password: pwd.next })
       toast.success('Votre mot de passe a été mis à jour avec succès.')
       setPwd({ current: '', next: '', confirm: '' })
       setPwdErrors({})
+    } catch (error) {
+      const data = error.response?.data
+      const next = {}
+      if (data?.current_password) next.current = data.current_password[0]
+      if (data?.new_password) next.next = data.new_password[0]
+      if (data?.detail && !next.current && !next.next) next.current = data.detail
+      setPwdErrors(next)
+      if (Object.keys(next).length === 0) {
+        toast.error('Impossible de modifier le mot de passe. Réessayez.')
+      }
     } finally {
       setChangingPwd(false)
     }
@@ -281,10 +325,12 @@ export default function Profil() {
               <Field label="Prénom" name="firstName" value={form.firstName} onChange={updateField} required placeholder="Ex. Espoir" />
               <Field label="Nom" name="lastName" value={form.lastName} onChange={updateField} required placeholder="Ex. Durand" />
               <Field label="Téléphone" name="phone" isPhone error={phoneError} value={form.phone} onChange={(phone) => {
+                editedRef.current = true
                 setForm((current) => ({ ...current, phone }))
                 setPhoneError((phone || '').trim() ? getPhoneError(phone, 'bi') : null)
               }} />
-              <Field label="Adresse e-mail" name="email" type="email" value={form.email} onChange={updateField} readOnly />
+              <Field label="Adresse" name="adresse" value={form.adresse} onChange={updateField} placeholder="Ex. Bujumbura, Rohero" className="sm:col-span-2" />
+              <Field label="Adresse e-mail" name="email" type="email" value={form.email} onChange={updateField} readOnly className="sm:col-span-2" />
             </div>
             <div className="mt-6 flex items-center justify-end gap-3 border-t border-base-300/70 pt-5">
               <Link to="/accueil" className="btn btn-ghost">Annuler</Link>
@@ -374,7 +420,10 @@ export default function Profil() {
             </div>
             <button
               type="button"
-              onClick={() => signOut()}
+              onClick={() => {
+                signOut()
+                navigate('/')
+              }}
               className="btn btn-outline border-error text-error hover:bg-error hover:text-error-content"
             >
               Se déconnecter
