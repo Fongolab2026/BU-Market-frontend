@@ -34,7 +34,12 @@ export default function Connexion() {
     setLoading(true);
     setError("");
     try {
-      const { data } = await authApi.login(formData);
+      const identifier = formData.username.trim();
+      const { data } = await authApi.login({
+        email: identifier,
+        username: identifier,
+        password: formData.password,
+      });
       setTokens(data);
       let profile = data.user;
       if (!profile) {
@@ -144,14 +149,14 @@ if (role === "admin") {
                 className="text-sm font-bold text-base-content"
                 htmlFor="username"
               >
-                Nom d&apos;utilisateur ou e-mail
+                E-mail ou nom d&apos;utilisateur
               </label>
               <input
                 id="username"
                 className="input input-lg w-full"
                 type="text"
                 name="username"
-                placeholder="Votre nom d'utilisateur ou votre e-mail"
+                placeholder="Votre e-mail ou nom d'utilisateur"
                 value={formData.username}
                 onChange={handleChange}
                 required

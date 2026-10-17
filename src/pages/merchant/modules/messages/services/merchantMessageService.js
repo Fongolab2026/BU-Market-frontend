@@ -2,6 +2,18 @@ import api, { endpoints } from "../../../../../services/api.js";
 
 const asPage = (payload) => payload?.results ?? payload ?? [];
 
+const formatTime = (value) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 const initials = (value) => String(value || "?")
   .trim()
   .split(/\s+/)
@@ -13,7 +25,7 @@ const initials = (value) => String(value || "?")
 const toThread = (messages, currentUserId) => messages.map((message) => ({
   from: message.sender === currentUserId ? "me" : "them",
   content: message.content,
-  time: message.timestamp,
+  time: formatTime(message.timestamp),
 }));
 
 const loadConversations = async (params = {}) => {
@@ -26,7 +38,7 @@ const loadConversations = async (params = {}) => {
     return {
       ...summary,
       avatar: summary.avatar || initials(summary.sender),
-      time: summary.time || "",
+      time: formatTime(summary.time),
       thread: toThread(messages, profile.id),
     };
   }));

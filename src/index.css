@@ -14,3 +14,20 @@
 body { min-width: 320px; min-height: 100vh; margin: 0; }
 button, input, select { font: inherit; }
 button:not(:disabled), select, input[type="checkbox"] { cursor: pointer; }
+
+@keyframes step-in {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-step-in { animation: step-in 0.32s cubic-bezier(0.22, 1, 0.36, 1); }
+.animate-fade-up { animation: fade-up 0.4s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-step-in, .animate-fade-up { animation: none; }
+}

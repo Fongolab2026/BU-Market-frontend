@@ -37,8 +37,26 @@ api.interceptors.request.use((config) => {
 
 let refreshRequest = null;
 
+// Le backend renvoie des URLs absolues (ex. http://127.0.0.1:8000/media/...),
+// qui pointent vers la machine locale et cassent les images chez les autres
+// utilisateurs. On les réécrit en chemins relatifs ("/media/...") pour qu'elles
+// soient servies par l'origine du front (proxy Vite /media), quel que soit l'hôte.
+const ABSOLUTE_MEDIA_URL = /^https?:\/\/[^/]+(\/media\/)/i;
+
+const rewriteMediaUrls = (data) => {
+  if (typeof data === "string") return data.replace(ABSOLUTE_MEDIA_URL, "$1");
+  if (Array.isArray(data)) return data.map(rewriteMediaUrls);
+  if (data && typeof data === "object" && data.constructor === Object) {
+    for (const key of Object.keys(data)) data[key] = rewriteMediaUrls(data[key]);
+  }
+  return data;
+};
+
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data) response.data = rewriteMediaUrls(response.data);
+    return response;
+  },
   async (error) => {
     const { config, response } = error;
     const isAuthUrl =

@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
+import { useFavorites } from "../hooks/useFavorites";
 
 export default function UnifiedNavbar({ onOpenMenu }) {
   const navigate = useNavigate();
@@ -25,6 +26,9 @@ export default function UnifiedNavbar({ onOpenMenu }) {
   const { isDark, toggleTheme } = useTheme();
   const { user, signOut, isDemo, switchDemoRole } = useAuth();
   const authenticated = !!user;
+
+  const { favoriteIds, loading: favoritesLoading } = useFavorites()
+  const favoriteCount = favoriteIds.size
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -79,7 +83,17 @@ export default function UnifiedNavbar({ onOpenMenu }) {
             title="Mes favoris"
             className="btn btn-ghost btn-circle relative"
           >
-            <Heart size={22} />
+            <Heart
+              size={22}
+              className={`${
+                favoriteCount > 0 ? 'text-red-500 fill-current' : 'text-base-content/60'
+              }`}
+            />
+            {favoriteCount > 0 && !favoritesLoading && (
+              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold">
+                {favoriteCount}
+              </span>
+            )}
           </Link>
 
           <button

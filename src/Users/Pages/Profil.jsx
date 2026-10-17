@@ -5,13 +5,18 @@ import toast from 'react-hot-toast'
 import NavBar from '../Composants/nav'
 import { useAuth } from '../../context/AuthContext.jsx'
 import api, { endpoints } from '../../services/api'
+import PhoneInput from '../../components/PhoneInput.jsx'
+import { getPhoneError } from '../../utils/phone.js'
 
-function Field({ label, name, value, onChange, type = 'text', required = false, placeholder, error, readOnly = false }) {
+function Field({ label, name, value, onChange, type = 'text', required = false, placeholder, error, readOnly = false, isPhone = false, defaultCountry }) {
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <label htmlFor={name} className="text-sm font-semibold text-base-content">
         {label}{required && <span className="ml-1 text-error" aria-hidden="true">*</span>}
       </label>
+      {isPhone ? (
+        <PhoneInput id={name} name={name} value={value} onChange={onChange} defaultCountry={defaultCountry} error={error || undefined} />
+      ) : (
       <input
         id={name}
         name={name}
@@ -24,6 +29,7 @@ function Field({ label, name, value, onChange, type = 'text', required = false, 
         aria-invalid={error ? 'true' : undefined}
         className={`input input-bordered w-full bg-base-100 ${readOnly ? 'cursor-not-allowed opacity-60' : ''} ${error ? 'input-error' : ''}`}
       />
+      )}
       {error && <p className="text-xs text-error">{error}</p>}
     </div>
   )
@@ -33,6 +39,7 @@ export default function Profil() {
   const { user, signIn, signOut } = useAuth()
 
   const [form, setForm] = useState({})
+  const [phoneError, setPhoneError] = useState(null)
   const [saving, setSaving] = useState(false)
   const [profileFile, setProfileFile] = useState(null)
   const [profilePreview, setProfilePreview] = useState('')
@@ -110,6 +117,12 @@ export default function Profil() {
   const handleProfileSubmit = async (event) => {
     event.preventDefault()
     if (saving) return
+    const phoneError = (form.phone || '').trim() ? getPhoneError(form.phone, 'bi') : null
+    setPhoneError(phoneError)
+    if (phoneError) {
+      toast.error(phoneError)
+      return
+    }
     setSaving(true)
     try {
       let updatedProfile = user
@@ -267,7 +280,10 @@ export default function Profil() {
             <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
               <Field label="Prénom" name="firstName" value={form.firstName} onChange={updateField} required placeholder="Ex. Espoir" />
               <Field label="Nom" name="lastName" value={form.lastName} onChange={updateField} required placeholder="Ex. Durand" />
-              <Field label="Téléphone" name="phone" type="tel" value={form.phone} onChange={updateField} placeholder="+257 ..." />
+              <Field label="Téléphone" name="phone" isPhone error={phoneError} value={form.phone} onChange={(phone) => {
+                setForm((current) => ({ ...current, phone }))
+                setPhoneError((phone || '').trim() ? getPhoneError(phone, 'bi') : null)
+              }} />
               <Field label="Adresse e-mail" name="email" type="email" value={form.email} onChange={updateField} readOnly />
             </div>
             <div className="mt-6 flex items-center justify-end gap-3 border-t border-base-300/70 pt-5">

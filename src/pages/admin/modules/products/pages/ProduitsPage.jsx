@@ -8,7 +8,30 @@ import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
 
 const PAGE_SIZE = 8
 const MAX_IMAGES = 5
-const emptyForm = { shopId: '', categoryId: '', name: '', price: '', stock: '' }
+const emptyForm = { shopId: '', categoryId: '', name: '', price: '', stock: '', details: '' }
+
+/** Extrait le message lisible d'une erreur DRF ({ detail } ou { champ: [...] }). */
+const getApiErrorMessage = (error, fallback) => {
+  const data = error?.response?.data
+  if (!data) return fallback
+  if (typeof data === 'string' && data.trim()) return data
+  if (typeof data.detail === 'string' && data.detail.trim()) return data.detail
+  const labels = {
+    name: 'Le nom',
+    price: 'Le prix',
+    stock: 'Le stock',
+    details: 'La description',
+    category: 'La catégorie',
+    owner: 'La boutique',
+  }
+  for (const [field, messages] of Object.entries(data)) {
+    const message = Array.isArray(messages) ? messages[0] : messages
+    if (typeof message === 'string' && message.trim()) {
+      return `${labels[field] || field} : ${message}`
+    }
+  }
+  return fallback
+}
 
 export function ProduitsPage() {
   const [products, setProducts] = useState([])
@@ -59,7 +82,7 @@ export function ProduitsPage() {
   const visible = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
   const setFormField = (name, value) => setForm((current) => ({ ...current, [name]: value }))
-  const canSubmit = form.shopId && form.name.trim() && form.price.trim() && (!editing || form.categoryId)
+  const canSubmit = form.shopId && form.name.trim() && form.price.trim() && form.details.trim() && (!editing || form.categoryId) && (editing || selectedFiles.length > 0)
 
   const openCreate = () => {
     setEditing(null)
@@ -70,7 +93,14 @@ export function ProduitsPage() {
 
   const openEdit = (product) => {
     setEditing(product)
-    setForm({ shopId: product.shopId, name: product.name, price: product.price, stock: String(product.stock) })
+    setForm({
+      shopId: product.shopId,
+      categoryId: product.category,
+      name: product.name,
+      price: product.price,
+      stock: String(product.stock),
+      details: product.details ?? '',
+    })
     setSelectedFiles([])
     setShowForm(true)
   }
@@ -87,24 +117,28 @@ export function ProduitsPage() {
     event.preventDefault()
     if (!canSubmit) return
     setSubmitting(true)
-    if (editing) {
-      await produitsService.update(editing.id, form)
-      if (selectedFiles.length > 0) {
-        try { await produitsService.uploadImages(editing.id, selectedFiles) } catch (e) { console.error('Upload images:', e) }
+    try {
+      if (editing) {
+        await produitsService.update(editing.id, form)
+        if (selectedFiles.length > 0) {
+          try { await produitsService.uploadImages(editing.id, selectedFiles) } catch (e) { console.error('Upload images:', e) }
+        }
+        toast.success('Produit modifié.')
+      } else {
+        await produitsService.create(form, selectedFiles)
+        toast.success('Produit ajouté.')
       }
-      toast.success('Produit modifié.')
-    } else {
-      const created = await produitsService.create(form)
-      if (selectedFiles.length > 0 && created?.id) {
-        try { await produitsService.uploadImages(created.id, selectedFiles) } catch (e) { console.error('Upload images:', e) }
-      }
-      toast.success('Produit ajouté.')
+      setShowForm(false)
+      setEditing(null)
+      setForm(emptyForm)
+      setSelectedFiles([])
+      const updated = await produitsService.list()
+      setProducts(updated)
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, editing ? 'Impossible de modifier le produit.' : 'Impossible d’ajouter le produit.'))
+    } finally {
+      setSubmitting(false)
     }
-    setSubmitting(false)
-    setShowForm(false)
-    setEditing(null)
-    setForm(emptyForm)
-    setSelectedFiles([])
   }
 
   const handleDelete = async () => {
@@ -309,11 +343,25 @@ function ProductFormModal({ editing, shops, categories, form, setFormField, canS
           )}
           <ProductField label="Prix (BIF)" type="number" value={form.price} onChange={(value) => setFormField('price', value)} placeholder="Ex. 45000" />
           <ProductField label="Quantité en stock" type="number" value={form.stock} onChange={(value) => setFormField('stock', value)} placeholder="Ex. 20" />
+          <label className="block sm:col-span-2">
+            <span className="mb-1.5 block text-sm font-semibold text-base-content/80">
+              Description <span className="ml-1 text-error" aria-hidden="true">*</span>
+            </span>
+            <textarea
+              value={form.details}
+              onChange={(event) => setFormField('details', event.target.value)}
+              rows={3}
+              placeholder="Décrivez le produit : composition, taille, état…"
+              className="w-full border border-base-300 bg-white px-3 py-2 text-sm outline-none transition placeholder:text-base-content/40 focus:border-brand focus:ring-4 focus:ring-brand/10"
+            />
+            <span className="mt-1 block text-xs text-base-content/45">Obligatoire : le produit ne peut pas être publié sans description.</span>
+          </label>
 
           {/* Upload d'images */}
           <label className="block sm:col-span-2">
             <span className="mb-1.5 block text-sm font-semibold text-base-content/80">
-              Photos du produit <span className="font-normal text-base-content/50">(max {MAX_IMAGES})</span>
+              Photos du produit <span className="ml-1 text-error" aria-hidden="true">*</span>
+              <span className="ml-1 font-normal text-base-content/50">(max {MAX_IMAGES})</span>
             </span>
             {canAddMore && (
               <input
@@ -344,6 +392,7 @@ function ProductFormModal({ editing, shops, categories, form, setFormField, canS
               </div>
             )}
           </label>
+          <span className="-mt-1 block text-xs text-base-content/45 sm:col-span-2">Obligatoire : ajoutez au moins une photo du produit.</span>
         </div>
 
         <div className="mt-5 flex justify-end gap-2">

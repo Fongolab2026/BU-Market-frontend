@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { utilisateursService } from '../services/utilisateursService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import PhoneInput from '../../../../../components/PhoneInput.jsx'
 
 const roleLabel = { admin: 'Gestionnaire', merchant: 'Commerçant', client: 'Client' }
 const emptyForm = { firstName: '', email: '', phone: '+257', location: '', role: 'client' }
@@ -229,7 +230,7 @@ function AddUserModal({ editing, form, setFormField, canSubmit, submitting, onSu
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <ModalField label="Prénom" value={form.firstName} onChange={(value) => setFormField('firstName', value)} placeholder="Ex. Antoine" />
           <ModalField label="E-mail" type="email" value={form.email} onChange={(value) => setFormField('email', value)} placeholder="exemple@gmail.com" className="sm:col-span-2" />
-          <ModalField label="Téléphone" value={form.phone} onChange={(value) => setFormField('phone', value)} placeholder="+257 66 00 00 00" />
+          <div className="block"><span className="mb-1.5 block text-sm font-semibold text-base-content/80">Téléphone</span><PhoneInput size="sm" value={form.phone} onChange={(value) => setFormField('phone', value)} /></div>
           <label className="block">
             <span className="mb-1.5 block text-sm font-semibold text-base-content/80">Rôle</span>
             <select value={form.role} onChange={(event) => setFormField('role', event.target.value)} className="h-10 w-full border border-base-300 bg-white px-3 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10">
@@ -256,7 +257,7 @@ function ModalField({ label, type = 'text', value, onChange, placeholder, classN
   return (
     <label className={`block ${className}`}>
       <span className="mb-1.5 block text-sm font-semibold text-base-content/80">{label}</span>
-      <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="h-10 w-full border border-base-300 bg-white px-3 text-sm outline-none transition placeholder:text-base-content/40 focus:border-brand focus:ring-4 focus:ring-brand/10" />
+      <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="field-input h-10 px-3 text-sm placeholder:text-base-content/40" />
     </label>
   )
 }

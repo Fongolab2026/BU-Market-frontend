@@ -310,6 +310,126 @@
       color-mix(in srgb, var(--color-primary) 38%, transparent);
   }
 
+  /* ---------- Champs unifiés ---------- */
+  .field-input {
+    width: 100%;
+    min-width: 0;
+    background-color: var(--surface);
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-field);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .field-input::placeholder {
+    color: color-mix(in srgb, var(--color-base-content) 40%, transparent);
+  }
+
+  .field-input:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-base-300));
+  }
+
+  .field-input:focus,
+  .field-input:focus-within {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px
+      color-mix(in srgb, var(--color-primary) 15%, transparent);
+  }
+
+  .field-input:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* ---------- Champ téléphone international ---------- */
+  .phone-input {
+    width: 100%;
+    --react-international-phone-border-radius: var(--radius-field);
+    --react-international-phone-border-color: var(--color-base-300);
+    --react-international-phone-country-selector-border-color: var(--color-base-300);
+    --react-international-phone-background-color: var(--surface);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .phone-input:hover {
+    --react-international-phone-border-color: color-mix(
+      in srgb,
+      var(--color-primary) 45%,
+      var(--color-base-300)
+    );
+    --react-international-phone-country-selector-border-color: color-mix(
+      in srgb,
+      var(--color-primary) 45%,
+      var(--color-base-300)
+    );
+  }
+
+  /* Halo de focus sur l'ensemble du champ (pays + numéro). */
+  .phone-input:focus-within {
+    --react-international-phone-border-color: var(--color-primary);
+    --react-international-phone-country-selector-border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px
+      color-mix(in srgb, var(--color-primary) 15%, transparent);
+  }
+
+  .phone-input .react-international-phone-country-selector-button {
+    background-color: var(--surface);
+    border-radius: var(--radius-field) 0 0 var(--radius-field);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .phone-input .react-international-phone-country-selector-button:hover {
+    background-color: color-mix(in srgb, var(--color-primary) 8%, var(--surface));
+  }
+
+  .phone-input .react-international-phone__input {
+    border-radius: 0 var(--radius-field) var(--radius-field) 0;
+    transition: border-color 0.2s ease;
+  }
+
+  .phone-input .react-international-phone__input:focus {
+    outline: none;
+  }
+
+  /* État d'erreur : bordure rouge, halo rouge discret au focus. */
+  .phone-input[data-error='true'] {
+    --react-international-phone-border-color: var(--color-error);
+    --react-international-phone-country-selector-border-color: var(--color-error);
+  }
+
+  .phone-input[data-error='true']:focus-within {
+    --react-international-phone-border-color: var(--color-error);
+    --react-international-phone-country-selector-border-color: var(--color-error);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-error) 18%, transparent);
+  }
+
+  /* Liste des pays */
+  .phone-input .react-international-phone-country-selector-dropdown {
+    background-color: var(--surface);
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-field);
+    box-shadow: 0 12px 28px rgba(16, 12, 24, 0.14);
+    color: var(--color-base-content);
+  }
+
+  .phone-input .react-international-phone-country-selector-dropdown__listitem {
+    color: var(--color-base-content);
+  }
+
+  .phone-input
+    .react-international-phone-country-selector-dropdown__listitem:hover,
+  .phone-input
+    .react-international-phone-country-selector-dropdown__listitem--focused {
+    background-color: color-mix(in srgb, var(--color-primary) 12%, var(--surface));
+    color: var(--color-base-content);
+  }
+
+  .phone-input
+    .react-international-phone-country-selector-dropdown__listitem[aria-selected='true'] {
+    background-color: color-mix(in srgb, var(--color-primary) 18%, var(--surface));
+    color: var(--color-base-content);
+  }
+
   /* ---------- Cartes ---------- */
   .card {
     background-color: var(--surface);

@@ -9,21 +9,22 @@ export const merchantProductEndpoints = {
 };
 
 export const merchantProductService = {
-  list: async ({ query = "", status = "all", page = 1, perPage = 20 } = {}) => {
+  list: async ({ query = "", status = "all", page = 1, perPage = 100 } = {}) => {
     const { data } = await api.get(endpoints.products.myProducts, {
       params: { search: query, status, page, perPage },
     });
     const products = data.results ?? data;
     return Array.isArray(products) ? products : [];
   },
-  create: async (input) => {
-    const { data } = await api.post(endpoints.products.create, {
-      name: input.name,
-      category: input.category,
-      price: input.price,
-      stock: input.stock || 0,
-      details: input.details || "",
-    });
+  create: async (input, files = []) => {
+    const formData = new FormData();
+    formData.append("name", input.name ?? "");
+    formData.append("category", input.category ?? "");
+    formData.append("price", input.price ?? "");
+    formData.append("stock", input.stock || 0);
+    formData.append("details", (input.details || "").trim());
+    files.forEach((file) => formData.append("images", file));
+    const { data } = await api.post(endpoints.products.create, formData);
     return data;
   },
   update: async (id, input) => {
@@ -32,7 +33,7 @@ export const merchantProductService = {
       category: input.category,
       price: input.price,
       stock: input.stock || 0,
-      details: input.details || "",
+      details: (input.details || "").trim(),
     });
     return data;
   },

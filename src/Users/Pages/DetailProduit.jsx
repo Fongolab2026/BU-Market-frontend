@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, BadgeCheck, Globe2, Heart, Mail, MapPin, Phone, ShieldCheck, ShoppingBag, Store, Truck } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { productApi, categoryApi, favoriteApi, cartApi, isAuthenticated } from '../../services'
+import { productApi, categoryApi, cartApi, isAuthenticated } from '../../services'
+import { useFavorites } from '../../hooks/useFavorites'
 import Loading from '../Composants/Loading'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
@@ -15,6 +16,9 @@ export default function DetailProduit() {
   const [selectedImage, setSelectedImage] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  const { isFavorite, toggleFavorite } = useFavorites()
+  const liked = product ? isFavorite(product.id) : false
 
   useEffect(() => {
     let active = true
@@ -61,12 +65,7 @@ export default function DetailProduit() {
     if (!isAuthenticated()) {
       return toast.error('Connectez-vous pour ajouter aux favoris')
     }
-    try {
-      await favoriteApi.create({ product: product.id, stars: 5 })
-      toast.success('Ajouté aux favoris')
-    } catch (err) {
-      toast.error(err.response?.data?.detail || 'Déjà dans vos favoris')
-    }
+    await toggleFavorite(product.id)
   }
 
   const handleAddToCart = async () => {
@@ -215,10 +214,10 @@ export default function DetailProduit() {
               <button
                 type="button"
                 onClick={handleFavorite}
-                className="btn btn-outline gap-2"
+                className={`btn btn-outline gap-2 ${liked ? 'text-red-500' : ''}`}
               >
-                <Heart size={18} className="text-red-500" aria-hidden="true" />
-                Favori
+                <Heart size={18} className={liked ? 'fill-current text-red-500' : 'text-base-content/60'} aria-hidden="true" />
+                {liked ? 'Retirer des favoris' : 'Favori'}
               </button>
               <button type="button" onClick={handleAddToCart} className="btn btn-primary flex-1 gap-2 sm:flex-none">
                 <ShoppingBag size={18} aria-hidden="true" />

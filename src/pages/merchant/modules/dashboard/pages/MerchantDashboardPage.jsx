@@ -11,7 +11,14 @@ const activityTarget = (kind) => (kind === 'order' ? '/marchand/commandes' : kin
 
 export function MerchantDashboardPage() {
   const [data, setData] = useState(null)
-  useEffect(() => { merchantDashboardService.get().then(setData) }, [])
+  const [error, setError] = useState(false)
+  useEffect(() => {
+    merchantDashboardService
+      .get()
+      .then(setData)
+      .catch(() => setError(true))
+  }, [])
+  if (error) return <MerchantDashboardError />
   if (!data) return <MerchantDashboardSkeleton />
   const maxActivity = Math.max(...data.weeklySales)
   return (
@@ -89,8 +96,11 @@ export function MerchantDashboardPage() {
             <Link to="/marchand/commandes" className="text-sm font-semibold text-brand hover:text-brand-soft whitespace-nowrap">Tout voir</Link>
           </div>
           <div className="divide-y divide-base-200">
+            {data.activity.length === 0 && (
+              <p className="p-6 text-center text-sm text-base-content/50">Aucune activité récente</p>
+            )}
             {data.activity.map((item) => {
-              const Icon = activityIcon[item.kind]
+              const Icon = activityIcon[item.kind] || Package
               return (
                 <Link key={item.id} to={activityTarget(item.kind)} className="flex gap-4 p-4 transition hover:bg-base-50" role="listitem">
                   <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand/10 text-brand">
@@ -161,6 +171,29 @@ function MerchantDashboardSkeleton() {
           <div key={item} className="h-32 rounded-2xl bg-base-200" />
         ))}
       </div>
+    </div>
+  )
+}
+
+function MerchantDashboardError() {
+  return (
+    <div className="card grid place-items-center p-12 text-center">
+      <span className="grid size-14 place-items-center rounded-2xl bg-rose-50 text-rose-600">
+        <Activity size={28} />
+      </span>
+      <h2 className="mt-4 text-lg font-bold text-base-content">
+        Impossible de charger votre tableau de bord
+      </h2>
+      <p className="mt-2 max-w-md text-sm text-base-content/60">
+        Une erreur est survenue lors de la récupération de vos statistiques. Réessayez dans quelques instants.
+      </p>
+      <button
+        type="button"
+        onClick={() => window.location.reload()}
+        className="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-soft"
+      >
+        Recharger la page
+      </button>
     </div>
   )
 }

@@ -113,21 +113,35 @@ export default function Home() {
 
   useEffect(() => {
     const load = async () => {
-      try {
-        const [prodRes, catRes, shopRes] = await Promise.all([
-          productApi.list({ status: 'active' }),
-          categoryApi.list(),
-          shopApi.list({ status: 'validated', perPage: 100 }),
-        ])
-        setProducts(prodRes.data.results ?? prodRes.data)
-        setCategories(Array.isArray(catRes.data) ? catRes.data : catRes.data.results ?? [])
-        setShops(shopRes.data.results ?? shopRes.data ?? [])
-      } catch (e) {
+      // Les boutiques ne sont lisibles que par un admin côté backend : leur échec
+      // éventuel ne doit pas empêcher l'affichage des produits.
+      const [prodRes, catRes, shopRes] = await Promise.allSettled([
+        productApi.list({ status: 'active' }),
+        categoryApi.list(),
+        shopApi.list({ status: 'validated', perPage: 100 }),
+      ])
+
+      if (prodRes.status === 'fulfilled') {
+        setProducts(prodRes.value.data.results ?? prodRes.value.data)
+      } else {
         setError('Erreur lors du chargement des produits')
-        console.error('home:', e)
-      } finally {
-        setInitialLoading(false)
+        console.error('home: produits', prodRes.reason)
       }
+
+      if (catRes.status === 'fulfilled') {
+        const data = catRes.value.data
+        setCategories(Array.isArray(data) ? data : data.results ?? [])
+      } else {
+        console.error('home: catégories', catRes.reason)
+      }
+
+      if (shopRes.status === 'fulfilled') {
+        setShops(shopRes.value.data.results ?? shopRes.value.data ?? [])
+      } else {
+        setShops([])
+      }
+
+      setInitialLoading(false)
     }
     load()
   }, [])

@@ -13,6 +13,13 @@ const statusMeta = {
   suspended: { label: 'Suspendue', tone: 'bg-rose-50 text-rose-700', icon: AlertTriangle },
 }
 
+const formatDate = (value) => {
+  if (!value) return "à l'instant"
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "à l'instant"
+  return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
+}
+
 export function MerchantShopPage() {
   const [shop, setShop] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -25,6 +32,9 @@ export function MerchantShopPage() {
     merchantShopService.get().then((result) => {
       setShop(result)
       setLoading(false)
+    }).catch(() => {
+      setLoading(false)
+      toast.error('Impossible de charger votre boutique.')
     })
   }, [])
 
@@ -32,12 +42,18 @@ export function MerchantShopPage() {
     event.preventDefault()
     if (!form.name.trim() || !form.category) return
     setSubmitting(true)
-    const updated = shop && shop.id ? await merchantShopService.update(form) : await merchantShopService.create(form)
-    setSubmitting(false)
-    setShop(updated)
-    setIsCreating(false)
-    setIsEditing(false)
-    toast.success(shop && shop.id ? 'Votre boutique a été mise à jour.' : 'Votre boutique a été créée et attend la validation.')
+    try {
+      const updated = shop && shop.id ? await merchantShopService.update(form) : await merchantShopService.create(form)
+      setShop(updated)
+      setIsCreating(false)
+      setIsEditing(false)
+      toast.success(shop && shop.id ? 'Votre boutique a été mise à jour.' : 'Votre boutique a été créée.')
+    } catch (error) {
+      const detail = error.response?.data?.detail
+      toast.error(detail || "Impossible d'enregistrer la boutique.")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const openCreate = () => { setForm({ name: '', category: shopCategories[0], description: '', imageFile: null, imagePreview: '' }); setIsCreating(true); setIsEditing(false) }
@@ -90,7 +106,7 @@ export function MerchantShopPage() {
                     <Store size={14} /> {shop.category}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <Clock3 size={14} /> Créée le {shop.createdAt || "à l'instant"}
+                    <Clock3 size={14} /> Créée le {formatDate(shop.createdAt)}
                   </span>
                 </div>
                 <p className="mt-3 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold bg-brand/10 text-brand">

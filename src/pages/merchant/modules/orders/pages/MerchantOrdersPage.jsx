@@ -13,16 +13,29 @@ const statusOptions = [
 ]
 const statusLabels = { pending: 'En attente', confirmed: 'Confirmée', shipped: 'Expédiée', completed: 'Livrée', cancelled: 'Annulée' }
 
+const formatDateTime = (value) => {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+  return date.toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
+const formatNumber = (value) => Number(value || 0).toLocaleString('fr-FR')
+
 export function MerchantOrdersPage() {
   const [orders, setOrders] = useState([])
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('all')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     merchantOrderService.list().then((result) => {
       setOrders(result)
       setLoading(false)
+    }).catch(() => {
+      setLoading(false)
+      setError(true)
     })
   }, [])
 
@@ -37,9 +50,13 @@ export function MerchantOrdersPage() {
 
   const updateStatus = async (order, nextStatus) => {
     if (nextStatus === order.status) return
-    const updated = await merchantOrderService.updateStatus(order.id, nextStatus)
-    setOrders((current) => current.map((item) => (item.id === updated.id ? { ...item, status: updated.status } : item)))
-    toast.success(`Commande ${order.id} marquée « ${statusLabels[nextStatus]} ».`)
+    try {
+      const updated = await merchantOrderService.updateStatus(order.id, nextStatus)
+      setOrders((current) => current.map((item) => (item.id === updated.id ? { ...item, status: updated.status } : item)))
+      toast.success(`Commande #${order.id} marquée « ${statusLabels[nextStatus]} ».`)
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Impossible de mettre à jour le statut.')
+    }
   }
 
   return (
@@ -91,6 +108,12 @@ export function MerchantOrdersPage() {
             <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
             Chargement des commandes...
           </div>
+        ) : error ? (
+          <div className="p-10 text-center">
+            <ShoppingBag size={40} className="mx-auto opacity-30" />
+            <p className="mt-2 font-semibold text-base-content">Impossible de charger les commandes</p>
+            <p className="mt-1 text-sm text-base-content/50">Veuillez réessayer dans quelques instants.</p>
+          </div>
         ) : filtered.length === 0 ? (
           <div className="p-10 text-center">
             <ShoppingBag size={40} className="mx-auto opacity-30" />
@@ -112,12 +135,12 @@ export function MerchantOrdersPage() {
             <tbody className="divide-y divide-base-200">
               {filtered.map((order) => (
                 <tr key={order.id} className="align-middle">
-                  <td className="py-3.5 pl-2 font-semibold text-base-content">{order.id}</td>
+                  <td className="py-3.5 pl-2 font-semibold text-base-content">#{order.id}</td>
                   <td className="py-3.5">
                     <div>
                       <p className="font-semibold text-base-content">{order.client}</p>
                       <p className="mt-0.5 flex items-center gap-1 text-xs text-base-content/50">
-                        <MapPin size={12} /> {order.client}
+                        <MapPin size={12} /> {order.location || 'Adresse non renseignée'}
                       </p>
                     </div>
                   </td>
@@ -126,9 +149,9 @@ export function MerchantOrdersPage() {
                       <Package size={14} className="text-secondary" /> {order.items}
                     </span>
                   </td>
-                  <td className="py-3.5 font-semibold text-base-content">{order.total} BIF</td>
+                  <td className="py-3.5 font-semibold text-base-content">{formatNumber(order.total)} BIF</td>
                   <td className="py-3.5"><StatusBadge status={order.status} label={statusLabels[order.status]} /></td>
-                  <td className="py-3.5 text-sm text-base-content/55">{order.date}</td>
+                  <td className="py-3.5 text-sm text-base-content/55">{formatDateTime(order.date)}</td>
                   <td className="py-3.5">
                     <select
                       value={order.status}

@@ -51,17 +51,16 @@ export function MerchantLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
-  const [hasShop, setHasShop] = useState(false);
+  const [hasShop, setHasShop] = useState(null);
 
   useEffect(() => {
-    if (user?.role === "merchant") {
-      authApi
-        .me()
-        .then(({ data }) => {
-          setHasShop(data.is_seller && data.shop?.status === "validated");
-        })
-        .catch(() => {});
-    }
+    if (user?.role !== "merchant") return;
+    authApi
+      .me()
+      .then(({ data }) => {
+        setHasShop(Boolean(data.is_seller && data.shop?.status === "validated"));
+      })
+      .catch(() => {});
   }, [user]);
 
   const showAlert = hasShop === false && location.pathname !== "/marchand/boutique";

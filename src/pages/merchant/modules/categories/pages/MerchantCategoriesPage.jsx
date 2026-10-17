@@ -14,6 +14,7 @@ import {
   Smartphone,
   Sparkles,
   Sprout,
+  Trash2,
   TreePine,
   Wrench,
   X,
@@ -69,10 +70,16 @@ export function MerchantCategoriesPage() {
     merchantCategoryService.list().then((result) => {
       setCategories(result);
       setLoading(false);
+    }).catch(() => {
+      setLoading(false);
+      toast.error("Impossible de charger les catégories.");
     });
   }, []);
 
-  const reload = () => merchantCategoryService.list().then(setCategories);
+  const reload = () => merchantCategoryService
+    .list()
+    .then(setCategories)
+    .catch(() => toast.error("Impossible d'actualiser les catégories."));
 
   const openCreate = () => {
     setForm({ name: "", description: "", icon: "package", active: true });
@@ -92,41 +99,55 @@ export function MerchantCategoriesPage() {
     event.preventDefault();
     if (!form.name.trim()) return;
     setSubmitting(true);
-    if (modal === "create") {
-      await merchantCategoryService.create({
-        name: form.name,
-        description: form.description,
-        icon: form.icon,
-      });
-      toast.success("Catégorie ajoutée.");
-    } else {
-      await merchantCategoryService.update(modal, {
-        name: form.name,
-        description: form.description,
-        icon: form.icon,
-      });
-      toast.success("Catégorie mise à jour.");
+    try {
+      if (modal === "create") {
+        await merchantCategoryService.create({
+          name: form.name,
+          description: form.description,
+          icon: form.icon,
+        });
+        toast.success("Catégorie ajoutée.");
+      } else {
+        await merchantCategoryService.update(modal, {
+          name: form.name,
+          description: form.description,
+          icon: form.icon,
+        });
+        toast.success("Catégorie mise à jour.");
+      }
+      setModal(null);
+      await reload();
+    } catch (error) {
+      toast.error(error.response?.data?.name?.[0] || "Impossible d'enregistrer la catégorie.");
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
-    setModal(null);
-    await reload();
   };
 
   const toggleStatus = async (category) => {
     const nextActive = !category.active;
-    await merchantCategoryService.update(category.id, { active: nextActive });
-    toast.success(
-      category.active ? "Catégorie désactivée." : "Catégorie activée.",
-    );
-    await reload();
+    try {
+      await merchantCategoryService.update(category.id, { active: nextActive });
+      toast.success(
+        category.active ? "Catégorie désactivée." : "Catégorie activée.",
+      );
+      await reload();
+    } catch {
+      toast.error("Impossible de modifier le statut de la catégorie.");
+    }
   };
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    await merchantCategoryService.remove(deleteTarget.id);
-    setDeleteTarget(null);
-    toast.success("Catégorie supprimée.");
-    await reload();
+    try {
+      await merchantCategoryService.remove(deleteTarget.id);
+      setDeleteTarget(null);
+      toast.success("Catégorie supprimée.");
+      await reload();
+    } catch (error) {
+      setDeleteTarget(null);
+      toast.error(error.response?.data?.detail || "Impossible de supprimer la catégorie.");
+    }
   };
 
   const activeCount = categories.filter((c) => c.active).length;
@@ -268,7 +289,7 @@ export function MerchantCategoriesPage() {
                             className="rounded-lg p-2 text-base-content/40 transition hover:bg-rose-50 hover:text-rose-600"
                             aria-label={`Supprimer ${category.name}`}
                           >
-                            <X size={16} />
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </div>

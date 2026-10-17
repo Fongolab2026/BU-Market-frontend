@@ -16,24 +16,36 @@ const categoryIcons = {
   'Électronique': '📱'
 }
 
-const placeholderImages = [
-  'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1498840177845-8f2b3c98a77c?w=400&h=300&fit=crop'
-]
-
 const MAX_IMAGES = 5
 
-function getPlaceholderImage(name) {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = ((hash << 5) - hash) + name.charCodeAt(i)
-    hash |= 0
+const formatPrice = (value) => {
+  const number = Number(value)
+  return Number.isFinite(number) ? number.toLocaleString('fr-FR') : '0'
+}
+
+/**
+ * Extrait le message lisible d'une erreur DRF.
+ * DRF renvoie soit { detail: "..." }, soit { champ: ["message", ...] }.
+ */
+const getApiErrorMessage = (error, fallback) => {
+  const data = error?.response?.data
+  if (!data) return fallback
+  if (typeof data === 'string' && data.trim()) return data
+  if (typeof data.detail === 'string' && data.detail.trim()) return data.detail
+  const labels = {
+    name: 'Le nom',
+    price: 'Le prix',
+    stock: 'Le stock',
+    details: 'La description',
+    category: 'La catégorie',
   }
-  return placeholderImages[Math.abs(hash) % placeholderImages.length]
+  for (const [field, messages] of Object.entries(data)) {
+    const message = Array.isArray(messages) ? messages[0] : messages
+    if (typeof message === 'string' && message.trim()) {
+      return `${labels[field] || field} : ${message}`
+    }
+  }
+  return fallback
 }
 
 export function MerchantProductsPage() {
@@ -44,7 +56,7 @@ export function MerchantProductsPage() {
   const [status, setStatus] = useState('all')
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(null)
-  const [form, setForm] = useState({ name: '', category: '', price: '', stock: '' })
+  const [form, setForm] = useState({ name: '', category: '', price: '', stock: '', details: '' })
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState([])
@@ -53,8 +65,16 @@ export function MerchantProductsPage() {
     merchantProductService.list({ query: search, status }).then((result) => {
       setProducts(result)
       setLoading(false)
+    }).catch((error) => {
+      setLoading(false)
+      if (error.response?.status === 401) {
+        toast.error('Votre session a expiré. Veuillez vous reconnecter.')
+        navigate('/connexion', { replace: true })
+      } else {
+        toast.error('Impossible de charger vos produits.')
+      }
     })
-  }, [search, status])
+  }, [search, status, navigate])
 
   useEffect(() => {
     categoryApi.list().then(({ data }) => {
@@ -71,25 +91,42 @@ export function MerchantProductsPage() {
     })
   }, [navigate])
 
-  const reload = () => merchantProductService.list({ query: search, status }).then(setProducts)
+  const reload = () => merchantProductService
+    .list({ query: search, status })
+    .then(setProducts)
+    .catch(() => toast.error('Impossible d\'actualiser la liste des produits.'))
 
   const openCreate = () => {
-    setForm({ name: '', category: categories[0]?.id ?? '', price: '', stock: '' })
+    setForm({ name: '', category: categories[0]?.id ?? '', price: '', stock: '', details: '' })
     setSelectedFiles([])
     setModal('create')
   }
-  const openEdit = (product) => { setForm({ name: product.name, category: product.category, price: String(product.price).replace(/\s/g, ''), stock: String(product.stock) }); setSelectedFiles([]); setModal(product.id) }
+  const openEdit = (product) => {
+    setForm({
+      name: product.name,
+      category: product.category,
+      price: String(product.price).replace(/\s/g, ''),
+      stock: String(product.stock),
+      details: product.details ?? '',
+    })
+    setSelectedFiles([])
+    setModal(product.id)
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    if (!form.name.trim() || !form.price) return
+    if (!form.name.trim() || !form.price) {
+      toast.error('Le nom et le prix du produit sont obligatoires.')
+      return
+    }
+    if (modal === 'create' && selectedFiles.length === 0) {
+      toast.error('Ajoutez au moins une photo du produit.')
+      return
+    }
     setSubmitting(true)
     try {
       if (modal === 'create') {
-        const created = await merchantProductService.create(form)
-        if (selectedFiles.length > 0 && created?.id) {
-          await merchantProductService.uploadImages(created.id, selectedFiles, true)
-        }
+        await merchantProductService.create(form, selectedFiles)
         toast.success('Votre produit a été publié.')
       } else {
         await merchantProductService.update(modal, form)
@@ -106,8 +143,7 @@ export function MerchantProductsPage() {
         toast.error('Votre session a expiré. Veuillez vous reconnecter.')
         navigate('/connexion', { replace: true })
       } else {
-        const detail = error.response?.data?.detail
-        toast.error(detail || 'Impossible de publier le produit.')
+        toast.error(getApiErrorMessage(error, 'Impossible de publier le produit.'))
       }
     } finally {
       setSubmitting(false)
@@ -116,17 +152,25 @@ export function MerchantProductsPage() {
 
   const toggleStatus = async (product) => {
     const nextStatus = product.status === 'active' ? 'inactive' : 'active'
-    await merchantProductService.updateStatus(product.id, nextStatus)
-    toast.success(product.status === 'active' ? 'Produit mis en brouillon.' : 'Produit publié.')
-    await reload()
+    try {
+      await merchantProductService.updateStatus(product.id, nextStatus)
+      toast.success(product.status === 'active' ? 'Produit mis en brouillon.' : 'Produit publié.')
+      await reload()
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Impossible de changer le statut du produit.'))
+    }
   }
 
   const handleDelete = async () => {
     if (!deleteTarget) return
-    await merchantProductService.remove(deleteTarget.id)
-    setDeleteTarget(null)
-    toast.success('Le produit a été supprimé.')
-    await reload()
+    try {
+      await merchantProductService.remove(deleteTarget.id)
+      setDeleteTarget(null)
+      toast.success('Le produit a été supprimé.')
+      await reload()
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Impossible de supprimer le produit.'))
+    }
   }
 
   const activeCount = products.filter((product) => product.status === 'active').length
@@ -177,14 +221,19 @@ export function MerchantProductsPage() {
               <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {products.map((product) => (
                   <article key={product.id} className="group rounded-2xl border border-base-200 bg-white overflow-hidden transition-all duration-300 hover:border-brand/40 hover:shadow-xl hover:-translate-y-1">
-                    <div className="relative aspect-[4/3] bg-base-50 overflow-hidden">
-                      <img
-                        src={product.main_image || getPlaceholderImage(product.name)}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        loading="lazy"
-                        onError={(e) => { e.target.src = getPlaceholderImage(product.name); }}
-                      />
+                    <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-linear-to-br from-brand/10 to-brand/5">
+                      {product.main_image ? (
+                        <img
+                          src={product.main_image}
+                          alt={product.name}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="text-4xl" aria-hidden="true">
+                          {categoryIcons[getCategoryName(product.category, categories)] || '📦'}
+                        </span>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                         <StatusBadge status={product.status} label={product.status === 'active' ? 'Publié' : 'Brouillon'} />
@@ -209,7 +258,7 @@ export function MerchantProductsPage() {
                       </div>
                       <div className="flex items-center justify-between pt-2 border-t border-base-100">
                         <div>
-                          <p className="text-lg font-bold text-base-content">{product.price} BIF</p>
+                          <p className="text-lg font-bold text-base-content">{formatPrice(product.price)} BIF</p>
                           <p className="text-xs text-base-content/50">Stock : {product.stock}</p>
                         </div>
                       </div>
@@ -310,11 +359,25 @@ function ProductForm({ isCreate, form, setFormField, categories, submitting, onS
               <input type="number" min="0" value={form.stock} onChange={(event) => setFormField('stock', event.target.value)} placeholder="60" className="input input-bordered w-full text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20" />
             </label>
           </div>
+          <label className="block">
+            <span className="mb-1.5 block text-sm font-semibold text-base-content/80">
+              Description <span className="ml-1 font-normal text-base-content/50">(facultatif)</span>
+            </span>
+            <textarea
+              value={form.details}
+              onChange={(event) => setFormField('details', event.target.value)}
+              rows={3}
+              placeholder="Décrivez votre produit : composition, taille, état, mode de livraison…"
+              className="textarea textarea-bordered w-full text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20"
+            />
+            <span className="mt-1 block text-xs text-base-content/45">Facultatif : ajoutez une description pour rassurer vos acheteurs.</span>
+          </label>
 
           {/* Upload d'images */}
           <label className="block">
             <span className="mb-1.5 block text-sm font-semibold text-base-content/80">
-              Photos du produit <span className="font-normal text-base-content/50">(max {MAX_IMAGES})</span>
+              Photos du produit <span className="ml-1 text-error" aria-hidden="true">*</span>
+              <span className="ml-1 font-normal text-base-content/50">(max {MAX_IMAGES})</span>
             </span>
             {canAddMore && (
               <input
@@ -345,11 +408,12 @@ function ProductForm({ isCreate, form, setFormField, categories, submitting, onS
               </div>
             )}
           </label>
+          <span className="-mt-1 block text-xs text-base-content/45">Obligatoire : ajoutez au moins une photo du produit.</span>
         </div>
 
         <div className="mt-5 flex justify-end gap-2">
           <button type="button" onClick={onClose} className="rounded-lg border border-base-300 px-4 py-2 text-sm font-semibold text-base-content/70 transition hover:bg-base-100">Annuler</button>
-          <button type="submit" disabled={!form.name.trim() || !form.price || submitting} className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50">
+          <button type="submit" disabled={!form.name.trim() || !form.price || (isCreate && selectedFiles.length === 0) || submitting} className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50">
             {submitting ? 'Enregistrement…' : isCreate ? 'Publier' : 'Modifier'}
           </button>
         </div>

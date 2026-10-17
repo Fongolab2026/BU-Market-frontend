@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { dashboardService } from '../services/dashboardService.js'
 import { PageHeader, StatCard, StatusBadge } from '../../../components/ui.jsx'
 
-const iconByStat = { users: UsersRound, shops: Store, products: Package, pending: AlertTriangle }
+const iconByStat = { users: UsersRound, shops: Store, products: Package, moderation: AlertTriangle }
 const activityIcon = { shop: Store, user: UsersRound, alert: AlertTriangle, settings: CheckCircle2 }
 const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 const queueTarget = (type) => type === 'Boutique' ? '/admin/boutiques?status=pending' : type === 'Produit' ? '/admin/produits' : '/admin/avis?status=hidden'

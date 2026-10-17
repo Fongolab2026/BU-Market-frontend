@@ -220,9 +220,9 @@ export function DemandesLocationPage() {
                 </table>
               </div>
               <Pagination
-                currentPage={pagination.page}
+                page={pagination.page}
                 totalPages={pagination.totalPages}
-                onPageChange={setPage}
+                onChange={setPage}
               />
             </>
           )}

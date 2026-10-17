@@ -4,6 +4,8 @@ import { ArrowRight, Eye, EyeOff, ShieldCheck, Sparkles, Store, Sun, Moon } from
 import toast from 'react-hot-toast'
 import { userApi } from '../../services'
 import { useTheme } from '../../context/ThemeContext.jsx'
+import PhoneInput from '../../components/PhoneInput.jsx'
+import { getPhoneError } from '../../utils/phone.js'
 
 export default function Inscription() {
   const navigate = useNavigate()
@@ -32,23 +34,8 @@ export default function Inscription() {
     }
   }
 
-  const formatPhone = (value) => {
-    // Remove all non-digits
-    const digits = value.replace(/\D/g, '')
-    // If starts with 0, convert to +33 (France)
-    if (digits.startsWith('0') && digits.length === 10) {
-      return '+33' + digits.slice(1)
-    }
-    // If already has country code or other format, return as-is with +
-    if (digits.length > 0 && !value.startsWith('+')) {
-      return '+' + digits
-    }
-    return value
-  }
-
-  const handlePhoneChange = (e) => {
-    const formatted = formatPhone(e.target.value)
-    setFormData(prev => ({ ...prev, phone: formatted }))
+  const handlePhoneChange = (phone) => {
+    setFormData(prev => ({ ...prev, phone }))
     if (errors.phone) {
       setErrors(prev => ({ ...prev, phone: '' }))
     }
@@ -60,7 +47,8 @@ export default function Inscription() {
     if (!formData.email.trim()) newErrors.email = "Email requis"
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Email invalide"
     if (!formData.first_name.trim()) newErrors.first_name = "Prénom requis"
-    if (formData.phone && !/^\+?\d{8,15}$/.test(formData.phone)) newErrors.phone = "Format: +33612345678 ou 0612345678"
+    if (!formData.phone.trim()) newErrors.phone = "Numéro de téléphone requis"
+    else newErrors.phone = getPhoneError(formData.phone, 'bi')
     if (!formData.password) newErrors.password = "Mot de passe requis"
     else if (formData.password.length < 8) newErrors.password = "8 caractères minimum"
     if (formData.password !== formData.password_confirm) newErrors.password_confirm = "Les mots de passe ne correspondent pas"
@@ -185,9 +173,7 @@ export default function Inscription() {
               </div>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-bold text-base-content' htmlFor='phone'>Téléphone</label>
-                <input id='phone' className={`input input-lg w-full ${errors.phone ? 'input-error' : ''}`} type='tel' name='phone' placeholder='+257 - - - -'value={formData.phone} onChange={handlePhoneChange} />
-                {errors.phone && <p className='text-xs text-error'>{errors.phone}</p>}
-                <p className='text-xs text-base-content/50'>Format: +257 - - - -ou 66 - - -</p>
+                <PhoneInput id='phone' name='phone' size='lg' error={errors.phone || undefined} placeholder='Numéro de téléphone' value={formData.phone} onChange={handlePhoneChange} />
               </div>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-bold text-base-content' htmlFor='adresse'>Adresse</label>

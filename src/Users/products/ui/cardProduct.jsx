@@ -1,21 +1,20 @@
 import { Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { favoriteApi, isAuthenticated } from '../../../services'
+import { isAuthenticated } from '../../../services'
+import { useFavorites } from '../../../hooks/useFavorites'
 
 export default function CardProducts({ product, categoryName }) {
+  const { isFavorite, toggleFavorite, loading } = useFavorites()
+  const liked = isFavorite(product.id)
+
   const handleFavorite = async (event) => {
     event.preventDefault()
     event.stopPropagation()
     if (!isAuthenticated()) {
       return toast.error('Connectez-vous pour ajouter aux favoris')
     }
-    try {
-      await favoriteApi.create({ product: product.id, stars: 5 })
-      toast.success('Ajouté aux favoris')
-    } catch (err) {
-      toast.error(err.response?.data?.detail || 'Déjà dans vos favoris')
-    }
+    await toggleFavorite(product.id)
   }
 
   return (
@@ -34,16 +33,19 @@ export default function CardProducts({ product, categoryName }) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm text-base-content/30">
-            Pas d&apos;image
+            Pas d'image
           </div>
         )}
         <button
           type="button"
           onClick={handleFavorite}
-          title="Ajouter aux favoris"
-          className="btn btn-ghost btn-circle btn-xs absolute right-2 top-2 bg-base-100/80 backdrop-blur"
+          title={liked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+          disabled={loading}
+          className={`btn btn-ghost btn-circle btn-xs absolute right-2 top-2 bg-base-100/80 backdrop-blur ${
+            liked ? 'text-red-500' : 'text-base-content/60'
+          }`}
         >
-          <Heart size={18} className="text-red-500" />
+          <Heart size={18} className={liked ? 'fill-current' : ''} />
         </button>
       </div>
 

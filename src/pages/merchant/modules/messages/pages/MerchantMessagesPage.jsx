@@ -16,6 +16,9 @@ export function MerchantMessagesPage() {
     merchantMessageService.list().then((result) => {
       setConversations(result)
       setLoading(false)
+    }).catch(() => {
+      setLoading(false)
+      toast.error('Impossible de charger vos messages.')
     })
   }, [])
 
@@ -49,11 +52,16 @@ export function MerchantMessagesPage() {
     event.preventDefault()
     if (!selected || !draft.trim()) return
     setSending(true)
-    const updated = await merchantMessageService.send(selected.id, draft.trim())
-    setSending(false)
-    setDraft('')
-    setConversations((current) => current.map((item) => (item.id === updated.id ? updated : item)))
-    toast.success('Votre réponse a été envoyée.')
+    try {
+      const updated = await merchantMessageService.send(selected.id, draft.trim())
+      setDraft('')
+      setConversations((current) => current.map((item) => (item.id === updated.id ? updated : item)))
+      toast.success('Votre réponse a été envoyée.')
+    } catch {
+      toast.error("Impossible d'envoyer votre message.")
+    } finally {
+      setSending(false)
+    }
   }
 
   return (

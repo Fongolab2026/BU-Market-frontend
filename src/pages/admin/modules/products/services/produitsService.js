@@ -1,4 +1,4 @@
-import { endpoints, api, apiGet, apiPost, apiPatch, apiDelete } from "../../../../../services/api.js";
+import { endpoints, api, apiGet, apiPatch, apiDelete } from "../../../../../services/api.js";
 import { cleanFilters, fetchAllPages, mapProduct, toPage } from "../../shared/adminApi.js";
 
 export const produitEndpoints = {
@@ -11,17 +11,31 @@ export const produitEndpoints = {
   uploadImages: (id) => endpoints.products.uploadImages(id),
 };
 
-/** Le formulaire n'expose ni la categorie ni la description : on les deduit. */
+/**
+ * Payload produit.
+ * - "category" (et non "categoryId") est le champ attendu par le serializer.
+ * - "details" est obligatoire côté backend : une description est toujours envoyée.
+ */
 const toPayload = (input) => {
   const payload = {
-    shopId: input.shopId ? Number(input.shopId) : undefined,
     name: (input.name || "").trim(),
     price: input.price === "" ? "" : Number(String(input.price).replace(/\s/g, "")),
     stock: Number(input.stock) || 0,
+    details: (input.details || "").trim(),
   };
-  if (input.categoryId) payload.categoryId = Number(input.categoryId);
-  if (input.details !== undefined) payload.details = input.details;
+  const category = input.category ?? input.categoryId;
+  if (category) payload.category = Number(category);
   return payload;
+};
+
+/** Même payload mais en FormData, pour joindre les photos à la création. */
+const toFormData = (input, files = []) => {
+  const data = new FormData();
+  Object.entries(toPayload(input)).forEach(([key, value]) => {
+    data.append(key, value === null || value === undefined ? "" : value);
+  });
+  files.forEach((file) => data.append("images", file));
+  return data;
 };
 
 export const produitsService = {
@@ -37,9 +51,9 @@ export const produitsService = {
     const params = cleanFilters({ page: 1, perPage });
     return toPage(await apiGet(endpoints.shops.list, params), perPage);
   },
-  create: async (input) => {
-    const created = await apiPost(produitEndpoints.create, toPayload(input));
-    return mapProduct(created);
+  create: async (input, files = []) => {
+    const { data } = await api.post(produitEndpoints.create, toFormData(input, files));
+    return mapProduct(data);
   },
   update: async (id, input) => {
     const updated = await apiPatch(produitEndpoints.update(id), toPayload(input));

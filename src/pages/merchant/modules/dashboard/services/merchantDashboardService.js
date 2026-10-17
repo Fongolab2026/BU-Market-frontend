@@ -1,4 +1,4 @@
-import { apiGet } from "../../../../../services/api.js";
+import { apiGet, endpoints } from "../../../../../services/api.js";
 
 export const merchantDashboardEndpoints = {
   stats: "/products/products/my-stats/",
@@ -7,14 +7,51 @@ export const merchantDashboardEndpoints = {
   myOrders: "/orders/orders/shop-orders/",
 };
 
+const ORDER_STATUS_LABELS = {
+  pending: "En attente",
+  confirmed: "Confirmée",
+  shipped: "Expédiée",
+  completed: "Livrée",
+  cancelled: "Annulée",
+};
+
+const formatPrice = (value) => {
+  const number = Number(value);
+  return Number.isFinite(number) ? number.toLocaleString("fr-FR") : "0";
+};
+
+const formatDateTime = (value) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 export const merchantDashboardService = {
   get: async () => {
-    const [stats, shop, products, orders] = await Promise.all([
-      apiGet(merchantDashboardEndpoints.stats),
+    const [stats, shop, products, orders, categories] = await Promise.all([
+      apiGet(merchantDashboardEndpoints.stats).catch(() => ({})),
       apiGet(merchantDashboardEndpoints.myShop).catch(() => null),
       apiGet(merchantDashboardEndpoints.myProducts).catch(() => ({ results: [] })),
       apiGet(merchantDashboardEndpoints.myOrders).catch(() => ({ results: [] })),
+      apiGet(endpoints.categories.list).catch(() => []),
     ]);
+
+    const categoryList = categories?.results ?? categories ?? [];
+    const categoryNameById = new Map(
+      (Array.isArray(categoryList) ? categoryList : []).map((category) => [
+        category.id,
+        category.name,
+      ]),
+    );
+
+    const productList = products?.results ?? products ?? [];
+    const orderList = orders?.results ?? orders ?? [];
 
     const productCount = stats.total_products || 0;
     const activeProductCount = stats.active_products || 0;
@@ -23,37 +60,69 @@ export const merchantDashboardService = {
 
     // Build activity from recent orders and products
     const activity = [
-      ...(orders.results || []).slice(0, 5).map((order) => ({
+      ...orderList.slice(0, 5).map((order) => ({
         id: `order-${order.id}`,
         title: `Commande #${order.id}`,
-        description: `Client: ${order.user?.username || 'Inconnu'} - ${order.get_status_display?.() || order.status}`,
-        time: order.created_at,
+        description: `Client : ${order.client || "Inconnu"} · ${ORDER_STATUS_LABELS[order.status] || order.status}`,
+        time: formatDateTime(order.created_at),
         kind: "order",
       })),
-      ...(products.results || []).slice(0, 5).map((product) => ({
+      ...productList.slice(0, 5).map((product) => ({
         id: `product-${product.id}`,
-        title: `Produit ajouté: ${product.name}`,
-        description: `${product.categoryName || product.category} - ${product.price} BIF`,
-        time: product.created_at,
+        title: `Produit ajouté : ${product.name}`,
+        description: `${categoryNameById.get(product.category) || "Sans catégorie"} · ${formatPrice(product.price)} BIF`,
+        time: formatDateTime(product.created_at),
         kind: "product",
       })),
-    ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 10);
+    ]
+      .sort((a, b) => new Date(b.time) - new Date(a.time))
+      .slice(0, 10);
 
-    // Generate weekly sales data (7 days) - for demo, use the weekly total distributed
+    // Répartit le total hebdomadaire sur 7 jours (aucun historique quotidien côté API).
     const dailyAverage = Math.floor(weeklySales / 7);
-    const weeklySalesData = Array.from({ length: 7 }, (_, i) => dailyAverage + (i % 2 ? 1 : 0) * 10);
+    const weeklySalesData = Array.from({ length: 7 }, (_, i) =>
+      dailyAverage + (i % 2 ? 1 : 0) * 10,
+    );
 
     return {
       stats: [
-        { id: "sales", label: "Ventes (7j)", value: weeklySales.toLocaleString() + " BIF", change: "+12%", trend: "up", tone: "brand" },
-        { id: "orders", label: "Commandes", value: orders.results?.length || 0, change: "+5%", trend: "up", tone: "emerald" },
-        { id: "products", label: "Produits actifs", value: activeProductCount, change: `${productCount - activeProductCount} inactifs`, trend: "up", tone: "violet" },
-        { id: "views", label: "Vues boutique", value: totalViews.toLocaleString(), change: "+8%", trend: "up", tone: "amber" },
+        {
+          id: "sales",
+          label: "Ventes (7j)",
+          value: `${formatPrice(weeklySales)} BIF`,
+          change: "+12%",
+          trend: "up",
+          tone: "brand",
+        },
+        {
+          id: "orders",
+          label: "Commandes",
+          value: orders?.total ?? orderList.length,
+          change: "+5%",
+          trend: "up",
+          tone: "emerald",
+        },
+        {
+          id: "products",
+          label: "Produits actifs",
+          value: activeProductCount,
+          change: `${Math.max(productCount - activeProductCount, 0)} inactifs`,
+          trend: "up",
+          tone: "violet",
+        },
+        {
+          id: "views",
+          label: "Vues boutique",
+          value: Number(totalViews).toLocaleString("fr-FR"),
+          change: "+8%",
+          trend: "up",
+          tone: "amber",
+        },
       ],
       weeklySales: weeklySalesData,
       shop: shop,
-      products: products.results || [],
-      orders: orders.results || [],
+      products: productList,
+      orders: orderList,
       activity,
     };
   },

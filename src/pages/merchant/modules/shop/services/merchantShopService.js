@@ -17,11 +17,18 @@ export const merchantShopService = {
     }
   },
   create: async (input) => {
-    const { data } = await api.patch(endpoints.users.me, {
+    await api.patch(endpoints.users.me, {
       shop_name: input.name.trim(),
-      shop_description: input.description.trim(),
+      shop_description: (input.description || "").trim(),
     });
-    return data.shop;
+    // Recharge la boutique complète (le résumé renvoyé par /me est incomplet).
+    const created = await merchantShopService.get();
+    if (!created?.id) return created;
+    // Applique aussi la catégorie et le logo via l'endpoint dédié.
+    if (input.category || input.imageFile) {
+      return merchantShopService.update({ ...input, id: created.id });
+    }
+    return created;
   },
   update: async (input) => {
     const formData = new FormData();

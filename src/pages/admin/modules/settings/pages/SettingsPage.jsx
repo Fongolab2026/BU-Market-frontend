@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Banknote, Bell, Check, Languages, LoaderCircle, Mail, Pencil, Phone, Plus, SaveAll, Settings2, ShieldCheck, Trash2, X } from 'lucide-react'
+import { Banknote, Bell, Check, Languages, LoaderCircle, Mail, Pencil, Plus, SaveAll, Settings2, ShieldCheck, Trash2, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { parametresService } from '../services/parametresService.js'
 import { PageHeader } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import PhoneInput from '../../../../../components/PhoneInput.jsx'
 
 export function SettingsPage() {
   const [settings, setSettings] = useState(null)
@@ -85,7 +86,7 @@ export function SettingsPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Nom de la plateforme" value={settings.platformName} onChange={(value) => update('platformName', value)} className="sm:col-span-2" />
               <Field label="E-mail de contact" type="email" icon={Mail} value={settings.supportEmail} onChange={(value) => update('supportEmail', value)} />
-              <Field label="Téléphone de contact" icon={Phone} value={settings.phone} onChange={(value) => update('phone', value)} />
+              <div className="block"><span className="mb-1.5 block text-sm font-semibold text-base-content/80">Téléphone de contact</span><PhoneInput size="sm" value={settings.phone} onChange={(value) => update('phone', value)} /></div>
               <FieldSelect label="Langue par défaut" icon={Languages} value={settings.defaultLanguage} onChange={(value) => update('defaultLanguage', value)} options={[{ value: 'fr', label: 'Français' }, { value: 'en', label: 'English' }]} />
               <FieldSelect label="Devise" icon={Banknote} value="BIF" onChange={() => update('currency', 'BIF')} options={[{ value: 'BIF', label: 'Franc burundais (BIF)' }]} />
             </div>
@@ -233,7 +234,7 @@ function Field({ label, type = 'text', icon: Icon, value, onChange, className = 
       <span className="mb-1.5 block text-sm font-semibold text-base-content/80">{label}</span>
       <div className="relative">
         {Icon && <Icon size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40" />}
-        <input type={type} value={value} onChange={(event) => onChange(event.target.value)} className={`h-10 w-full border border-base-300 bg-white ${Icon ? 'pl-10' : 'px-3'} pr-3 text-sm outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10`} />
+        <input type={type} value={value} onChange={(event) => onChange(event.target.value)} className={`field-input h-10 ${Icon ? 'pl-10' : 'px-3'} pr-3 text-sm`} />
       </div>
     </label>
   )
@@ -245,7 +246,7 @@ function FieldSelect({ label, icon: Icon, value, onChange, options }) {
       <span className="mb-1.5 block text-sm font-semibold text-base-content/80">{label}</span>
       <div className="relative">
         {Icon && <Icon size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40" />}
-        <select value={value} onChange={(event) => onChange(event.target.value)} className="h-10 w-full appearance-none border border-base-300 bg-white pl-10 pr-3 text-sm outline-none transition focus:border-brand focus:ring-4 focus:ring-brand/10">
+        <select value={value} onChange={(event) => onChange(event.target.value)} className="field-input h-10 appearance-none pl-10 pr-3 text-sm">
           {options.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
