@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import { favoriteApi } from '../services'
+import toast from 'react-hot-toast'
+import { favoriteApi, isAuthenticated } from '../services'
 
 /**
  * Hook pour gérer les favoris d'un utilisateur.
@@ -12,7 +13,7 @@ export function useFavorites() {
   const [error, setError] = useState(null)
 
   const loadFavorites = useCallback(async () => {
-    if (!favoriteApi) return
+    if (!isAuthenticated()) return
     setLoading(true)
     try {
       const { data } = await favoriteApi.list({ perPage: 1000 })
@@ -36,13 +37,14 @@ export function useFavorites() {
 
   const toggleFavorite = useCallback(
     async (productId) => {
+      if (!isAuthenticated()) {
+        return toast.error('Connectez-vous pour gérer vos favoris')
+      }
+
       if (isFavorite(productId)) {
         // Retirer des favoris
         setLoading(true)
         try {
-          // On récupère l'ID du favori depuis la liste côté serveur via le détail
-          // mais comme on n'a pas l'ID de favori directement, on filtre les favoris
-          // pour trouver celui correspondant au produit.
           const { data } = await favoriteApi.list({ perPage: 1000 })
           const results = Array.isArray(data) ? data : data?.results ?? []
           const fav = results.find((f) => f.product === productId)

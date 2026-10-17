@@ -113,6 +113,7 @@ export const endpoints = {
     delete: (id) => `/users/users/${id}/`,
     setStatus: (id) => `/users/users/${id}/status/`,
     me: "/users/users/me/",
+    changePassword: "/users/users/change-password/",
   },
   products: {
     list: "/products/products/",
