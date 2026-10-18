@@ -1,6 +1,6 @@
 import useProducts from '../Hooks/hooks'
 import CardProducts from './ui/cardProduct'
-import Loading from '../Composants/Loading'
+import { ProductGridSkeleton } from '../../components/skeletons'
 
 function Products(){
     const {data, loading, err} = useProducts('/api/products/')
@@ -17,7 +17,7 @@ function Products(){
                 })
                 }
                 {err && <p className="text-red-500">{err.message}</p>}
-                {loading && <Loading />}
+                {loading && <ProductGridSkeleton count={8} className="mt-4 flex flex-wrap justify-center gap-4" />}
 
             </div>
         </>

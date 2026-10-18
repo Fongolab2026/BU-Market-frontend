@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react'
-import { AlertTriangle, ArrowUpRight, Building2, CheckCircle2, Clock3, Eye, ImagePlus, Package, Pencil, Plus, Star, Store, X } from 'lucide-react'
+import { Building2, CheckCircle2, Clock3, Eye, ImagePlus, Package, Pencil, Plus, Star, Store, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { merchantShopService } from '../services/merchantShopService.js'
 import { PageHeader, StatusBadge } from '../../../components/ui.jsx'
+import { ShopSkeleton } from '../../../../../components/skeletons'
 
 const shopCategories = ['Alimentation', 'Mode & accessoires', 'Artisanat', 'Maison & décoration', 'Beauté & soins', 'Électronique']
 
 const statusMeta = {
-  none: { label: 'Non créée', tone: 'bg-base-100 text-base-content/60', icon: AlertTriangle },
-  pending: { label: 'En attente de validation', tone: 'bg-amber-50 text-amber-700', icon: Clock3 },
-  validated: { label: 'Validée', tone: 'bg-emerald-50 text-emerald-700', icon: CheckCircle2 },
-  suspended: { label: 'Suspendue', tone: 'bg-rose-50 text-rose-700', icon: AlertTriangle },
+  none: { label: 'Non créée' },
+  pending: { label: 'En attente de validation' },
+  validated: { label: 'Validée' },
+  suspended: { label: 'Suspendue' },
 }
 
 const formatDate = (value) => {
@@ -59,10 +61,27 @@ export function MerchantShopPage() {
   const openCreate = () => { setForm({ name: '', category: shopCategories[0], description: '', imageFile: null, imagePreview: '' }); setIsCreating(true); setIsEditing(false) }
   const openEdit = () => { setForm({ id: shop.id, name: shop.name, category: shop.category, description: shop.description, imageFile: null, imagePreview: shop.shopImage || '' }); setIsEditing(true); setIsCreating(false) }
 
-  if (loading) return <Skeleton />
+  if (loading) return <ShopSkeleton />
 
-  const meta = statusMeta[shop?.id ? shop.status : 'none']
-  const MetaIcon = meta.icon
+  const meta = statusMeta[shop?.id ? shop.status : 'none'] || statusMeta.none
+
+  // Complétion du profil boutique : logo, description et catégorie
+  // (le nom est requis à la création, il compte donc toujours).
+  const profileCompletion = shop
+    ? Math.round(
+        ([shop.name, shop.category, shop.description, shop.shopImage].filter(
+          (value) => value && String(value).trim(),
+        ).length /
+          4) *
+          100,
+      )
+    : 0
+
+  const profileTip = !shop?.description
+    ? 'Ajoutez une description pour inspirer confiance'
+    : !shop?.shopImage
+      ? 'Ajoutez un logo pour une vitrine plus attractive'
+      : 'Profil complet : votre vitrine est prête'
 
   return (
     <div className="space-y-6">
@@ -84,14 +103,22 @@ export function MerchantShopPage() {
       ) : (
         <div className="space-y-6">
           <article className="card overflow-hidden">
-            <div className="h-32 bg-gradient-to-br from-brand/20 via-brand/10 to-transparent" />
+            <div className="relative h-32 bg-gradient-to-br from-brand via-brand/70 to-accent/40">
+              <div
+                className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.25),transparent_50%)]"
+                aria-hidden="true"
+              />
+            </div>
             <div className="-mt-14 flex flex-col gap-5 p-6 sm:flex-row sm:items-end sm:px-6 sm:pb-6">
               <div className="relative">
-                <span className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-white bg-base-100 text-brand shadow-lg">
+                <span className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-base-100 bg-base-100 text-brand shadow-lg">
                   {shop.shopImage ? <img src={shop.shopImage} alt={shop.name} className="h-full w-full object-cover" /> : <Building2 size={38} />}
                 </span>
                 {shop.status === 'validated' && (
-                  <span className="absolute -bottom-2 -right-2 grid size-6 place-items-center rounded-full bg-emerald-500 text-white ring-2 ring-white">
+                  <span
+                    className="absolute -bottom-2 -right-2 grid size-6 place-items-center rounded-full bg-emerald-500 text-white ring-2 ring-base-100"
+                    title="Boutique validée"
+                  >
                     <CheckCircle2 size={12} />
                   </span>
                 )}
@@ -109,35 +136,41 @@ export function MerchantShopPage() {
                     <Clock3 size={14} /> Créée le {formatDate(shop.createdAt)}
                   </span>
                 </div>
-                <p className="mt-3 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold bg-brand/10 text-brand">
-                  <MetaIcon size={12} /> {meta.label}
-                </p>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <button type="button" onClick={openEdit} className="inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-soft">
-                  <Pencil size={16} /> Modifier
-                </button>
-              </div>
+              {/* L'action « Modifier » vit uniquement dans l'en-tête de la page
+                  (PageHeader) : pas de doublon dans la carte. */}
             </div>
 
-            {shop.description && (
-              <div className="border-t border-base-200 bg-base-50/50 p-6 sm:px-6">
-                <h3 className="text-sm font-semibold text-base-content/70 mb-2">Description</h3>
+            <div className="border-t border-base-200 bg-base-50/50 p-6 sm:px-6">
+              <h3 className="text-sm font-semibold text-base-content/70 mb-2">Description</h3>
+              {shop.description ? (
                 <p className="text-sm leading-7 text-base-content/75">{shop.description}</p>
-              </div>
-            )}
+              ) : (
+                <p className="text-sm leading-7 text-base-content/50">
+                  Aucune description pour le moment.{' '}
+                  <button
+                    type="button"
+                    onClick={openEdit}
+                    className="font-semibold text-brand hover:underline"
+                  >
+                    Ajoutez-en une
+                  </button>{' '}
+                  pour inspirer confiance chez vos clients.
+                </p>
+              )}
+            </div>
           </article>
 
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Statistiques de la boutique">
-            <ShopStatCard icon={Package} label="Produits publiés" value={shop.products} tone="bg-brand/10 text-brand" trend="+2 ce mois" />
-            <ShopStatCard icon={Star} label="Note moyenne" value={shop.rating ? `${shop.rating} / 5` : '—'} tone="bg-amber-50 text-amber-700" trend={shop.reviewCount ? `${shop.reviewCount} avis` : 'Pas encore'} />
-            <ShopStatCard icon={Eye} label="Vues ce mois" value={shop.views} tone="bg-violet-50 text-violet-700" trend="+12% vs mois dernier" />
-            <ShopStatCard icon={CheckCircle2} label="Avis reçus" value={shop.reviewCount} tone="bg-emerald-50 text-emerald-700" trend="Répondre aux derniers" />
+            <ShopStatCard icon={Package} label="Produits publiés" value={shop.products} tone="bg-brand/10 text-brand" hint={shop.products ? 'En ligne dans votre catalogue' : 'Publiez votre premier produit'} />
+            <ShopStatCard icon={Star} label="Note moyenne" value={shop.rating ? `${shop.rating} / 5` : '—'} tone="bg-amber-50 text-amber-700" hint={shop.reviewCount ? `Basée sur ${shop.reviewCount} avis` : 'Pas encore d’avis'} />
+            <ShopStatCard icon={Eye} label="Vues ce mois" value={shop.views} tone="bg-orange-50 text-orange-700" hint={shop.views ? 'Vos clients découvrent votre boutique' : 'Partagez votre boutique pour attirer des visites'} />
+            <ShopStatCard icon={CheckCircle2} label="Avis reçus" value={shop.reviewCount} tone="bg-emerald-50 text-emerald-700" hint={shop.reviewCount ? 'Répondez pour renforcer la confiance' : 'Encouragez vos clients à laisser un avis'} />
           </section>
 
           <section className="card p-6" aria-labelledby="visibility-title">
-            <h3 id="visibility-title" className="font-semibold text-base-content mb-4 flex items-center gap-2">
-              <Eye size={18} className="text-brand" /> Visibilité & performance
+            <h3 id="visibility-title" className="font-semibold text-base-content mb-5 flex items-center gap-2">
+              <Eye size={18} className="text-brand" /> Visibilité & profil
             </h3>
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-xl bg-base-50 p-4 border border-base-200">
@@ -146,16 +179,24 @@ export function MerchantShopPage() {
                 <p className="mt-2 text-xs text-base-content/50">{shop.status === 'validated' ? 'Vos produits apparaissent dans les recherches' : 'Patientez le temps de la vérification'}</p>
               </div>
               <div className="rounded-xl bg-base-50 p-4 border border-base-200">
-                <p className="text-xs font-medium text-base-content/50 uppercase tracking-wide">Produits actifs</p>
-                <p className="mt-1 font-semibold text-brand">{shop.products}</p>
-                <p className="mt-2 text-xs text-base-content/50">Publiez-en plus pour augmenter vos ventes</p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-medium text-base-content/50 uppercase tracking-wide">Complétion du profil</p>
+                  <p className="text-xs font-bold text-brand">{profileCompletion}%</p>
+                </div>
+                <div className="mt-2 h-2 rounded-full bg-base-200 overflow-hidden">
+                  <div className="h-full rounded-full bg-brand transition-[width] duration-500" style={{ width: `${profileCompletion}%` }} />
+                </div>
+                <p className="mt-2 text-xs text-base-content/50">{profileTip}</p>
               </div>
               <div className="rounded-xl bg-base-50 p-4 border border-base-200">
-                <p className="text-xs font-medium text-base-content/50 uppercase tracking-wide">Complétion du profil</p>
-                <div className="mt-2 h-2 rounded-full bg-base-200 overflow-hidden">
-                  <div className="h-full bg-brand" style={{ width: shop.description ? '85%' : '60%' }} />
-                </div>
-                <p className="mt-2 text-xs text-base-content/50">{shop.description ? 'Profil bien rempli' : 'Ajoutez une description pour plus de confiance'}</p>
+                <p className="text-xs font-medium text-base-content/50 uppercase tracking-wide">Produits actifs</p>
+                <p className="mt-1 font-semibold text-brand">{shop.products}</p>
+                <Link
+                  to="/marchand/produits"
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand transition hover:underline"
+                >
+                  Gérer mes produits
+                </Link>
               </div>
             </div>
           </section>
@@ -192,15 +233,15 @@ function ShopEmpty({ onCreate }) {
   )
 }
 
-function ShopStatCard({ icon: Icon, label, value, tone, trend }) {
+function ShopStatCard({ icon: Icon, label, value, tone, hint }) {
   return (
     <article className="card p-5 transition hover:border-brand/30 hover:shadow-sm">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-medium text-base-content/60">{label}</p>
-        <span className={`grid size-10 place-items-center rounded-xl ${tone}`}><Icon size={20} /></span>
+        <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${tone}`}><Icon size={20} /></span>
       </div>
       <p className="mt-4 text-3xl font-extrabold tracking-tight text-base-content">{value}</p>
-      {trend && <p className="mt-2 text-xs font-medium text-base-content/50 flex items-center gap-1"><ArrowUpRight size={10} /> {trend}</p>}
+      {hint && <p className="mt-2 text-xs font-medium text-base-content/50">{hint}</p>}
     </article>
   )
 }
@@ -266,16 +307,3 @@ function ShopForm({ title, subtitle, form, setFormField, submitting, onSubmit, o
   )
 }
 
-function Skeleton() {
-  return (
-    <div className="animate-pulse space-y-6">
-      <div className="h-20 w-80 rounded-xl bg-base-200" />
-      <div className="h-64 rounded-2xl bg-base-200" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[1, 2, 3, 4].map((item) => (
-          <div key={item} className="h-36 rounded-2xl bg-base-200" />
-        ))}
-      </div>
-    </div>
-  )
-}

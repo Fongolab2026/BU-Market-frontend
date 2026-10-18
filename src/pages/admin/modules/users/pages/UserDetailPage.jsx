@@ -9,12 +9,13 @@ import { boutiquesService } from '../../shops/services/boutiquesService.js'
 import { StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
 import Avatar from '../../../../../components/Avatar.jsx'
+import { ProfileSkeleton } from '../../../../../components/skeletons'
 
 const roleLabel = { admin: 'Gestionnaire', merchant: 'Commerçant', client: 'Client' }
 
 const timelineStyle = {
   account: { icon: UserPlus, className: 'bg-brand/10 text-brand' },
-  shop: { icon: Store, className: 'bg-violet-100 text-violet-700' },
+  shop: { icon: Store, className: 'bg-orange-100 text-orange-700' },
   validation: { icon: CheckCircle2, className: 'bg-emerald-100 text-emerald-700' },
   products: { icon: Package, className: 'bg-brand/10 text-brand' },
   reviews: { icon: Star, className: 'bg-amber-100 text-amber-700' },
@@ -397,18 +398,6 @@ function TimelineEntry({ entry, isLast }) {
       <div className={isLast ? 'pb-0 pt-1' : 'pb-6 pt-1'}>
         <p className="text-sm font-semibold text-base-content">{entry.label}</p>
         <p className="mt-0.5 text-xs text-base-content/50">{entry.date}</p>
-      </div>
-    </div>
-  )
-}
-
-function ProfileSkeleton() {
-  return (
-    <div className="animate-pulse space-y-4">
-      <div className="h-48 rounded-2xl bg-base-200" />
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="h-72 rounded-2xl bg-base-200" />
-        <div className="h-64 rounded-2xl bg-base-200" />
       </div>
     </div>
   )

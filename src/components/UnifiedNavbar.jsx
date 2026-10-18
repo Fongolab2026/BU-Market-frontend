@@ -63,19 +63,15 @@ export default function UnifiedNavbar({ onOpenMenu }) {
           </button>
         )}
 
-        {/* Logo + titre */}
-        <Link
-          to="/"
-          className="flex shrink-0 items-center gap-2"
-          aria-label="Accueil BU-Market"
-        >
+        {/* Logo + titre — purement visuel (non cliquable) */}
+        <div className="flex shrink-0 items-center gap-2" aria-label="BU-Market">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-content shadow-md">
             <Store size={22} />
           </span>
           <span className="hidden text-lg font-bold tracking-tight text-base-content sm:block">
             BU-<span className="text-primary">Market</span>
           </span>
-        </Link>
+        </div>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           {/* Favoris */}

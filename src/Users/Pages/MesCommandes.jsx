@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { Link } from 'react-router-dom'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
+import { OrderListSkeleton } from '../../components/skeletons'
 import { orderApi } from '../../services'
 
 export default function MesCommandes() {
@@ -29,7 +30,7 @@ export default function MesCommandes() {
           <h1 className="text-3xl font-extrabold text-base-content">Mes commandes</h1>
         </div>
 
-        {loading ? <p className="py-20 text-center text-base-content/60">Chargement...</p> : orders.length === 0 ? (
+        {loading ? <OrderListSkeleton /> : orders.length === 0 ? (
           <div className="py-20 text-center">
             <Package size={48} className="mx-auto text-base-content/25" />
             <p className="mt-4 text-base-content/60">Vous n’avez encore aucune commande.</p>

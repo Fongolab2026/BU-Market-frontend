@@ -1,7 +1,7 @@
 import { ArrowLeft, Building2, Globe2, Mail, MapPin, Package, Phone, Star, Store } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import Loading from '../Composants/Loading'
+import { ShopSkeleton } from '../../components/skeletons'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
 import ZoomableImage from '../Composants/ZoomableImage.jsx'
@@ -36,7 +36,7 @@ export default function ProfilVendeur() {
           <ArrowLeft size={16} /> Retour à l&apos;accueil
         </Link>
 
-        {loading ? <Loading /> : error || !shop ? (
+        {loading ? <ShopSkeleton /> : error || !shop ? (
           <div className="py-20 text-center text-base-content/65">{error || 'Vendeur introuvable.'}</div>
         ) : (
           <>

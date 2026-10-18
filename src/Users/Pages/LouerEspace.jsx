@@ -277,7 +277,10 @@ export default function LouerEspace() {
     try {
       await api.post(endpoints.boutiques.create, form)
       toast.success('Votre demande de location est en attente de confirmation.')
-      navigate('/confirmation-location', { replace: true })
+      // Retour à l'accueil client : la demande reste « pending » et le hook
+      // global `useSellerUpgrade` basculera vers l'espace marchand dès la
+      // validation par l'admin.
+      navigate('/accueil', { replace: true })
     } catch (err) {
       const payload = err.response?.data
       const isFieldErrors = payload && typeof payload === 'object' && !Array.isArray(payload) && !payload.detail

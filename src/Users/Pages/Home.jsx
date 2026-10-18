@@ -36,6 +36,9 @@ import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
 import ZoomableImage from '../Composants/ZoomableImage.jsx'
 import { productApi, categoryApi, shopApi } from '../../services'
+import HeroSlideshow from '../../components/HeroSlideshow.jsx'
+import { ProductGridSkeleton } from '../../components/skeletons'
+import { apiPost, endpoints } from '../../services/api.js'
 import { useSpaceRequest } from '../../hooks/useSpaceRequest.js'
 
 const TRUST_POINTS = [
@@ -70,33 +73,13 @@ const VALUES = [
 
 const PRODUCTS_PER_PAGE = 20
 
-function CarteSquelette({ delay }) {
-  return (
-    <div
-      className="w-[240px] overflow-hidden rounded-2xl border border-base-300 bg-[var(--surface)] shadow-sm"
-      role="status"
-      aria-label="Chargement des produits"
-      style={delay ? { animationDelay: `${delay}ms` } : undefined}
-    >
-      <div className="aspect-square w-full animate-pulse bg-base-200" />
-      <div className="flex flex-col gap-2 p-4">
-        <div className="h-4 w-3/4 animate-pulse rounded bg-base-200" />
-        <div className="h-3 w-1/3 animate-pulse rounded bg-base-200" />
-        <div className="h-3 w-full animate-pulse rounded bg-base-200" />
-        <div className="h-3 w-2/3 animate-pulse rounded bg-base-200" />
-        <div className="h-5 w-1/2 animate-pulse rounded bg-base-200" />
-      </div>
-    </div>
-  )
-}
-
 export default function Home() {
   const { user } = useAuth()
   // Un commerçant possède déjà une boutique : plus de bouton « Louer l'espace ».
   // Le backend renvoie role "seller", le mock de session utilise "merchant".
   const isMerchant = user?.role === 'seller' || user?.role === 'merchant'
   // Statut de la demande de location : sert à basculer le bouton d'accueil.
-  const { isSellerByRequest, hasOpenRequest } = useSpaceRequest(user)
+  const { isSellerByRequest, hasOpenRequest, status } = useSpaceRequest(user)
   const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
@@ -109,7 +92,15 @@ export default function Home() {
 
   const [contactForm, setContactForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [contactSent, setContactSent] = useState(false)
+  const [contactSending, setContactSending] = useState(false)
+  const [contactError, setContactError] = useState('')
+  const contactFullName =
+    [user?.firstName || user?.first_name, user?.lastName || user?.last_name]
+      .filter(Boolean)
+      .join(' ') || user?.username || ''
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  // Bannière « demande en attente » masquable à la demande du client.
+  const [pendingBannerDismissed, setPendingBannerDismissed] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -146,6 +137,16 @@ export default function Home() {
     load()
   }, [])
 
+  // Un client connecté voit ses coordonnées pré-remplies dans le formulaire.
+  useEffect(() => {
+    if (!user) return
+    setContactForm((form) => ({
+      ...form,
+      name: form.name || contactFullName,
+      email: form.email || user.email || '',
+    }))
+  }, [user, contactFullName])
+
   const filtered = selectedCategory
     ? products.filter((p) => p.category === selectedCategory)
     : products
@@ -175,11 +176,34 @@ export default function Home() {
     setCurrentPage(1)
   }
 
-  const handleContactSubmit = (e) => {
+  const handleContactSubmit = async (e) => {
     e.preventDefault()
-    setContactSent(true)
-    setContactForm({ name: '', email: '', subject: '', message: '' })
-    setTimeout(() => setContactSent(false), 5000)
+    if (!user) {
+      setContactError('Connectez-vous pour envoyer un message au support.')
+      return
+    }
+    setContactSending(true)
+    setContactError('')
+    try {
+      await apiPost(endpoints.messages.contact, {
+        name: contactForm.name || contactFullName,
+        email: contactForm.email || user?.email || '',
+        subject: contactForm.subject,
+        message: contactForm.message,
+      })
+      setContactSent(true)
+      setContactForm({ name: contactFullName, email: user?.email || '', subject: '', message: '' })
+      setTimeout(() => setContactSent(false), 5000)
+    } catch (err) {
+      const detail = err.response?.data?.detail || err.response?.data?.message
+      setContactError(
+        typeof detail === 'string'
+          ? detail
+          : "Impossible d'envoyer le message. Veuillez réessayer plus tard.",
+      )
+    } finally {
+      setContactSending(false)
+    }
   }
 
   return (
@@ -194,8 +218,44 @@ export default function Home() {
         onClick={() => setMobileNavOpen(false)}
         className={mobileNavOpen ? 'blur-sm md:blur-none' : ''}
       >
+        {/* ---------- Demande de location en attente ---------- */}
+        {status === 'pending' && !pendingBannerDismissed && (
+          <section
+            className="mx-auto max-w-7xl px-4 pt-6 sm:px-6"
+            role="status"
+            aria-live="polite"
+            aria-label="Demande de location en attente de confirmation"
+          >
+            <div className="flex items-start gap-3 rounded-2xl border border-accent/40 bg-accent/10 p-4 shadow-sm sm:items-center">
+              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent/20 text-accent">
+                <Clock size={20} aria-hidden="true" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-bold text-base-content">
+                  Demande de location en attente de confirmation
+                </p>
+                <p className="mt-1 text-sm leading-6 text-base-content/65">
+                  Merci ! Notre équipe examine les informations de votre boutique sous 48h
+                  ouvrées. Votre espace marchand s&apos;activera automatiquement dès la
+                  validation.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPendingBannerDismissed(true)}
+                className="grid size-8 shrink-0 place-items-center rounded-lg text-base-content/40 transition hover:bg-base-200 hover:text-base-content"
+                aria-label="Masquer cette information"
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            </div>
+          </section>
+        )}
+
         {/* ---------- Bandeau d'accueil ---------- */}
         <section className="home-hero relative overflow-hidden text-primary-content">
+          {/* Diaporama de fond + voile pour la lisibilité du texte */}
+          <HeroSlideshow />
           <div className="absolute -left-20 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
           <div className="absolute -bottom-28 right-0 h-80 w-80 rounded-full bg-accent/20 blur-3xl" aria-hidden="true" />
 
@@ -350,11 +410,7 @@ export default function Home() {
           {error && <div className="alert alert-error mb-6">{error}</div>}
 
           {initialLoading ? (
-            <div className="grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-busy="true" aria-label="Chargement initial des produits">
-              {Array.from({ length: 8 }, (_, i) => (
-                <CarteSquelette key={i} delay={i * 70} />
-              ))}
-            </div>
+            <ProductGridSkeleton count={8} />
           ) : searchedProducts.length === 0 ? (
             <p className="text-center text-base-content/60">Aucun produit ne correspond à votre recherche.</p>
           ) : (
@@ -623,18 +679,38 @@ export default function Home() {
               </div>
 
               <div className="rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm sm:p-8">
-                {contactSent ? (
+                {!user ? (
+                  <div className="flex flex-col items-center gap-4 py-10 text-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Headphones size={32} aria-hidden="true" />
+                    </div>
+                    <h3 className="text-xl font-bold text-base-content">
+                      Connectez-vous pour nous écrire
+                    </h3>
+                    <p className="text-sm text-base-content/60">
+                      Le formulaire de contact est réservé aux comptes clients connectés.
+                    </p>
+                    <Link to="/connexion" className="btn btn-primary gap-2">
+                      Se connecter
+                    </Link>
+                  </div>
+                ) : contactSent ? (
                   <div className="flex flex-col items-center gap-4 py-8 text-center">
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/10 text-success">
                       <Send size={32} aria-hidden="true" />
                     </div>
                     <h3 className="text-xl font-bold text-base-content">Message envoyé !</h3>
                     <p className="text-sm text-base-content/60">
-                      Nous vous contacterons dans les plus brefs délais.
+                      Notre équipe vous répondra dans les plus brefs délais.
                     </p>
                   </div>
                 ) : (
                   <form onSubmit={handleContactSubmit}>
+                    {contactError && (
+                      <p className="mb-4 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
+                        {contactError}
+                      </p>
+                    )}
                     <div className="mb-4">
                       <label htmlFor="contact-name" className="mb-1 block text-sm font-semibold text-base-content">
                         Nom complet
@@ -692,9 +768,14 @@ export default function Home() {
                         placeholder="Votre message..."
                       />
                     </div>
-                    <Button type="submit" className="mt-2 gap-2" severity="primary">
+                    <Button
+                      type="submit"
+                      disabled={contactSending}
+                      className="mt-2 gap-2"
+                      severity="primary"
+                    >
                       <Send size={18} aria-hidden="true" />
-                      Envoyer le message
+                      {contactSending ? 'Envoi...' : 'Envoyer le message'}
                     </Button>
                   </form>
                 )}

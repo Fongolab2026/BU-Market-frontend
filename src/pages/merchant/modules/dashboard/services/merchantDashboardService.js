@@ -108,7 +108,7 @@ export const merchantDashboardService = {
           value: activeProductCount,
           change: `${Math.max(productCount - activeProductCount, 0)} inactifs`,
           trend: "up",
-          tone: "violet",
+          tone: "orange",
         },
         {
           id: "views",

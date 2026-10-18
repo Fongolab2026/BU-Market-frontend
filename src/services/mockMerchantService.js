@@ -319,7 +319,7 @@ const dashboardData = {
       value: "4",
       change: "2 brouillons",
       trend: "up",
-      tone: "violet",
+      tone: "orange",
     },
     {
       id: "views",

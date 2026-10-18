@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, BadgeCheck, Globe2, Heart, Mail, MapPin, Phone, 
 import toast from 'react-hot-toast'
 import { productApi, categoryApi, cartApi, isAuthenticated } from '../../services'
 import { useFavorites } from '../../hooks/useFavorites'
-import Loading from '../Composants/Loading'
+import { ProductDetailSkeleton } from '../../components/skeletons'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
 
@@ -83,7 +83,7 @@ export default function DetailProduit() {
     return (
       <div className="min-h-screen bg-base-100">
         <NavBar />
-        <Loading />
+        <ProductDetailSkeleton />
       </div>
     )
   }

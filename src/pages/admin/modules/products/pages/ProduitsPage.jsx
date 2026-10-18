@@ -5,6 +5,7 @@ import { produitsService } from '../services/produitsService.js'
 import { categoriesService } from '../../categories/services/categoriesService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import { TableSkeleton } from '../../../../../components/skeletons'
 
 const PAGE_SIZE = 8
 const MAX_IMAGES = 5
@@ -198,10 +199,7 @@ export function ProduitsPage() {
 
       <div className="card mt-5 overflow-x-auto p-4 sm:p-5">
         {loading ? (
-          <div className="flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-            <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-            Chargement des produits...
-          </div>
+          <TableSkeleton columns={6} rows={5} minWidth={820} />
         ) : visible.length === 0 ? (
           <div className="p-10 text-center">
             <Package size={40} className="mx-auto opacity-30" />

@@ -8,7 +8,7 @@ export const dashboardEndpoints = {
 };
 
 /** Couleurs de cartes KPI acceptees par StatCard. */
-const TONES = ["brand", "violet", "emerald", "amber"];
+const TONES = ["brand", "orange", "emerald", "amber"];
 const ACTIVITY_ICONS = { shop: "shop", user: "user", alert: "alert", settings: "settings" };
 
 /** L'API renvoie des tons positive/negative/neutral, l'UI attend des couleurs. */

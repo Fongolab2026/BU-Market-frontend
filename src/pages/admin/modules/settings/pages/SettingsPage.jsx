@@ -5,6 +5,7 @@ import { parametresService } from '../services/parametresService.js'
 import { PageHeader } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
 import PhoneInput from '../../../../../components/PhoneInput.jsx'
+import { SettingsSkeleton } from '../../../../../components/skeletons'
 
 export function SettingsPage() {
   const [settings, setSettings] = useState(null)
@@ -16,7 +17,7 @@ export function SettingsPage() {
 
   useEffect(() => { parametresService.get().then(setSettings) }, [])
 
-  if (!settings) return <div className="h-96 animate-pulse rounded-2xl bg-base-200" />
+  if (!settings) return <SettingsSkeleton />
 
   const update = (path, value) => {
     setSettings((current) => {

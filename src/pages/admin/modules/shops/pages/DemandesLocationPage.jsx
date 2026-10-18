@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { demandesLocationService } from '../services/demandesLocationService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import { TableSkeleton } from '../../../../../components/skeletons'
 import { useAuth } from '../../../../../context/AuthContext.jsx'
 import { authApi } from '../../../../../services/authService.js'
 import { useNavigate } from 'react-router-dom'
@@ -134,10 +135,7 @@ export function DemandesLocationPage() {
 
         <div className="p-4">
           {loading ? (
-            <div className="flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-              <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-              Chargement…
-            </div>
+            <TableSkeleton columns={5} rows={4} />
           ) : demandes.length === 0 ? (
             <div className="p-12 text-center">
               <Building2 className="mx-auto w-20 h-20 rounded-full bg-base-100 flex items-center justify-center mb-4 text-base-content/30" size={28} />

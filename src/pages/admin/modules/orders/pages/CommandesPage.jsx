@@ -3,6 +3,7 @@ import { ClipboardCheck, MapPin, Package, Search, ShoppingBag } from 'lucide-rea
 import toast from 'react-hot-toast'
 import { commandesService } from '../services/commandesService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
+import { TableSkeleton } from '../../../../../components/skeletons'
 
 const PAGE_SIZE = 6
 const statusOptions = [
@@ -98,10 +99,7 @@ export function CommandesPage() {
 
       <div className="card mt-5 overflow-x-auto p-4 sm:p-5">
         {loading ? (
-          <div className="flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-            <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-            Chargement des commandes...
-          </div>
+          <TableSkeleton columns={7} rows={5} minWidth={760} />
         ) : visible.length === 0 ? (
           <div className="p-10 text-center">
             <ShoppingBag size={40} className="mx-auto opacity-30" />

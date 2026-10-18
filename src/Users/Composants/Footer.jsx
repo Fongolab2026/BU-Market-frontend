@@ -6,12 +6,12 @@ export default function Footer() {
     <footer className="border-t border-base-300/70 bg-base-200/60">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="border-base-300/70 bg-transparent shadow-none">
-          <Link to="/" className="inline-flex items-center gap-2 text-lg font-bold tracking-tight text-base-content">
+          <span className="inline-flex items-center gap-2 text-lg font-bold tracking-tight text-base-content" aria-label="BU-Market">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-content">
               <Store size={19} aria-hidden="true" />
             </span>
             BU-<span className="text-primary">Market</span>
-          </Link>
+          </span>
           <p className="mt-3 max-w-sm text-sm leading-6 text-base-content/60">
             Une marketplace pensée pour trouver des produits fiables au prix juste.
           </p>

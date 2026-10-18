@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
+import { CartSkeleton } from '../../components/skeletons'
 import { cartApi, cartItemApi } from '../../services'
 
 export default function Panier() {
@@ -72,7 +73,7 @@ export default function Panier() {
           <h1 className="text-3xl font-extrabold text-base-content">Mon panier</h1>
         </div>
 
-        {loading ? <p className="py-20 text-center text-base-content/60">Chargement du panier...</p> : !cart?.items?.length ? (
+        {loading ? <CartSkeleton /> : !cart?.items?.length ? (
           <div className="py-20 text-center">
             <ShoppingBag size={48} className="mx-auto text-base-content/25" />
             <p className="mt-4 font-semibold text-base-content">Votre panier est vide.</p>

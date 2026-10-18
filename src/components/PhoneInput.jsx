@@ -22,10 +22,13 @@ export default function PhoneInput({
   error = false,
   defaultCountry = 'bi',
   size = 'md',
+  height: heightProp,
 }) {
   const [countryIso2, setCountryIso2] = useState(defaultCountry)
 
-  const height = size === 'lg' ? '2.5rem' : size === 'sm' ? '2.125rem' : '2.375rem'
+  // `height` permet d'aligner le champ sur la hauteur exacte des autres champs
+  // d'un formulaire (ex. `3rem` pour les écrans d'authentification).
+  const height = heightProp ?? (size === 'lg' ? '2.5rem' : size === 'sm' ? '2.125rem' : '2.375rem')
   const fontSize = size === 'lg' ? '0.9375rem' : size === 'sm' ? '0.8125rem' : '0.875rem'
   const filled = Boolean(value && value.trim())
 

@@ -15,6 +15,7 @@ import {
 import toast from 'react-hot-toast'
 import { merchantNotificationService } from '../services/merchantNotificationService.js'
 import { PageHeader } from '../../../components/ui.jsx'
+import { ListSkeleton } from '../../../../../components/skeletons'
 
 const iconByKind = {
   shop: Store,
@@ -30,7 +31,7 @@ const toneByKind = {
   shop: 'bg-brand/10 text-brand',
   alert: 'bg-rose-100 text-rose-600',
   order: 'bg-emerald-100 text-emerald-600',
-  product: 'bg-violet-100 text-violet-600',
+  product: 'bg-orange-100 text-orange-600',
   message: 'bg-amber-100 text-amber-600',
   system: 'bg-blue-100 text-blue-600',
   promotion: 'bg-rose-100 text-rose-600',
@@ -189,10 +190,7 @@ export function MerchantNotificationsPage() {
 
       <div className="card mt-5 p-4 sm:p-5">
         {loading ? (
-          <div className="flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-            <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-            Chargement des notifications...
-          </div>
+          <ListSkeleton rows={5} lines={2} className="divide-y divide-base-200" itemClassName="" />
         ) : error ? (
           <div className="p-10 text-center">
             <Bell size={40} className="mx-auto opacity-30" />

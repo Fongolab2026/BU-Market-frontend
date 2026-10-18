@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
 import CardProducts from '../products/ui/cardProduct'
+import { ProductGridSkeleton } from '../../components/skeletons'
 import { favoriteApi, categoryApi } from '../../services'
 
 const toProduct = (favorite) => ({
@@ -67,11 +68,7 @@ export default function Favoris() {
         </div>
 
         {loading ? (
-          <div className="mt-8 grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="h-80 w-full max-w-[240px] animate-pulse rounded-2xl bg-base-200" />
-            ))}
-          </div>
+          <ProductGridSkeleton count={4} className="mt-8 grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" />
         ) : favorites.length === 0 ? (
           <div className="py-20 text-center">
             <Heart size={48} className="mx-auto text-base-content/25" aria-hidden="true" />

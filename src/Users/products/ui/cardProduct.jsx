@@ -7,6 +7,9 @@ import { useFavorites } from '../../../hooks/useFavorites'
 export default function CardProducts({ product, categoryName, onToggle }) {
   const { isFavorite, toggleFavorite, loading } = useFavorites()
   const liked = isFavorite(product.id)
+  // Les visiteurs non connectés sont redirigés vers l'inscription plutôt que
+  // vers la fiche produit (protégée par RequireBuyer).
+  const requiresAuth = !isAuthenticated()
 
   const handleFavorite = async (event) => {
     event.preventDefault()
@@ -18,10 +21,17 @@ export default function CardProducts({ product, categoryName, onToggle }) {
     onToggle?.(product.id, liked)
   }
 
+  const handleOpen = () => {
+    if (requiresAuth) {
+      toast('Connectez-vous pour voir ce produit', { icon: '🔒' })
+    }
+  }
+
   return (
     <Link
-      to={`/produit/${product.id}`}
-      className="group flex w-[240px] flex-col overflow-hidden rounded-2xl border border-base-300 bg-[var(--surface)] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+      to={requiresAuth ? '/inscription' : `/produit/${product.id}`}
+      onClick={handleOpen}
+      className="group flex w-full max-w-[420px] flex-col overflow-hidden rounded-2xl border border-base-300 bg-[var(--surface)] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:max-w-none"
     >
       {/* Image principale */}
       <div className="relative aspect-square w-full overflow-hidden bg-base-200">

@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { merchantMessageService } from '../services/merchantMessageService.js'
 import { PageHeader } from '../../../components/ui.jsx'
 import Avatar from '../../../../../components/Avatar.jsx'
+import { ConversationListSkeleton } from '../../../../../components/skeletons'
 
 export function MerchantMessagesPage() {
   const [conversations, setConversations] = useState([])
@@ -102,10 +103,7 @@ export function MerchantMessagesPage() {
           </div>
           <div className="mt-2 max-h-[480px] space-y-1.5 overflow-y-auto pr-1">
             {loading ? (
-              <div className="flex items-center justify-center gap-3 p-8 text-sm text-base-content/50">
-                <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-                Chargement...
-              </div>
+              <ConversationListSkeleton rows={6} className="space-y-1.5" />
             ) : filtered.length === 0 ? (
               <p className="p-6 text-center text-sm text-base-content/50">Aucun message</p>
             ) : (

@@ -19,6 +19,8 @@ import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
 import CardProducts from '../products/ui/cardProduct'
 import { productApi } from '../../services'
+import HeroSlideshow from '../../components/HeroSlideshow.jsx'
+import { ProductGridSkeleton } from '../../components/skeletons'
 
 const STATS = [
   { value: '10 000+', label: 'Clients satisfaits', icon: Users },
@@ -132,26 +134,6 @@ function RotateCcwIcon({ size = 24, className }) {
   )
 }
 
-function CarteSquelette({ delay }) {
-  return (
-    <div
-      className="w-[240px] overflow-hidden rounded-2xl border border-base-300 bg-[var(--surface)] shadow-sm"
-      role="status"
-      aria-label="Chargement des produits"
-      style={delay ? { animationDelay: `${delay}ms` } : undefined}
-    >
-      <div className="aspect-square w-full animate-pulse bg-base-200" />
-      <div className="flex flex-col gap-2 p-4">
-        <div className="h-4 w-3/4 animate-pulse rounded bg-base-200" />
-        <div className="h-3 w-1/3 animate-pulse rounded bg-base-200" />
-        <div className="h-3 w-full animate-pulse rounded bg-base-200" />
-        <div className="h-3 w-2/3 animate-pulse rounded bg-base-200" />
-        <div className="h-5 w-1/2 animate-pulse rounded bg-base-200" />
-      </div>
-    </div>
-  )
-}
-
 export default function Landing() {
   const [featured, setFeatured] = useState([])
   const [loading, setLoading] = useState(true)
@@ -174,6 +156,8 @@ export default function Landing() {
       <main>
         {/* ---------- Hero ---------- */}
         <section className="home-hero relative overflow-hidden">
+          {/* Diaporama de fond + voile pour la lisibilité du texte */}
+          <HeroSlideshow />
           <div className="absolute -left-24 -top-24 h-96 w-96 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
           <div className="absolute -bottom-32 -right-16 h-96 w-96 rounded-full bg-accent/25 blur-3xl" aria-hidden="true" />
 
@@ -323,11 +307,7 @@ export default function Landing() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-busy="true" aria-label="Chargement des produits">
-              {Array.from({ length: 8 }, (_, index) => (
-                <CarteSquelette key={index} delay={index * 70} />
-              ))}
-            </div>
+            <ProductGridSkeleton count={8} />
           ) : featured.length === 0 ? (
             <p className="text-center text-base-content/60">Aucun produit publié pour le moment.</p>
           ) : (

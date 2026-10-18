@@ -7,34 +7,35 @@ import {
   Mail,
   Package,
   Settings,
-  ShoppingBag,
+  ShoppingCart,
   Star,
   UsersRound,
-  X,
 } from "lucide-react";
-import { useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { AdminNavbar } from "./AdminNavbar.jsx";
+import { useAuth } from "../../../context/AuthContext.jsx";
+import WorkspaceShell from "../../../components/WorkspaceShell.jsx";
 
-const navigationGroups = [
+const initialsOf = (value) =>
+  String(value || "")
+    .trim()
+    .split(/\s+/)
+    .map((part) => part[0] || "")
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "A";
+
+const groups = [
   {
-    label: "Aperçu",
+    section: "Aperçu",
     items: [
-      {
-        to: "/admin/tableau-de-bord",
-        label: "Tableau de bord",
-        icon: LayoutDashboard,
-      },
+      { to: "/admin/tableau-de-bord", label: "Tableau de bord", icon: LayoutDashboard },
     ],
   },
   {
-    label: "Comptes",
-    items: [
-      { to: "/admin/utilisateurs", label: "Utilisateurs", icon: UsersRound },
-    ],
+    section: "Comptes",
+    items: [{ to: "/admin/utilisateurs", label: "Utilisateurs", icon: UsersRound }],
   },
   {
-    label: "Catalogue",
+    section: "Catalogue",
     items: [
       { to: "/admin/boutiques", label: "Boutiques", icon: Building2 },
       { to: "/admin/demandes-location", label: "Demandes location", icon: Building2 },
@@ -43,121 +44,48 @@ const navigationGroups = [
     ],
   },
   {
-    label: "Commerce",
+    section: "Commerce",
     items: [
-      { to: "/admin/commandes", label: "Commandes", icon: ShoppingBag },
+      { to: "/admin/commandes", label: "Commandes", icon: ShoppingCart },
       { to: "/admin/avis", label: "Avis", icon: Star },
       { to: "/admin/demandes", label: "Demandes", icon: ClipboardList },
       { to: "/admin/messages", label: "Messages", icon: Mail },
     ],
   },
   {
-    label: "Système",
+    section: "Système",
     items: [
       { to: "/admin/notifications", label: "Notifications", icon: Bell },
       { to: "/admin/parametres", label: "Paramètres", icon: Settings },
     ],
   },
+  {
+    section: "Compte",
+    items: [{ to: "/admin/profil", label: "Mon profil", icon: Settings }],
+  },
 ];
 
 export function AdminLayout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { pathname } = useLocation();
+  const { user } = useAuth();
 
-  const activeSection =
-    navigationGroups
-      .flatMap((group) => group.items)
-      .find(
-        (item) => pathname === item.to || pathname.startsWith(`${item.to}/`),
-      )?.label || "Administration";
+  const displayName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+    user?.first_name ||
+    user?.username ||
+    user?.email ||
+    "Administrateur";
 
   return (
-    <div className="min-h-screen bg-base-100 text-base-content">
-      <AdminNavbar
-        onOpenMenu={() => setIsSidebarOpen(true)}
-        section={activeSection}
-      />
-      {isSidebarOpen && (
-        <button
-          aria-label="Fermer le menu"
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-brand px-4 py-5 transition-transform duration-200 lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        <div className="flex items-center justify-between px-1">
-          <NavLink
-            to="/admin/tableau-de-bord"
-            className="flex items-center gap-3"
-            onClick={() => setIsSidebarOpen(false)}
-          >
-            <span className="grid size-9 place-items-center rounded-lg bg-accent text-lg font-black text-brand shadow-[0_4px_14px_rgba(0,0,0,0.25)]">
-              B
-            </span>
-            <span>
-              <span className="block text-lg font-bold tracking-tight text-white">
-                BUMA
-              </span>
-              <span className="block text-[11px] font-medium tracking-wide text-white/55">
-                Buja Market
-              </span>
-            </span>
-          </NavLink>
-          <button
-            aria-label="Fermer le menu"
-            className="p-2 text-white/70 hover:text-white lg:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <nav
-          className="mt-8 space-y-5 overflow-y-auto pr-1"
-          aria-label="Navigation principale"
-        >
-          {navigationGroups.map((group) => (
-            <div key={group.label}>
-              <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-accent">
-                {group.label}
-              </p>
-              <div className="space-y-1">
-                {group.items.map(({ to, label, icon: Icon }) => (
-                  <NavLink
-                    key={to}
-                    to={to}
-                    onClick={() => setIsSidebarOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 rounded-lg border-l-[3px] px-3 py-2.5 text-sm font-medium transition ${isActive ? "border-accent bg-white/10 text-white" : "border-transparent text-white/60 hover:bg-white/5 hover:text-white"}`
-                    }
-                  >
-                    <Icon size={18} strokeWidth={2} />
-                    {label}
-                  </NavLink>
-                ))}
-              </div>
-            </div>
-          ))}
-        </nav>
-
-        <div className="mt-auto rounded-lg border border-white/10 bg-white/5 p-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">
-            Espace gestion
-          </p>
-          <p className="mt-1 text-xs leading-5 text-white/55">
-            Administration de la plateforme BUJA MARKET.
-          </p>
-        </div>
-      </aside>
-
-      <div className="min-h-screen lg:pl-64 pt-12">
-        <main className="mx-auto w-full max-w-[1440px] p-4 sm:p-5 lg:p-6">
-          <Outlet />
-        </main>
-      </div>
-    </div>
+    <WorkspaceShell
+      groups={groups}
+      homePath="/admin/tableau-de-bord"
+      notificationsPath="/admin/notifications"
+      logoutPath="/admin/connexion"
+      profilePath="/admin/profil"
+      profileName={displayName}
+      profileSubtitle="Administrateur"
+      profilePhoto={user?.profile_pic || user?.profilePic}
+      profileInitials={initialsOf(displayName)}
+    />
   );
 }

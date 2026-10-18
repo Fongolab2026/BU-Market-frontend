@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { boutiquesService } from '../services/boutiquesService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import { TableRowsSkeleton } from '../../../../../components/skeletons'
 
 const PAGE_SIZE = 6
 
@@ -135,16 +136,7 @@ export function BoutiquesPage() {
             </thead>
             <tbody className="divide-y divide-base-200">
               {loading ? (
-                [1, 2, 3, 4].map((item) => (
-                  <tr key={item} className="animate-pulse">
-                    <td className="py-4 pl-5"><div className="h-10 w-52 rounded-lg bg-base-200" /></td>
-                    <td><div className="h-4 w-32 rounded bg-base-200" /></td>
-                    <td><div className="h-4 w-16 rounded bg-base-200" /></td>
-                    <td><div className="h-6 w-24 rounded-full bg-base-200" /></td>
-                    <td><div className="h-4 w-28 rounded bg-base-200" /></td>
-                    <td><div className="h-4 w-24 rounded bg-base-200" /></td>
-                  </tr>
-                ))
+                <TableRowsSkeleton rows={4} columns={6} />
               ) : (
                 data.results.map((shop) => (
                   <tr key={shop.id} className="transition hover:bg-base-50">

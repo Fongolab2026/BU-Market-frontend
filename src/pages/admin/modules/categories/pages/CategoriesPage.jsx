@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { categoriesService } from '../services/categoriesService.js'
 import { PageHeader } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import { TableSkeleton } from '../../../../../components/skeletons'
 
 export function CategoriesPage() {
   const [categories, setCategories] = useState([])
@@ -101,10 +102,7 @@ export function CategoriesPage() {
 
       <div className="card mt-5 overflow-x-auto p-4 sm:p-5">
         {loading ? (
-          <div className="flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-            <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-            Chargement des catégories...
-          </div>
+          <TableSkeleton columns={3} rows={5} minWidth={560} leadingAvatar={false} />
         ) : filtered.length === 0 ? (
           <div className="p-10 text-center">
             <Layers size={40} className="mx-auto opacity-30" />

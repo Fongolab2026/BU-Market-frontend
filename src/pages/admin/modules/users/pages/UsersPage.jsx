@@ -7,6 +7,7 @@ import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
 import PhoneInput from '../../../../../components/PhoneInput.jsx'
 import Avatar from '../../../../../components/Avatar.jsx'
+import { TableRowsSkeleton } from '../../../../../components/skeletons'
 
 const roleLabel = { admin: 'Gestionnaire', merchant: 'Commerçant', client: 'Client' }
 const emptyForm = { firstName: '', email: '', phone: '+257', location: '', role: 'client' }
@@ -149,7 +150,7 @@ export function UsersPage() {
             </thead>
             <tbody className="divide-y divide-base-200">
               {loading ? (
-                <TableSkeleton />
+                <TableRowsSkeleton columns={6} rows={4} />
               ) : (
                 data.results.map((user) => (
                   <tr key={user.id} className="transition hover:bg-base-100">
@@ -267,16 +268,4 @@ function ModalField({ label, type = 'text', value, onChange, placeholder, classN
       <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="field-input h-10 px-3 text-sm placeholder:text-base-content/40" />
     </label>
   )
-}
-
-function TableSkeleton() {
-  return [1, 2, 3, 4].map((item) => (
-    <tr key={item} className="animate-pulse">
-      <td className="py-4"><div className="h-10 w-52 rounded-lg bg-base-200" /></td>
-      <td><div className="h-4 w-24 rounded bg-base-200" /></td>
-      <td><div className="h-4 w-28 rounded bg-base-200" /></td>
-      <td><div className="h-6 w-20 rounded-full bg-base-200" /></td>
-      <td><div className="h-4 w-24 rounded bg-base-200" /></td>
-    </tr>
-  ))
 }

@@ -3,6 +3,7 @@ import { ClipboardCheck, MapPin, Package, Search, ShoppingBag, RefreshCw, Radio 
 import toast from 'react-hot-toast'
 import { merchantOrderService } from '../services/merchantOrderService.js'
 import { PageHeader, StatusBadge } from '../../../components/ui.jsx'
+import { TableSkeleton } from '../../../../../components/skeletons'
 
 const statusOptions = [
   { value: 'pending', label: 'En attente' },
@@ -193,10 +194,7 @@ export function MerchantOrdersPage() {
 
       <div className="card mt-5 overflow-x-auto p-4 sm:p-5">
         {loading ? (
-          <div className="flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-            <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-            Chargement des commandes...
-          </div>
+          <TableSkeleton columns={7} rows={5} minWidth={760} />
         ) : error ? (
           <div className="p-10 text-center">
             <ShoppingBag size={40} className="mx-auto opacity-30" />

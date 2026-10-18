@@ -1,5 +1,6 @@
 import {
   ChevronDown,
+  Heart,
   LogOut,
   Menu,
   Moon,
@@ -15,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useTheme } from "../../context/ThemeContext.jsx";
+import { useFavorites } from "../../hooks/useFavorites";
 import { clearTokens, isAuthenticated } from "../../services/api";
 
 const NAV_LINKS = [
@@ -42,6 +44,8 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
 
   const { isDark, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
+  const { favoriteIds, loading: favoritesLoading } = useFavorites();
+  const favoriteCount = favoriteIds.size;
   const authenticated = isAuthenticated();
   const showLandingAuth = variant === "landing";
 
@@ -88,19 +92,15 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
   return (
     <header className="sticky top-0 z-50 w-full border-b border-base-300/70 bg-base-100/90 shadow-sm shadow-base-content/3 backdrop-blur-xl">
       <div className="mx-auto flex min-h-18 max-w-7xl items-center gap-3 px-4 sm:gap-5 sm:px-6">
-        <Link
-          to="/"
-          className="group flex shrink-0 items-center gap-2.5 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-          onClick={closeMobile}
-          aria-label="BU-Market, accueil"
-        >
-          <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-content shadow-md shadow-primary/20 transition-transform duration-200 group-hover:-rotate-3 group-hover:scale-105">
+        {/* Logo du projet — purement visuel (non cliquable) */}
+        <div className="flex shrink-0 items-center gap-2.5" aria-label="BU-Market">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-content shadow-md shadow-primary/20">
             <Store size={21} strokeWidth={2.2} />
           </span>
           <span className="hidden text-[17px] font-extrabold tracking-tight text-base-content sm:block">
             BU<span className="text-primary">Market</span>
           </span>
-        </Link>
+        </div>
 
         {showLandingAuth ? (
           <nav className="ml-auto flex items-center gap-1.5 sm:gap-2" aria-label="Authentification">
@@ -143,6 +143,20 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
             </nav>
 
             <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+          <Link
+            to="/favoris"
+            title="Mes favoris"
+            aria-label="Mes favoris"
+            className="relative inline-flex size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary"
+          >
+            <Heart size={21} className={favoriteCount > 0 ? "fill-current text-red-500" : ""} />
+            {favoriteCount > 0 && !favoritesLoading && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                {favoriteCount > 99 ? "99+" : favoriteCount}
+              </span>
+            )}
+          </Link>
+
           <Button
             type="button"
             onClick={toggleTheme}

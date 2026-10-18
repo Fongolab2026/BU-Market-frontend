@@ -23,6 +23,7 @@ import { MerchantNotificationsPage } from "../../pages/merchant/modules/notifica
 import { MerchantOrdersPage } from "../../pages/merchant/modules/orders/pages/MerchantOrdersPage.jsx";
 import { MerchantProductsPage } from "../../pages/merchant/modules/products/pages/MerchantProductsPage.jsx";
 import { MerchantShopPage } from "../../pages/merchant/modules/shop/pages/MerchantShopPage.jsx";
+import ProfileSettingsPage from "../../components/ProfileSettingsPage.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { isAuthenticated } from "../../services/api.js";
 import DetailProduit from "../Pages/DetailProduit.jsx";
@@ -113,6 +114,7 @@ export const protectedRoutes = [
               { path: "messages", element: <MessagesPage /> },
               { path: "notifications", element: <NotificationsPage /> },
               { path: "parametres", element: <SettingsPage /> },
+              { path: "profil", element: <ProfileSettingsPage logoutPath="/admin/connexion" /> },
             ],
           },
         ],
@@ -146,6 +148,7 @@ export const protectedRoutes = [
               { path: "notifications", element: <MerchantNotificationsPage /> },
               { path: "categories", element: <MerchantCategoriesPage /> },
               { path: "concurrents", element: <MerchantCompetitorsPage /> },
+              { path: "profil", element: <ProfileSettingsPage /> },
             ],
           },
         ],

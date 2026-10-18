@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { MapPin, Star, Store, Users, Package, TrendingUp, X, SlidersHorizontal, ArrowLeft } from 'lucide-react'
 import { merchantCompetitorService } from '../services/merchantCompetitorService.js'
 import { PageHeader, StatCard } from '../../../components/ui.jsx'
+import { CardGridSkeleton } from '../../../../../components/skeletons'
 
 const statIcons = { shops: Store, products: Package, rating: Star, views: TrendingUp }
 
@@ -71,7 +72,7 @@ export function MerchantCompetitorsPage() {
     { id: 'shops', label: 'Concurrents', value: shops.length, change: `${activeShops} actifs`, trend: 'up', tone: 'brand' },
     { id: 'products', label: 'Produits totaux', value: totalProducts, change: 'En vente', trend: 'up', tone: 'emerald' },
     { id: 'rating', label: 'Note moyenne', value: avgRating, change: '/ 5.0', trend: 'up', tone: 'amber' },
-    { id: 'views', label: 'Vues estimées', value: '2.4k+', change: 'Ce mois', trend: 'up', tone: 'violet' },
+    { id: 'views', label: 'Vues estimées', value: '2.4k+', change: 'Ce mois', trend: 'up', tone: 'orange' },
   ]
 
   if (selectedShop) {
@@ -154,10 +155,7 @@ export function MerchantCompetitorsPage() {
 
         <div className="p-4">
           {loading ? (
-            <div className="flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-              <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-              Chargement des commerçants...
-            </div>
+            <CardGridSkeleton count={6} height="h-44" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" />
           ) : shops.length === 0 ? (
             <div className="p-12 text-center">
               <Store className="mx-auto text-base-content/25" size={32} />
@@ -268,15 +266,12 @@ function ShopDetailView({ shop, products, loading, onCompare }) {
         <StatCard label="Produits" value={shop.products} icon={Package} tone="brand" />
         <StatCard label="Note" value={shop.rating} change="/ 5" trend="up" tone="amber" icon={Star} />
         <StatCard label="Avis" value={shop.reviewCount} change="clients" trend="up" tone="emerald" icon={Users} />
-        <StatCard label="Vues" value={shop.views} change="estimées" trend="up" tone="violet" icon={TrendingUp} />
+        <StatCard label="Vues" value={shop.views} change="estimées" trend="up" tone="orange" icon={TrendingUp} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {loading ? (
-          <div className="col-span-full flex items-center justify-center p-12 text-base-content/50">
-            <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-            Chargement des produits...
-          </div>
+          <CardGridSkeleton count={8} height="h-40" className="col-span-full grid gap-4 sm:grid-cols-3 lg:grid-cols-4" />
         ) : products.length === 0 ? (
           <div className="col-span-full p-12 text-center">
             <Package className="mx-auto text-base-content/20" size={32} />

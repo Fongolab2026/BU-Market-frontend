@@ -22,6 +22,7 @@ import {
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { ConfirmDialog } from "../../../components/ConfirmDialog.jsx";
+import { CardGridSkeleton } from "../../../../../components/skeletons";
 import { PageHeader, StatusBadge } from "../../../components/ui.jsx";
 import { merchantCategoryService } from "../services/merchantCategoryService.js";
 
@@ -196,10 +197,7 @@ export function MerchantCategoriesPage() {
 
         <div className="p-4">
           {loading ? (
-            <div className="flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-              <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-              Chargement des catégories...
-            </div>
+            <CardGridSkeleton count={8} height="h-72" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" />
           ) : categories.length === 0 ? (
             <div className="p-12 text-center">
               <div className="mx-auto w-20 h-20 rounded-full bg-base-100 flex items-center justify-center mb-4">

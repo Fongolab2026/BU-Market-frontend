@@ -151,6 +151,7 @@ export const endpoints = {
     sent: "/messages/messages/sent/",
     conversations: "/messages/messages/conversations/",
     conversation: (userId) => `/messages/messages/conversation/${userId}/`,
+    contact: "/messages/messages/contact/",
   },
   notifications: {
     list: "/notifications/notifications/",

@@ -21,17 +21,17 @@
   --color-base-300: #dedede;
   --color-base-content: #241f2b;
 
-  /* Couleur principale : #481965 */
-  --color-primary: #481965;
+  /* Couleur principale : #c2410c (orange) */
+  --color-primary: #c2410c;
   --color-primary-content: #ffffff;
 
-  --color-secondary: #6d3b94;
+  --color-secondary: #ea580c;
   --color-secondary-content: #ffffff;
 
   --color-accent: #f0a500;
   --color-accent-content: #241f2b;
 
-  --color-neutral: #3a3340;
+  --color-neutral: #3a332c;
   --color-neutral-content: #f5f5f5;
 
   --color-info: #3b82f6;
@@ -66,22 +66,23 @@
   prefersdark: false;
   color-scheme: dark;
 
-  --color-base-100: #17141d;
-  --color-base-200: #201c29;
-  --color-base-300: #2c2637;
-  --color-base-content: #ece8f2;
+  /* Fonds : noir pur en mode sombre */
+  --color-base-100: #000000;
+  --color-base-200: #0f0f0f;
+  --color-base-300: #1f1f1f;
+  --color-base-content: #f5f5f5;
 
-  --color-primary: #a878d6;
-  --color-primary-content: #1a1024;
+  --color-primary: #fb923c;
+  --color-primary-content: #431407;
 
-  --color-secondary: #b794f6;
-  --color-secondary-content: #1a1024;
+  --color-secondary: #fdba74;
+  --color-secondary-content: #431407;
 
   --color-accent: #f0a500;
-  --color-accent-content: #1a1024;
+  --color-accent-content: #431407;
 
-  --color-neutral: #2c2637;
-  --color-neutral-content: #ece8f2;
+  --color-neutral: #1f1f1f;
+  --color-neutral-content: #f5f5f5;
 
   --color-info: #60a5fa;
   --color-info-content: #10131a;
@@ -112,8 +113,8 @@
     Roboto, Helvetica, Arial, sans-serif;
 
   /* Alias pratiques utilisables dans les classes Tailwind */
-  --color-brand: #481965;
-  --color-brand-soft: #6d3b94;
+  --color-brand: #c2410c;
+  --color-brand-soft: #ea580c;
   --color-surface: #f5f5f5;
 }
 
@@ -121,19 +122,23 @@
 :root,
 [data-theme="bumarket"] {
   --surface: #ffffff;
-  --hero-start: #481965;
-  --hero-end: #6d3b94;
+  --hero-start: #9a3412;
+  --hero-end: #c2410c;
   --hero-content: #ffffff;
+  --shadow-soft: 0.04;
+  --shadow-strong: 0.05;
 }
 
 [data-theme="bumarket-dark"] {
-  --surface: #201c29;
-  --color-brand:  #17141d ;
-  --color-brand-soft: #d7b8f5;
-  --color-surface: #201c29;
-  --hero-start: #21132f;
-  --hero-end: #392052;
+  --surface: #0f0f0f;
+  --color-brand:  #000000 ;
+  --color-brand-soft: #fdba74;
+  --color-surface: #0f0f0f;
+  --hero-start: #431407;
+  --hero-end: #7c2d12;
   --hero-content: #ffffff;
+  --shadow-soft: 0.3;
+  --shadow-strong: 0.4;
 }
 
 @layer base {
@@ -408,7 +413,7 @@
     background-color: var(--surface);
     border: 1px solid var(--color-base-300);
     border-radius: var(--radius-field);
-    box-shadow: 0 12px 28px rgba(16, 12, 24, 0.14);
+    box-shadow: 0 12px 28px rgb(0 0 0 / var(--shadow-strong, 0.14));
     color: var(--color-base-content);
   }
 
@@ -436,7 +441,7 @@
     border-radius: var(--radius-box);
     border: 1px solid
       color-mix(in srgb, var(--color-base-300) 60%, transparent);
-    box-shadow: 0 1px 2px rgba(16, 12, 24, 0.04),
-      0 8px 24px rgba(16, 12, 24, 0.05);
+    box-shadow: 0 1px 2px rgb(0 0 0 / var(--shadow-soft, 0.04)),
+      0 8px 24px rgb(0 0 0 / var(--shadow-strong, 0.05));
   }
 }

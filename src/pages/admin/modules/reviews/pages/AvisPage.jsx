@@ -6,6 +6,7 @@ import { avisService } from '../services/avisService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
 import Avatar from '../../../../../components/Avatar.jsx'
+import { ListSkeleton } from '../../../../../components/skeletons'
 
 const PAGE_SIZE = 8
 
@@ -105,10 +106,7 @@ export function AvisPage() {
 
       <div className="mt-5 space-y-4">
         {loading ? (
-          <div className="card flex items-center justify-center gap-3 p-10 text-sm text-base-content/50">
-            <span className="size-4 animate-spin rounded-full border-2 border-brand border-t-transparent" />
-            Chargement des avis...
-          </div>
+          <ListSkeleton rows={4} lines={3} className="space-y-4" />
         ) : visible.length === 0 ? (
           <div className="card p-10 text-center">
             <Star size={40} className="mx-auto opacity-30" />

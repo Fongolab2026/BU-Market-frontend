@@ -1,10 +1,25 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, Eye, EyeOff, ShieldCheck, Sparkles, Store, Sun, Moon } from 'lucide-react'
+import {
+  AlertCircle,
+  ArrowRight,
+  AtSign,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  MapPin,
+  ShieldCheck,
+  Sparkles,
+  Store,
+  User,
+} from 'lucide-react'
 import toast from 'react-hot-toast'
-import { userApi } from '../../services'
-import { useTheme } from '../../context/ThemeContext.jsx'
+import AuthField from '../../components/AuthField.jsx'
+import AuthLayout from '../../components/AuthLayout.jsx'
 import PhoneInput from '../../components/PhoneInput.jsx'
+import { userApi } from '../../services'
 import { getPhoneError } from '../../utils/phone.js'
 
 export default function Inscription() {
@@ -17,44 +32,44 @@ export default function Inscription() {
     adresse: '',
     profile_pic: null,
     password: '',
-    password_confirm: ''
+    password_confirm: '',
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const { isDark, toggleTheme } = useTheme()
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-    // Clear error for this field when user types
+    setFormData((prev) => ({ ...prev, [name]: value }))
+    // Efface l'erreur du champ dès que l'utilisateur corrige sa saisie.
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
+      setErrors((prev) => ({ ...prev, [name]: '' }))
     }
   }
 
   const handlePhoneChange = (phone) => {
-    setFormData(prev => ({ ...prev, phone }))
+    setFormData((prev) => ({ ...prev, phone }))
     if (errors.phone) {
-      setErrors(prev => ({ ...prev, phone: '' }))
+      setErrors((prev) => ({ ...prev, phone: '' }))
     }
   }
 
   const validateForm = () => {
     const newErrors = {}
     if (!formData.username.trim()) newErrors.username = "Nom d'utilisateur requis"
-    if (!formData.email.trim()) newErrors.email = "Email requis"
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = "Email invalide"
-    if (!formData.first_name.trim()) newErrors.first_name = "Prénom requis"
+    if (!formData.email.trim()) newErrors.email = 'Email requis'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Email invalide'
+    if (!formData.first_name.trim()) newErrors.first_name = 'Prénom requis'
     // Le téléphone est optionnel côté backend : on le valide seulement s'il est saisi
     if (formData.phone && formData.phone.trim()) {
       const phoneError = getPhoneError(formData.phone, 'bi')
       if (phoneError) newErrors.phone = phoneError
     }
-    if (!formData.password) newErrors.password = "Mot de passe requis"
-    else if (formData.password.length < 8) newErrors.password = "8 caractères minimum"
-    if (formData.password !== formData.password_confirm) newErrors.password_confirm = "Les mots de passe ne correspondent pas"
+    if (!formData.password) newErrors.password = 'Mot de passe requis'
+    else if (formData.password.length < 8) newErrors.password = '8 caractères minimum'
+    if (formData.password !== formData.password_confirm)
+      newErrors.password_confirm = 'Les mots de passe ne correspondent pas'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -71,7 +86,7 @@ export default function Inscription() {
       // Don't send password_confirm to backend
       const { password_confirm, profile_pic, ...payload } = formData
       await userApi.create(payload)
-      toast.success("Inscription réussie, connectez-vous")
+      toast.success('Inscription réussie, connectez-vous')
       navigate('/connexion')
     } catch (err) {
       console.error('inscription:', err)
@@ -80,7 +95,7 @@ export default function Inscription() {
         if (typeof data === 'object' && !Array.isArray(data)) {
           // Field-level validation errors from DRF
           const fieldErrors = {}
-          Object.keys(data).forEach(key => {
+          Object.keys(data).forEach((key) => {
             if (Array.isArray(data[key])) {
               fieldErrors[key] = data[key].join(', ')
             } else {
@@ -94,131 +109,211 @@ export default function Inscription() {
           setErrors({ general: "Une erreur est survenue lors de l'inscription" })
         }
       } else {
-        setErrors({ general: "Erreur de connexion au serveur" })
+        setErrors({ general: 'Erreur de connexion au serveur' })
       }
     } finally {
       setLoading(false)
     }
   }
 
+  const passwordsMatch =
+    Boolean(formData.password && formData.password_confirm) &&
+    formData.password === formData.password_confirm
+
+  const passwordToggle = (visible, setVisible, label) => (
+    <button
+      type="button"
+      onClick={() => setVisible((current) => !current)}
+      className="absolute right-1.5 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-lg text-base-content/50 transition hover:bg-base-200 hover:text-base-content"
+      aria-label={visible ? `Masquer ${label}` : `Afficher ${label}`}
+    >
+      {visible ? <EyeOff size={17} /> : <Eye size={17} />}
+    </button>
+  )
+
   return (
-    <div className='relative min-h-screen overflow-hidden bg-base-100 px-4 py-6 sm:px-6 lg:px-8'>
-      <button
-        type='button'
-        onClick={toggleTheme}
-        title={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
-        aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
-        className='btn btn-ghost btn-circle absolute right-4 top-4 z-10 sm:right-8 sm:top-8'
-      >
-        {isDark ? <Sun size={21} /> : <Moon size={21} />}
-      </button>
+    <AuthLayout
+      brand={{
+        to: '/inscription',
+        label: 'BU-Market',
+        mark: <Store size={22} aria-hidden="true" />,
+      }}
+      heroBadge={
+        <>
+          <Sparkles size={15} className="text-accent" aria-hidden="true" />
+          Rejoignez notre communauté
+        </>
+      }
+      heroTitle="Votre shopping commence ici."
+      heroText="Créez votre compte et profitez d'une expérience simple, personnalisée et pensée pour vos envies."
+      heroFooter={
+        <>
+          <ShieldCheck size={20} className="text-accent" aria-hidden="true" />
+          Vos informations restent protégées
+        </>
+      }
+      eyebrow="Nouveau membre"
+      title="Créer un compte"
+      subtitle="Quelques informations suffisent pour commencer votre expérience."
+      heroMinHeight="lg:min-h-[700px]"
+      formWidth="max-w-lg"
+      alert={
+        errors.general ? (
+          <div role="alert" className="alert alert-error mb-5 text-sm">
+            {errors.general}
+          </div>
+        ) : null
+      }
+      footer={
+        <>
+          Vous avez déjà un compte ?{' '}
+          <Link className="font-bold text-primary hover:underline" to="/connexion">
+            Se connecter
+          </Link>
+        </>
+      }
+    >
+      <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <AuthField
+            id="username"
+            label="Nom d'utilisateur"
+            icon={AtSign}
+            type="text"
+            name="username"
+            autoComplete="username"
+            placeholder="Votre identifiant"
+            value={formData.username}
+            onChange={handleChange}
+            error={errors.username}
+            required
+          />
+          <AuthField
+            id="first_name"
+            label="Prénom"
+            icon={User}
+            type="text"
+            name="first_name"
+            autoComplete="given-name"
+            placeholder="Prénom"
+            value={formData.first_name}
+            onChange={handleChange}
+            error={errors.first_name}
+            required
+          />
+        </div>
 
-      <div className='mx-auto grid min-h-[calc(100vh-3rem)] max-w-6xl items-center overflow-hidden rounded-3xl border border-base-300 bg-[var(--surface)] shadow-2xl shadow-base-content/10 lg:grid-cols-2'>
-        <section className='home-hero relative hidden min-h-[700px] flex-col justify-between overflow-hidden p-10 text-primary-content lg:flex xl:p-14'>
-          <div className='absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-accent/20 blur-3xl' aria-hidden='true' />
-          <div className='relative text-white flex jcontent-start flex-col gap-1'>
-            <Link to='/inscription' className='inline-flex items-center gap-3 text-xl font-bold tracking-tight'>
-              <span className='flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25'>
-                <Store size={23} aria-hidden='true' />
-              </span>
-              BU-Market
-            </Link>
-            <span className='mt-20 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-sm font-semibold'>
-              <Sparkles size={15} className='text-accent' aria-hidden='true' />
-              Rejoignez notre communauté
-            </span>
-            <h2 className='mt-6 max-w-md text-4xl font-extrabold leading-tight xl:text-5xl'>
-              Votre shopping commence ici.
-            </h2>
-            <p className='mt-5 max-w-md text-base leading-7 text-primary-content/75'>
-              Créez votre compte et profitez d'une expérience simple, personnalisée et pensée pour vos envies.
+        <AuthField
+          id="email"
+          label="Adresse e-mail"
+          icon={Mail}
+          type="email"
+          name="email"
+          autoComplete="email"
+          placeholder="vous@exemple.com"
+          value={formData.email}
+          onChange={handleChange}
+          error={errors.email}
+          required
+        />
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-base-content" htmlFor="phone">
+              Téléphone
+            </label>
+            <PhoneInput
+              id="phone"
+              name="phone"
+              height="3rem"
+              error={errors.phone || undefined}
+              placeholder="Numéro de téléphone"
+              value={formData.phone}
+              onChange={handlePhoneChange}
+            />
+          </div>
+          <AuthField
+            id="adresse"
+            label="Adresse"
+            icon={MapPin}
+            type="text"
+            name="adresse"
+            autoComplete="street-address"
+            placeholder="Votre adresse"
+            value={formData.adresse}
+            onChange={handleChange}
+            error={errors.adresse}
+          />
+        </div>
+
+        <div className="border-t border-base-200 pt-6">
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-base-content/70">
+            Sécurité du compte
+          </h2>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <AuthField
+              id="password"
+              label="Mot de passe"
+              icon={Lock}
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              autoComplete="new-password"
+              placeholder="Mot de passe"
+              value={formData.password}
+              onChange={handleChange}
+              error={errors.password}
+              hint="8 caractères minimum"
+              required
+              endAdornment={passwordToggle(showPassword, setShowPassword, 'le mot de passe')}
+            />
+            <AuthField
+              id="password_confirm"
+              label="Confirmation"
+              icon={Lock}
+              type={showConfirmation ? 'text' : 'password'}
+              name="password_confirm"
+              autoComplete="new-password"
+              placeholder="Répétez le mot de passe"
+              value={formData.password_confirm}
+              onChange={handleChange}
+              error={errors.password_confirm}
+              required
+              endAdornment={passwordToggle(
+                showConfirmation,
+                setShowConfirmation,
+                'la confirmation',
+              )}
+            />
+          </div>
+
+          {!errors.password_confirm && formData.password && formData.password_confirm && (
+            <p
+              className={`mt-3 flex items-center gap-1.5 text-xs font-medium ${
+                passwordsMatch ? 'text-success' : 'text-base-content/50'
+              }`}
+            >
+              {passwordsMatch ? (
+                <CheckCircle2 size={14} aria-hidden="true" />
+              ) : (
+                <AlertCircle size={14} aria-hidden="true" />
+              )}
+              {passwordsMatch
+                ? 'Les mots de passe correspondent'
+                : 'Les mots de passe ne correspondent pas encore'}
             </p>
-          </div>
-          <div className='relative flex items-center gap-3 text-sm font-medium text-primary-content/80'>
-            <ShieldCheck size={20} className='text-accent' aria-hidden='true' />
-            Vos informations restent protégées
-          </div>
-        </section>
+          )}
+        </div>
 
-        <section className='mx-auto w-full max-w-2xl p-6 sm:p-8 lg:p-10'>
-          <div className='mb-8 lg:hidden'>
-            <Link to='/inscription' className='inline-flex items-center gap-2 text-lg font-bold text-base-content'>
-              <span className='flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-content'><Store size={20} /></span>
-              BU-<span className='text-primary'>Market</span>
-            </Link>
-          </div>
-          <div className='mb-8'>
-            <p className='text-sm font-bold uppercase tracking-[0.2em] text-primary'>Nouveau membre</p>
-            <h1 className='mt-2 text-3xl font-extrabold tracking-tight text-base-content'>Créer un compte</h1>
-            <p className='mt-2 text-sm leading-6 text-base-content/60'>Quelques informations suffisent pour commencer votre expérience.</p>
-          </div>
-
-          {errors.general && <div className='alert alert-error mb-5 text-sm'>{errors.general}</div>}
-
-          <form className='flex flex-col gap-6' onSubmit={handleSubmit}>
-            <div className='grid gap-4 sm:grid-cols-2'>
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-bold text-base-content' htmlFor='username'>Nom d'utilisateur</label>
-                <input id='username' className={`input input-lg w-full ${errors.username ? 'input-error' : ''}`} type='text' name='username' placeholder='Votre identifiant' value={formData.username} onChange={handleChange} required />
-                {errors.username && <p className='text-xs text-error'>{errors.username}</p>}
-              </div>
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-bold text-base-content' htmlFor='first_name'>Prénom</label>
-                <input id='first_name' className={`input input-lg w-full ${errors.first_name ? 'input-error' : ''}`} type='text' name='first_name' placeholder='Prénom' value={formData.first_name} onChange={handleChange} required />
-                {errors.first_name && <p className='text-xs text-error'>{errors.first_name}</p>}
-              </div>
-            </div>
-            <div className='grid gap-4 sm:grid-cols-2'>
-              <div className='flex flex-col gap-2 sm:col-span-2'>
-                <label className='text-sm font-bold text-base-content' htmlFor='email'>Adresse e-mail</label>
-                <input id='email' className={`input input-lg w-full ${errors.email ? 'input-error' : ''}`} type='email' name='email' placeholder='vous@exemple.com' value={formData.email} onChange={handleChange} required />
-                {errors.email && <p className='text-xs text-error'>{errors.email}</p>}
-              </div>
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-bold text-base-content' htmlFor='phone'>Téléphone</label>
-                <PhoneInput id='phone' name='phone' size='lg' error={errors.phone || undefined} placeholder='Numéro de téléphone' value={formData.phone} onChange={handlePhoneChange} />
-              </div>
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-bold text-base-content' htmlFor='adresse'>Adresse</label>
-                <input id='adresse' className='input input-lg w-full' type='text' name='adresse' placeholder='Votre adresse' value={formData.adresse} onChange={handleChange} />
-              </div>
-            </div>
-
-            <div className='border-t border-base-300 pt-5'>
-              <h2 className='mb-4 text-sm font-bold uppercase tracking-wider text-base-content/70'>Sécurité du compte</h2>
-              <div className='grid gap-4 sm:grid-cols-2'>
-                <div className='flex flex-col gap-2'>
-                  <label className='text-sm font-bold text-base-content' htmlFor='password'>Mot de passe</label>
-                  <div className='relative'>
-                    <input id='password' className={`input input-lg w-full pr-12 ${errors.password ? 'input-error' : ''}`} type={showPassword ? 'text' : 'password'} name='password' placeholder='Mot de passe (8 min.)' value={formData.password} onChange={handleChange} required />
-                    <button type='button' onClick={() => setShowPassword((visible) => !visible)} className='btn btn-ghost btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2' aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}>
-                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                    </button>
-                  </div>
-                  {errors.password && <p className='text-xs text-error'>{errors.password}</p>}
-                </div>
-                <div className='flex flex-col gap-2'>
-                  <label className='text-sm font-bold text-base-content' htmlFor='password_confirm'>Confirmation</label>
-                  <div className='relative'>
-                    <input id='password_confirm' className={`input input-lg w-full pr-12 ${errors.password_confirm ? 'input-error' : ''}`} type={showConfirmation ? 'text' : 'password'} name='password_confirm' placeholder='Répétez le mot de passe' value={formData.password_confirm} onChange={handleChange} required />
-                    <button type='button' onClick={() => setShowConfirmation((visible) => !visible)} className='btn btn-ghost btn-circle btn-sm absolute right-2 top-1/2 -translate-y-1/2' aria-label={showConfirmation ? 'Masquer la confirmation' : 'Afficher la confirmation'}>
-                      {showConfirmation ? <EyeOff size={17} /> : <Eye size={17} />}
-                    </button>
-                  </div>
-                  {errors.password_confirm && <p className='text-xs text-error'>{errors.password_confirm}</p>}
-                </div>
-              </div>
-            </div>
-            <button className='btn btn-primary mt-3 w-full gap-2' type='submit' disabled={loading}>
-              {loading ? 'Inscription...' : "Créer mon compte"}
-              {!loading && <ArrowRight size={17} aria-hidden='true' />}
-            </button>
-          </form>
-          <p className='mt-8 text-center text-sm text-base-content/65'>
-            Vous avez déjà un compte ? <Link className='font-bold text-primary hover:underline' to='/connexion'> Se connecter</Link>
-          </p>
-        </section>
-      </div>
-    </div>
+        <button
+          className="btn btn-primary h-12 w-full gap-2"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? 'Inscription...' : 'Créer mon compte'}
+          {!loading && <ArrowRight size={17} aria-hidden="true" />}
+        </button>
+      </form>
+    </AuthLayout>
   )
 }
