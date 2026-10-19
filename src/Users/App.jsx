@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom'
 import { AuthProvider } from '../context/AuthContext.jsx'
+import { CartProvider } from '../context/CartContext.jsx'
 import { ThemeProvider } from '../context/ThemeContext.jsx'
 import { RouteError } from '../components/ErrorBoundary.jsx'
 import { useSellerUpgrade } from '../hooks/useSellerUpgrade.js'
@@ -48,7 +49,9 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        {booted ? <RouterProvider router={router} /> : <LoadingPage />}
+        <CartProvider>
+          {booted ? <RouterProvider router={router} /> : <LoadingPage />}
+        </CartProvider>
       </ThemeProvider>
     </AuthProvider>
   )

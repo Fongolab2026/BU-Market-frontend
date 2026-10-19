@@ -157,6 +157,7 @@ export default function Inscription() {
       subtitle="Quelques informations suffisent pour commencer votre expérience."
       heroMinHeight="lg:min-h-[700px]"
       formWidth="max-w-lg"
+      backgroundImage="/images/hero/hero-2.jpg"
       alert={
         errors.general ? (
           <div role="alert" className="alert alert-error mb-5 text-sm">

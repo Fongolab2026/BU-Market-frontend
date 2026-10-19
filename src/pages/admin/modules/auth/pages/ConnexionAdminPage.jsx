@@ -101,6 +101,7 @@ export function ConnexionAdminPage() {
       eyebrow="Administration"
       title="Connexion au tableau de bord"
       subtitle="Saisissez vos identifiants de gestionnaire pour continuer."
+      backgroundImage="/images/hero/hero-5.jpg"
       alert={
         error ? (
           <div

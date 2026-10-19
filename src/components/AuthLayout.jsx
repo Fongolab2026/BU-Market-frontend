@@ -42,6 +42,7 @@ export default function AuthLayout({
   subtitle,
   heroMinHeight = 'lg:min-h-[600px]',
   formWidth = 'max-w-md',
+  backgroundImage = '/images/hero/hero-1.jpg',
   alert,
   children,
   footer,
@@ -50,26 +51,29 @@ export default function AuthLayout({
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-base-100 px-4 py-8 sm:px-6 lg:px-8">
-      <div
-        className="pointer-events-none absolute -left-24 top-0 hidden h-72 w-72 rounded-full bg-primary/10 blur-3xl lg:block"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute -right-24 bottom-0 hidden h-80 w-80 rounded-full bg-accent/10 blur-3xl lg:block"
-        aria-hidden="true"
-      />
+      {/* Fond de page : photo du projet + voile aux couleurs de la marque. */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        {backgroundImage && (
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url('${backgroundImage}')` }}
+          />
+        )}
+        <div className="home-hero absolute inset-0 opacity-90" />
+        <div className="absolute inset-0 bg-black/25" />
+      </div>
 
       <button
         type="button"
         onClick={toggleTheme}
         title={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
         aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
-        className="btn btn-ghost btn-circle absolute right-4 top-4 z-10 sm:right-8 sm:top-6"
+        className="btn btn-ghost btn-circle absolute right-4 top-4 z-20 text-white/90 hover:bg-white/15 hover:text-white sm:right-8 sm:top-6"
       >
         {isDark ? <Sun size={20} /> : <Moon size={20} />}
       </button>
 
-      <div className="mx-auto grid w-full max-w-5xl overflow-hidden rounded-3xl border border-base-300 bg-[var(--surface)] shadow-2xl shadow-base-content/10 lg:grid-cols-2">
+      <div className="relative z-10 mx-auto grid w-full max-w-5xl overflow-hidden rounded-3xl border border-base-300 bg-[var(--surface)] shadow-2xl shadow-black/40 lg:grid-cols-2">
         {/* Panneau de marque (desktop uniquement) */}
         <section
           className={`home-hero relative hidden flex-col justify-between overflow-hidden p-10 lg:flex xl:p-12 ${heroMinHeight}`}

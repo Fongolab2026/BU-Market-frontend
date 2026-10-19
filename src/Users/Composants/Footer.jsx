@@ -1,9 +1,43 @@
 import { Heart, Mail, Store } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useCallback } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { isAuthenticated } from '../../services/api'
+
+// Sections présentes sur les pages d'accueil (publique et client).
+const SECTIONS = [
+  { id: 'produits', label: 'Produits' },
+  { id: 'garanties', label: 'Nos garanties' },
+  { id: 'a-propos', label: 'À propos' },
+  { id: 'contact', label: 'Contact' },
+]
 
 export default function Footer() {
+  const navigate = useNavigate()
+
+  /**
+   * Rejoint une section de la page d'accueil : défilement direct si la section
+   * est présente sur la page courante (accueil), sinon navigation vers
+   * l'accueil puis défilement.
+   */
+  const goToSection = useCallback(
+    (id) => {
+      const scrollToSection = () => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+
+      if (document.getElementById(id)) {
+        scrollToSection()
+        return
+      }
+
+      navigate(isAuthenticated() ? '/accueil' : '/')
+      window.setTimeout(scrollToSection, 150)
+    },
+    [navigate],
+  )
+
   return (
-    <footer className="border-t border-base-300/70 bg-base-200/60">
+    <footer className="mt-auto border-t border-base-300/70 bg-base-200/60">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="border-base-300/70 bg-transparent shadow-none">
           <span className="inline-flex items-center gap-2 text-lg font-bold tracking-tight text-base-content" aria-label="BU-Market">
@@ -20,10 +54,16 @@ export default function Footer() {
         <div className="border-base-300/70 bg-transparent shadow-none">
           <h2 className="text-sm font-bold uppercase tracking-wider text-base-content">Navigation</h2>
           <nav className="mt-3 flex flex-col items-start gap-2 text-sm text-base-content/65">
-            <a href="#produits" className="transition-colors hover:text-primary">Produits</a>
-            <a href="#garanties" className="transition-colors hover:text-primary">Nos garanties</a>
-            <a href="#a-propos" className="transition-colors hover:text-primary">À propos</a>
-            <a href="#contact" className="transition-colors hover:text-primary">Contact</a>
+            {SECTIONS.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => goToSection(id)}
+                className="text-left transition-colors hover:text-primary"
+              >
+                {label}
+              </button>
+            ))}
             <Link to="/connexion" className="transition-colors hover:text-primary">Connexion</Link>
           </nav>
         </div>
@@ -31,10 +71,14 @@ export default function Footer() {
         <div className="border-base-300/70 bg-transparent shadow-none">
           <h2 className="text-sm font-bold uppercase tracking-wider text-base-content">Boutique</h2>
           <nav className="mt-3 flex flex-col items-start gap-2 text-sm text-base-content/65">
-            <a href="#produits" className="transition-colors hover:text-primary">Tous les produits</a>
+            <button type="button" onClick={() => goToSection('produits')} className="text-left transition-colors hover:text-primary">
+              Tous les produits
+            </button>
             <Link to="/inscription" className="transition-colors hover:text-primary">Devenir vendeur</Link>
             <Link to="/inscription" className="transition-colors hover:text-primary">Créer un compte</Link>
-            <a href="#a-propos" className="transition-colors hover:text-primary">Notre histoire</a>
+            <button type="button" onClick={() => goToSection('a-propos')} className="text-left transition-colors hover:text-primary">
+              Notre histoire
+            </button>
           </nav>
         </div>
 

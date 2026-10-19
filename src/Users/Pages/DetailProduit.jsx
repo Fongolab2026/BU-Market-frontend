@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, BadgeCheck, Globe2, Heart, Mail, MapPin, Phone, ShieldCheck, ShoppingBag, Store, Truck } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { productApi, categoryApi, cartApi, isAuthenticated } from '../../services'
+import { productApi, categoryApi, isAuthenticated } from '../../services'
 import { useFavorites } from '../../hooks/useFavorites'
+import { useCart } from '../../context/CartContext.jsx'
 import { ProductDetailSkeleton } from '../../components/skeletons'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
@@ -18,6 +19,7 @@ export default function DetailProduit() {
   const [error, setError] = useState('')
 
   const { isFavorite, toggleFavorite } = useFavorites()
+  const { addItem } = useCart()
   const liked = product ? isFavorite(product.id) : false
 
   useEffect(() => {
@@ -71,7 +73,7 @@ export default function DetailProduit() {
   const handleAddToCart = async () => {
     if (!isAuthenticated()) return toast.error('Connectez-vous pour ajouter au panier')
     try {
-      await cartApi.addItem(product.id)
+      await addItem(product.id)
       toast.success('Produit ajouté au panier')
       navigate('/panier')
     } catch (err) {

@@ -6,6 +6,7 @@ import {
   Moon,
   Repeat,
   Settings,
+  ShoppingCart,
   Store,
   Sun,
   User,
@@ -15,6 +16,7 @@ import { Button } from "primereact/button";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
+import { useCart } from "../../context/CartContext.jsx";
 import { useTheme } from "../../context/ThemeContext.jsx";
 import { useFavorites } from "../../hooks/useFavorites";
 import { clearTokens, isAuthenticated } from "../../services/api";
@@ -22,7 +24,6 @@ import { clearTokens, isAuthenticated } from "../../services/api";
 const NAV_LINKS = [
   { label: "Accueil", path: "/accueil" },
   { label: "Produits", path: "/accueil#produits" },
-  { label: "Panier", path: "/panier" },
   { label: "À propos", path: "/accueil#a-propos" },
   { label: "Contact", path: "/accueil#contact" },
 ];
@@ -45,6 +46,7 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
   const { isDark, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
   const { favoriteIds, loading: favoritesLoading } = useFavorites();
+  const { itemCount: cartCount } = useCart();
   const favoriteCount = favoriteIds.size;
   const authenticated = isAuthenticated();
   const showLandingAuth = variant === "landing";
@@ -153,6 +155,24 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
             {favoriteCount > 0 && !favoritesLoading && (
               <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                 {favoriteCount > 99 ? "99+" : favoriteCount}
+              </span>
+            )}
+          </Link>
+
+          <Link
+            to="/panier"
+            title="Mon panier"
+            aria-label={
+              cartCount > 0
+                ? `Mon panier, ${cartCount} article${cartCount > 1 ? "s" : ""}`
+                : "Mon panier"
+            }
+            className="relative inline-flex size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary"
+          >
+            <ShoppingCart size={21} />
+            {cartCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-content ring-2 ring-base-100">
+                {cartCount > 99 ? "99+" : cartCount}
               </span>
             )}
           </Link>
