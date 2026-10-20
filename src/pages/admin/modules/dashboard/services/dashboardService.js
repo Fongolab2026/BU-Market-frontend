@@ -53,6 +53,7 @@ export const dashboardService = {
     return {
       stats: (stats.stats || []).map(mapStat),
       weeklyActivity: stats.weeklyActivity || [],
+      weeklyActivityDates: stats.weeklyActivityDates || [],
       moderationQueue: (stats.moderationQueue || []).map(mapQueueItem),
       activity: (Array.isArray(activity) ? activity : []).map(mapActivity),
     };

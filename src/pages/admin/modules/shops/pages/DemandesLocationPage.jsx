@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { demandesLocationService } from '../services/demandesLocationService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import Avatar from '../../../../../components/Avatar.jsx'
 import { TableSkeleton } from '../../../../../components/skeletons'
 import { useAuth } from '../../../../../context/AuthContext.jsx'
 import { authApi } from '../../../../../services/authService.js'
@@ -161,12 +162,33 @@ export function DemandesLocationPage() {
                       return (
                         <tr key={d.id} className="border-t border-base-200 hover:bg-base-50">
                           <td className="p-3">
-                            <p className="font-semibold text-base-content">{d.companyName}</p>
-                            <p className="text-xs text-base-content/50">{d.industry}</p>
+                            <div className="flex items-center gap-2.5">
+                              <Avatar
+                                src={d.owner?.shopImage}
+                                name={d.companyName}
+                                fallback={<Building2 size={17} />}
+                                alt=""
+                                className="size-9 shrink-0 rounded-xl bg-primary/10 text-primary"
+                              />
+                              <div>
+                                <p className="font-semibold text-base-content">{d.companyName}</p>
+                                <p className="text-xs text-base-content/50">{d.industry}</p>
+                              </div>
+                            </div>
                           </td>
                           <td className="p-3">
-                            <p className="font-medium text-base-content">{d.ownerName}</p>
-                            <p className="text-xs text-base-content/50">{d.email}</p>
+                            <div className="flex items-center gap-2">
+                              <Avatar
+                                src={d.owner?.profilePic}
+                                name={d.ownerName}
+                                alt=""
+                                className="size-8 shrink-0 rounded-full bg-primary/10 text-[11px] font-semibold text-primary"
+                              />
+                              <div>
+                                <p className="font-medium text-base-content">{d.ownerName}</p>
+                                <p className="text-xs text-base-content/50">{d.email}</p>
+                              </div>
+                            </div>
                           </td>
                           <td className="p-3">
                             <p className="text-sm text-base-content">{d.province} / {d.commune}</p>

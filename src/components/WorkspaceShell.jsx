@@ -93,7 +93,7 @@ export default function WorkspaceShell({
           </div>
 
           <nav
-            className="flex-1 space-y-5 overflow-y-auto p-3"
+            className="aside-scroll flex-1 space-y-5 overflow-y-auto p-3"
             aria-label="Navigation principale"
           >
             {groups.map((group) => {
@@ -118,14 +118,24 @@ export default function WorkspaceShell({
                           }`
                         }
                       >
-                        <Icon className="size-[18px]" strokeWidth={2} />
-                        <span className="flex-1 truncate">{label}</span>
-                        {badge > 0 && (
-                          <span className="grid min-w-5 place-items-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[11px] font-bold text-white">
-                            {badge > 99 ? "99+" : badge}
-                          </span>
+                        {({ isActive }) => (
+                          <>
+                            <Icon className="size-[18px]" strokeWidth={2} />
+                            <span className="flex-1 truncate">{label}</span>
+                            {badge > 0 && (
+                              <span
+                                className={`grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[10px] font-bold tabular-nums ${
+                                  isActive
+                                    ? "bg-primary-content text-primary"
+                                    : "bg-primary text-primary-content"
+                                }`}
+                              >
+                                {badge > 99 ? "99+" : badge}
+                              </span>
+                            )}
+                            {dot && <span className="size-2 rounded-full bg-primary-content" />}
+                          </>
                         )}
-                        {dot && <span className="size-2 rounded-full bg-primary-content" />}
                       </NavLink>
                     ))}
                   </div>

@@ -147,6 +147,7 @@ export const endpoints = {
     detail: (id) => `/messages/messages/${id}/`,
     markRead: (id) => `/messages/messages/${id}/read/`,
     readAll: "/messages/messages/read-all/",
+    unreadCount: "/messages/messages/unread-count/",
     inbox: "/messages/messages/inbox/",
     sent: "/messages/messages/sent/",
     conversations: "/messages/messages/conversations/",
@@ -158,6 +159,7 @@ export const endpoints = {
     detail: (id) => `/notifications/notifications/${id}/`,
     markRead: (id) => `/notifications/notifications/${id}/read/`,
     markAllRead: "/notifications/notifications/mark_all_read/",
+    unreadCount: "/notifications/notifications/unread-count/",
   },
   favorites: {
     list: "/favorites/favorites/",

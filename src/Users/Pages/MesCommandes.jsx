@@ -7,6 +7,32 @@ import Footer from '../Composants/Footer'
 import { OrderListSkeleton } from '../../components/skeletons'
 import { orderApi } from '../../services'
 
+const STATUS_LABELS = {
+  pending: 'En attente',
+  confirmed: 'Confirmée',
+  shipped: 'Expédiée',
+  completed: 'Livrée',
+  cancelled: 'Annulée',
+}
+
+/** Affiche la date et l'heure de la commande au format français. */
+const formatOrderDate = (value) => {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+
+  const day = date.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+  const time = date.toLocaleTimeString('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+  return `${day} à ${time}`
+}
+
 export default function MesCommandes() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
@@ -43,10 +69,39 @@ export default function MesCommandes() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h2 className="font-bold text-base-content">Commande #{order.id}</h2>
-                    <p className="mt-1 text-sm text-base-content/60">{order.date || order.created_at}</p>
+                    <p className="mt-1 text-sm text-base-content/60">{formatOrderDate(order.date || order.created_at)}</p>
                   </div>
-                  <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">{order.status}</span>
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">{STATUS_LABELS[order.status] || order.status}</span>
                 </div>
+                {Array.isArray(order.items) && order.items.length > 0 && (
+                  <ul className="mt-4 space-y-2.5 border-t border-base-200 pt-4">
+                    {order.items.map((item) => (
+                      <li key={item.id} className="flex items-center gap-3">
+                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-base-200 bg-base-200">
+                          {item.product_image ? (
+                            <img
+                              src={item.product_image}
+                              alt={item.product_name}
+                              loading="lazy"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-base-content/30">
+                              <Package size={18} />
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-base-content">{item.product_name}</p>
+                          <p className="mt-0.5 text-xs text-base-content/55">Quantité : {item.quantity}</p>
+                        </div>
+                        <span className="shrink-0 text-sm font-semibold text-base-content/75">
+                          {Number(item.subtotal || 0).toLocaleString('fr-FR')} BIF
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 <div className="mt-4 flex items-center justify-between border-t border-base-200 pt-4 text-sm">
                   <span className="text-base-content/60">{order.items?.length || 0} article(s)</span>
                   <strong className="text-lg text-primary">{Number(order.total_price || 0).toLocaleString('fr-FR')} BIF</strong>

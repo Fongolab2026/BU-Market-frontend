@@ -20,7 +20,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import api, { endpoints } from "../services/api";
 import { authApi } from "../services/authService";
 import { userApi } from "../services/userService";
-import { resolveRole } from "../utils/roles.js";
+import { hasRentedSpace, resolveRole } from "../utils/roles.js";
 import PhoneInput from "./PhoneInput.jsx";
 import { getPhoneError } from "../utils/phone.js";
 
@@ -44,7 +44,9 @@ const TABS = [
 
 const formFromUser = (source) => ({
   firstName: source?.firstName ?? source?.first_name ?? "",
-  lastName: source?.lastName ?? source?.last_name ?? "",
+  // Le backend ne stocke pas de nom de famille séparé : le champ « Nom »
+  // affiche donc le nom d'utilisateur actuel du compte (lecture seule).
+  username: source?.username ?? "",
   phone: source?.phone ?? source?.phone_number ?? "",
   adresse: source?.adresse ?? source?.address ?? source?.location ?? "",
   email: source?.email ?? "",
@@ -182,6 +184,9 @@ export default function ProfileSettingsPage({ logoutPath = "/" }) {
     "U"
   ).toUpperCase();
   const profileImage = profilePreview || user?.profile_pic || user?.profilePic || "";
+  // Les coordonnées personnelles ne concernent que les comptes ayant loué un
+  // espace. Un acheteur ne doit pas les voir dans son profil.
+  const showContactFields = hasRentedSpace(user);
 
   const updateField = (event) => {
     editedRef.current = true;
@@ -217,7 +222,10 @@ export default function ProfileSettingsPage({ logoutPath = "/" }) {
   const handleProfileSubmit = async (event) => {
     event.preventDefault();
     if (saving) return;
-    const error = (form.phone || "").trim() ? getPhoneError(form.phone, "bi") : null;
+    const error =
+      showContactFields && (form.phone || "").trim()
+        ? getPhoneError(form.phone, "bi")
+        : null;
     setPhoneError(error);
     if (error) {
       toast.error(error);
@@ -226,11 +234,12 @@ export default function ProfileSettingsPage({ logoutPath = "/" }) {
     setSaving(true);
     try {
       let updated = user;
+      const contactFields = showContactFields
+        ? { phone: form.phone, adresse: form.adresse }
+        : {};
       const { data } = await api.patch(endpoints.users.me, {
         first_name: form.firstName,
-        last_name: form.lastName,
-        phone: form.phone,
-        adresse: form.adresse,
+        ...contactFields,
       });
       updated = { ...updated, ...data };
       if (profileFile) {
@@ -242,11 +251,10 @@ export default function ProfileSettingsPage({ logoutPath = "/" }) {
       signIn({
         ...updated,
         firstName: form.firstName,
-        lastName: form.lastName,
         first_name: form.firstName,
-        last_name: form.lastName,
-        phone: form.phone,
-        adresse: form.adresse,
+        ...(showContactFields
+          ? { phone: form.phone, adresse: form.adresse }
+          : {}),
         email: form.email,
       });
       editedRef.current = false;
@@ -344,18 +352,22 @@ export default function ProfileSettingsPage({ logoutPath = "/" }) {
               <p className="truncate text-sm text-base-content/55">{user?.email}</p>
 
               <dl className="mt-5 space-y-3 border-t border-base-300/70 pt-4 text-sm">
-                <div className="flex items-center gap-3">
-                  <Phone className="size-4 shrink-0 text-base-content/40" />
-                  <span className="truncate text-base-content/75">
-                    {form.phone || "Téléphone non renseigné"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MapPin className="size-4 shrink-0 text-base-content/40" />
-                  <span className="truncate text-base-content/75">
-                    {form.adresse || "Adresse non renseignée"}
-                  </span>
-                </div>
+                {showContactFields && (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <Phone className="size-4 shrink-0 text-base-content/40" />
+                      <span className="truncate text-base-content/75">
+                        {form.phone || "Téléphone non renseigné"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <MapPin className="size-4 shrink-0 text-base-content/40" />
+                      <span className="truncate text-base-content/75">
+                        {form.adresse || "Adresse non renseignée"}
+                      </span>
+                    </div>
+                  </>
+                )}
                 <div className="flex items-center gap-3">
                   <Mail className="size-4 shrink-0 text-base-content/40" />
                   <span className="truncate text-base-content/75">{user?.email || "—"}</span>
@@ -428,9 +440,13 @@ export default function ProfileSettingsPage({ logoutPath = "/" }) {
               >
                 <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
                   <Field label="Prénom" name="firstName" value={form.firstName} onChange={updateField} required placeholder="Ex. Espoir" />
-                  <Field label="Nom" name="lastName" value={form.lastName} onChange={updateField} required placeholder="Ex. Durand" />
-                  <Field label="Téléphone" name="phone" isPhone error={phoneError} value={form.phone} onChange={handlePhone} />
-                  <Field label="Adresse" name="adresse" value={form.adresse} onChange={updateField} placeholder="Ex. Bujumbura, Rohero" className="sm:col-span-2" />
+                  <Field label="Nom" name="username" value={form.username} readOnly placeholder="Nom du compte" />
+                  {showContactFields && (
+                    <>
+                      <Field label="Téléphone" name="phone" isPhone error={phoneError} value={form.phone} onChange={handlePhone} />
+                      <Field label="Adresse" name="adresse" value={form.adresse} onChange={updateField} placeholder="Ex. Bujumbura, Rohero" className="sm:col-span-2" />
+                    </>
+                  )}
                   <Field label="Adresse e-mail" name="email" type="email" value={form.email} onChange={updateField} readOnly className="sm:col-span-2" />
                 </div>
               </Card>

@@ -6,6 +6,12 @@ export const merchantOrderEndpoints = {
 };
 
 export const merchantOrderService = {
+  pendingCount: async () => {
+    const { data } = await api.get(endpoints.orders.shopOrders, {
+      params: { status: "pending", page: 1, per_page: 1 },
+    });
+    return Number(data?.total ?? data?.count ?? 0) || 0;
+  },
   list: async ({ query = "", status = "all", page = 1, perPage = 100 } = {}) => {
     const all = []
     let currentPage = page

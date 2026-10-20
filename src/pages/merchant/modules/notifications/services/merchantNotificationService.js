@@ -21,10 +21,8 @@ export const merchantNotificationService = {
 
   /** Nombre de notifications non lues (pour le badge du menu). */
   unreadCount: async () => {
-    const { data } = await api.get(endpoints.notifications.list, {
-      params: { is_read: false, perPage: 1 },
-    });
-    return data.total ?? 0;
+    const { data } = await api.get(endpoints.notifications.unreadCount);
+    return Number(data?.count) || 0;
   },
 
   markRead: async (id) => {

@@ -173,8 +173,12 @@ export default function DetailProduit() {
             </div>
 
             <div className="flex items-center gap-3 rounded-2xl border border-base-300 bg-[var(--surface)] p-4 text-sm text-base-content/65">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Store size={18} aria-hidden="true" />
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-primary">
+                {product.shopImage ? (
+                  <img src={product.shopImage} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <Store size={18} aria-hidden="true" />
+                )}
               </span>
               <div>
                 <p className="text-xs uppercase tracking-wider text-base-content/45">Vendu par</p>

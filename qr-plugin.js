@@ -75,7 +75,7 @@ export function landingQrPlugin() {
             width: 1024,
             margin: 2,
             errorCorrectionLevel: "H",
-            color: { dark: "#9a3412", light: "#ffffff" },
+            color: { dark: "#000000", light: "#ffffff" },
           });
           mkdirSync(OUT_DIR, { recursive: true });
           writeFileSync(OUT_FILE, png);

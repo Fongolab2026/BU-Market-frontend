@@ -94,9 +94,20 @@ export default function ProfilVendeur() {
               <h2 className="text-2xl font-bold text-base-content">Produits de {shop.name}</h2>
               <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {shop.productList?.map((product) => (
-                  <Link key={product.id} to={`/produit/${product.id}`} className="rounded-2xl border border-base-300 bg-[var(--surface)] p-5 transition hover:border-primary/40 hover:shadow-md">
-                    <p className="font-semibold text-base-content">{product.name}</p>
-                    <p className="mt-2 font-bold text-primary">{Number(product.price).toLocaleString('fr-FR')} BIF</p>
+                  <Link key={product.id} to={`/produit/${product.id}`} className="overflow-hidden rounded-2xl border border-base-300 bg-[var(--surface)] transition hover:border-primary/40 hover:shadow-md">
+                    <div className="aspect-[4/3] overflow-hidden bg-primary/10">
+                      {product.main_image ? (
+                        <img src={product.main_image} alt={product.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="grid h-full w-full place-items-center text-primary">
+                          <Package size={30} />
+                        </span>
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <p className="font-semibold text-base-content">{product.name}</p>
+                      <p className="mt-2 font-bold text-primary">{Number(product.price).toLocaleString('fr-FR')} BIF</p>
+                    </div>
                   </Link>
                 ))}
               </div>

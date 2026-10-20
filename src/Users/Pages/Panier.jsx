@@ -1,4 +1,4 @@
-import { Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react'
+import { Minus, Package, Plus, ShoppingBag, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
@@ -95,8 +95,22 @@ export default function Panier() {
                 return (
                   <article
                     key={item.id}
-                    className="flex items-center gap-4 rounded-2xl border border-base-300 bg-(--surface) p-4"
+                    className="flex flex-wrap items-center gap-3 rounded-2xl border border-base-300 bg-(--surface) p-3 sm:flex-nowrap sm:gap-4 sm:p-4"
                   >
+                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-base-200 bg-base-200 sm:h-20 sm:w-20">
+                      {item.product_image ? (
+                        <img
+                          src={item.product_image}
+                          alt={item.product_name}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-base-content/30">
+                          <Package size={22} />
+                        </div>
+                      )}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <h2 className="font-bold text-base-content">{item.product_name}</h2>
                       <p className="mt-1 text-sm text-base-content/60">
@@ -116,7 +130,7 @@ export default function Panier() {
                         </p>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex w-full items-center justify-end gap-2 border-t border-base-200 pt-3 sm:w-auto sm:border-0 sm:pt-0">
                       <button type="button" onClick={() => updateQuantity(item, item.quantity - 1)} className="btn btn-ghost btn-sm btn-circle" aria-label="Diminuer la quantité"><Minus size={15} /></button>
                       <span className="w-8 text-center font-semibold">{item.quantity}</span>
                       <button
