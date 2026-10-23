@@ -24,11 +24,10 @@ export function CartProvider({ children }) {
     }
     setLoading(true)
     try {
-      const { data } = await cartApi.list()
-      const carts = data?.results ?? data
-      const next = Array.isArray(carts) ? carts[0] ?? null : null
-      setCart(next)
-      return next
+      // Utiliser l'endpoint current qui crée le panier s'il n'existe pas
+      const { data } = await cartApi.current()
+      setCart(data)
+      return data
     } catch {
       // Le panier est secondaire : on n'interrompt pas la navigation en cas d'échec.
       return null
@@ -56,12 +55,11 @@ export function CartProvider({ children }) {
       const { data } = await cartApi.addItem(productId, quantity)
       if (data.removed_out_of_stock > 0) {
         setLastRemovedCount(data.removed_out_of_stock)
-        // Afficher une notification via toast si dispo
       }
       setCart(data)
       return data
     },
-    [refresh],
+    [],
   )
 
   const updateQuantity = useCallback(async (itemId, quantity) => {
