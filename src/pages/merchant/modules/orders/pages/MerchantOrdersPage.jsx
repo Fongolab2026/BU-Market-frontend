@@ -220,38 +220,41 @@ export function MerchantOrdersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-base-200">
-              {filtered.map((order) => (
-                <tr key={order.id} className="align-middle">
-                  <td className="py-3.5 pl-2 font-semibold text-base-content">#{order.id}</td>
-                  <td className="py-3.5">
-                    <div>
-                      <p className="font-semibold text-base-content">{order.client}</p>
-                      <p className="mt-0.5 flex items-center gap-1 text-xs text-base-content/50">
-                        <MapPin size={12} /> {order.location || 'Adresse non renseignée'}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="py-3.5">
-                    <span className="flex items-center gap-1.5 text-sm text-base-content/70">
-                      <Package size={14} className="text-secondary" /> {order.items}
-                    </span>
-                  </td>
-                  <td className="py-3.5 font-semibold text-base-content">{formatNumber(order.total)} BIF</td>
-                  <td className="py-3.5"><StatusBadge status={order.status} label={statusLabels[order.status]} /></td>
-                  <td className="py-3.5 text-sm text-base-content/55">{formatDateTime(order.date)}</td>
-                  <td className="py-3.5">
-                    <select
-                      value={order.status}
-                      onChange={(event) => updateStatus(order, event.target.value)}
-                      className="select select-bordered min-w-32 text-sm font-medium focus:border-brand focus:ring-2 focus:ring-brand/20"
-                    >
-                      {statusOptions.map((option) => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                      ))}
-                    </select>
-                  </td>
-                </tr>
-              ))}
+              {filtered.map((order) => {
+                const isNew = newOrderIds.includes(order.id);
+                return (
+                  <tr key={order.id} className={`align-middle transition-colors ${isNew ? 'bg-emerald-50' : ''}`}>
+                    <td className="py-3.5 pl-2 font-semibold text-base-content">#{order.id}</td>
+                    <td className="py-3.5">
+                      <div>
+                        <p className="font-semibold text-base-content">{order.client}</p>
+                        <p className="mt-0.5 flex items-center gap-1 text-xs text-base-content/50">
+                          <MapPin size={12} /> {order.location || 'Adresse non renseignée'}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="py-3.5">
+                      <span className="flex items-center gap-1.5 text-sm text-base-content/70">
+                        <Package size={14} className="text-secondary" /> {order.items}
+                      </span>
+                    </td>
+                    <td className="py-3.5 font-semibold text-base-content">{formatNumber(order.total)} BIF</td>
+                    <td className="py-3.5"><StatusBadge status={order.status} label={statusLabels[order.status]} /></td>
+                    <td className="py-3.5 text-sm text-base-content/55">{formatDateTime(order.date)}</td>
+                    <td className="py-3.5">
+                      <select
+                        value={order.status}
+                        onChange={(event) => updateStatus(order, event.target.value)}
+                        className="select select-bordered min-w-32 text-sm font-medium focus:border-brand focus:ring-2 focus:ring-brand/20"
+                      >
+                        {statusOptions.map((option) => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

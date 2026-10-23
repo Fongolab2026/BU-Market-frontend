@@ -15,6 +15,7 @@ export function CartProvider({ children }) {
   const { user } = useAuth()
   const [cart, setCart] = useState(null)
   const [loading, setLoading] = useState(() => isAuthenticated())
+  const [lastRemovedCount, setLastRemovedCount] = useState(0)
 
   const refresh = useCallback(async () => {
     if (!isAuthenticated()) {
@@ -41,10 +42,24 @@ export function CartProvider({ children }) {
     refresh()
   }, [refresh, user?.id, user?.email])
 
+  // Synchroniser le stock périodiquement (toutes les 30 secondes)
+  useEffect(() => {
+    if (!isAuthenticated()) return
+    const interval = setInterval(() => {
+      syncStock()
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [user?.id])
+
   const addItem = useCallback(
     async (productId, quantity = 1) => {
-      await cartApi.addItem(productId, quantity)
-      return refresh()
+      const { data } = await cartApi.addItem(productId, quantity)
+      if (data.removed_out_of_stock > 0) {
+        setLastRemovedCount(data.removed_out_of_stock)
+        // Afficher une notification via toast si dispo
+      }
+      setCart(data)
+      return data
     },
     [refresh],
   )
@@ -71,6 +86,26 @@ export function CartProvider({ children }) {
     )
   }, [])
 
+  const syncStock = useCallback(async () => {
+    if (!isAuthenticated()) return
+    try {
+      const { data } = await cartApi.syncStock()
+      if (data.removed_out_of_stock > 0) {
+        setLastRemovedCount(data.removed_out_of_stock)
+      }
+      setCart(data)
+    } catch {
+      // Ignorer les erreurs de sync silencieuses
+    }
+  }, [])
+
+  const checkout = useCallback(async () => {
+    if (!isAuthenticated()) {
+      throw new Error('Utilisateur non authentifié')
+    }
+    return cartApi.checkout()
+  }, [])
+
   const items = useMemo(() => cart?.items ?? [], [cart])
   const itemCount = useMemo(
     () => items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0),
@@ -89,8 +124,12 @@ export function CartProvider({ children }) {
       addItem,
       updateQuantity,
       removeItem,
+      checkout,
+      syncStock,
+      lastRemovedCount,
+      clearRemovedCount: () => setLastRemovedCount(0),
     }),
-    [cart, items, itemCount, total, loading, refresh, addItem, updateQuantity, removeItem],
+    [cart, items, itemCount, total, loading, refresh, addItem, updateQuantity, removeItem, checkout, syncStock, lastRemovedCount],
   )
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>

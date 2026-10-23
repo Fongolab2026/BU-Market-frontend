@@ -9,6 +9,7 @@ export const cartApi = {
   remove: (id) => api.delete(`/carts/carts/${id}/`),
   addItem: (product, quantity = 1) => api.post("/carts/carts/add-item/", { product, quantity }),
   checkout: () => api.post("/carts/carts/checkout/"),
+  syncStock: () => api.post("/carts/carts/sync-stock/"),
 };
 
 export const cartItemApi = {

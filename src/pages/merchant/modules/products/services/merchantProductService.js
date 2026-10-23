@@ -10,11 +10,19 @@ export const merchantProductEndpoints = {
 
 export const merchantProductService = {
   list: async ({ query = "", status = "all", page = 1, perPage = 100 } = {}) => {
-    const { data } = await api.get(endpoints.products.myProducts, {
-      params: { search: query, status, page, perPage },
-    });
-    const products = data.results ?? data;
-    return Array.isArray(products) ? products : [];
+    const all = [];
+    let currentPage = page;
+    let totalPages = page;
+    do {
+      const { data } = await api.get(endpoints.products.myProducts, {
+        params: { search: query, status, page: currentPage, perPage },
+      });
+      const products = data.results ?? data;
+      if (Array.isArray(products)) all.push(...products);
+      totalPages = data.totalPages ?? data.total_pages ?? currentPage;
+      currentPage += 1;
+    } while (currentPage <= totalPages);
+    return all;
   },
   create: async (input, files = []) => {
     const formData = new FormData();

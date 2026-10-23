@@ -107,7 +107,7 @@ export default function Home() {
       // Les boutiques ne sont lisibles que par un admin côté backend : leur échec
       // éventuel ne doit pas empêcher l'affichage des produits.
       const [prodRes, catRes, shopRes] = await Promise.allSettled([
-        productApi.list({ status: 'active' }),
+        productApi.list({ status: 'active', perPage: 1000 }),
         categoryApi.list(),
         shopApi.list({ status: 'validated', perPage: 100 }),
       ])
@@ -707,75 +707,98 @@ export default function Home() {
                 ) : (
                   <form onSubmit={handleContactSubmit}>
                     {contactError && (
-                      <p className="mb-4 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
-                        {contactError}
-                      </p>
+                      <div className="mb-6 p-4 rounded-xl bg-error/10 border border-error/30 flex items-start gap-3" role="alert">
+                        <div className="flex-shrink-0 mt-0.5">
+                          <svg className="size-5 text-error" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <p className="text-sm text-error">{contactError}</p>
+                      </div>
                     )}
-                    <div className="mb-4">
-                      <label htmlFor="contact-name" className="mb-1 block text-sm font-semibold text-base-content">
-                        Nom complet
-                      </label>
-                      <input
-                        type="text"
-                        id="contact-name"
-                        required
-                        value={contactForm.name}
-                        onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                        className="w-full h-[8vh] "
-                        placeholder="Votre nom"
-                      />
+                    <div className="grid gap-6 sm:grid-cols-2">
+                      <div className="mb-4">
+                        <label htmlFor="contact-name" className="mb-2 block text-sm font-semibold text-base-content">
+                          Nom complet <span className="text-error" aria-hidden="true">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          id="contact-name"
+                          required
+                          value={contactForm.name}
+                          onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                          className="input input-bordered w-full h-12 px-4 text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20 transition-colors"
+                          placeholder="Votre nom complet"
+                          autoComplete="name"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <label htmlFor="contact-email" className="mb-2 block text-sm font-semibold text-base-content">
+                          Adresse e-mail <span className="text-error" aria-hidden="true">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          id="contact-email"
+                          required
+                          value={contactForm.email}
+                          onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                          className="input input-bordered w-full h-12 px-4 text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20 transition-colors"
+                          placeholder="votre@email.com"
+                          autoComplete="email"
+                        />
+                      </div>
                     </div>
                     <div className="mb-4">
-                      <label htmlFor="contact-email" className="mb-1 block text-sm font-semibold text-base-content">
-                        Adresse e-mail
+                      <label htmlFor="contact-subject" className="mb-2 block text-sm font-semibold text-base-content">
+                        Sujet <span className="text-error" aria-hidden="true">*</span>
                       </label>
-                      <input
-                        type="email"
-                        id="contact-email"
-                        required
-                        value={contactForm.email}
-                        onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                        className="w-full h-[8vh] "
-                        placeholder="votre@email.com"
-                      />
-                    </div>
-                    <div className="mb-4">
-                      <label htmlFor="contact-subject" className="mb-1 block text-sm font-semibold text-base-content">
-                        Sujet
-                      </label>
-                      <input
-                        type="text"
+                      <select
                         id="contact-subject"
                         required
                         value={contactForm.subject}
                         onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
-                        className="w-full h-[8vh] "
-                        placeholder="Objet de votre message"
-                      />
+                        className="select select-bordered w-full h-12 px-4 text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20 transition-colors"
+                      >
+                        <option value="" disabled>Sélectionnez un sujet</option>
+                        <option value="question">Question générale</option>
+                        <option value="technical">Problème technique</option>
+                        <option value="order">Question sur une commande</option>
+                        <option value="payment">Problème de paiement</option>
+                        <option value="delivery">Livraison</option>
+                        <option value="return">Retour / Remboursement</option>
+                        <option value="partnership">Partenariat / Devenir vendeur</option>
+                        <option value="other">Autre</option>
+                      </select>
                     </div>
                     <div className="mb-4">
-                      <label htmlFor="contact-message" className="mb-1 block text-sm font-semibold text-base-content">
-                        Message
+                      <label htmlFor="contact-message" className="mb-2 block text-sm font-semibold text-base-content">
+                        Message <span className="text-error" aria-hidden="true">*</span>
                       </label>
-                      <input
-                        type="textArea"
+                      <textarea
                         id="contact-message"
-                        rows={5}
                         required
+                        rows={6}
                         value={contactForm.message}
                         onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                        className="w-full h-[20vh] pb-20 resize-none"
-                        placeholder="Votre message..."
-                      />
+                        className="textarea textarea-bordered w-full h-40 px-4 py-3 text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20 transition-colors resize-y"
+                        placeholder="Décrivez votre demande en détail..."
+                        aria-describedby="message-hint"
+                      ></textarea>
+                      <p id="message-hint" className="mt-1.5 text-xs text-base-content/50">Soyez le plus précis possible pour que nous puissions vous aider rapidement.</p>
                     </div>
                     <Button
                       type="submit"
                       disabled={contactSending}
-                      className="mt-2 gap-2"
+                      className="mt-4 w-full sm:w-auto gap-2 px-6 py-3"
                       severity="primary"
                     >
                       <Send size={18} aria-hidden="true" />
-                      {contactSending ? 'Envoi...' : 'Envoyer le message'}
+                      {contactSending ? (
+                        <>
+                          <span className="animate-spin mr-2">⏳</span>
+                          Envoi en cours...
+                        </>
+                      ) : 'Envoyer le message'}
                     </Button>
                   </form>
                 )}

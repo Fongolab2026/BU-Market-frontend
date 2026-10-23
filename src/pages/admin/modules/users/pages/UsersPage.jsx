@@ -9,8 +9,8 @@ import PhoneInput from '../../../../../components/PhoneInput.jsx'
 import Avatar from '../../../../../components/Avatar.jsx'
 import { TableRowsSkeleton } from '../../../../../components/skeletons'
 
-const roleLabel = { admin: 'Gestionnaire', merchant: 'Commerçant', client: 'Client' }
-const emptyForm = { firstName: '', email: '', phone: '+257', location: '', role: 'client' }
+const roleLabel = { admin: 'Gestionnaire', merchant: 'Commerçant', buyer: 'Client' }
+const emptyForm = { firstName: '', email: '', phone: '+257', location: '', role: 'buyer' }
 
 export function UsersPage() {
   const [searchParams] = useSearchParams()
@@ -68,7 +68,7 @@ export function UsersPage() {
       email: user.email || '',
       phone: user.phone || '',
       location: user.location && user.location !== 'Non précisée' ? user.location : '',
-      role: user.role || 'client',
+      role: user.role || 'buyer',
     })
     setEditing(user)
     setShowForm(true)
@@ -120,7 +120,7 @@ export function UsersPage() {
             <select value={filters.role} onChange={(event) => updateFilter('role', event.target.value)} className="h-10 w-full appearance-none border border-base-300 bg-white pl-9 pr-3 text-sm font-medium outline-none focus:border-brand focus:ring-4 focus:ring-brand/10">
               <option value="all">Tous les rôles</option>
               <option value="merchant">Commerçants</option>
-              <option value="client">Clients</option>
+              <option value="buyer">Clients</option>
               <option value="admin">Gestionnaires</option>
             </select>
           </label>
@@ -242,7 +242,7 @@ function AddUserModal({ editing, form, setFormField, canSubmit, submitting, onSu
           <label className="block">
             <span className="mb-1.5 block text-sm font-semibold text-base-content/80">Rôle</span>
             <select value={form.role} onChange={(event) => setFormField('role', event.target.value)} className="h-10 w-full border border-base-300 bg-white px-3 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10">
-              <option value="client">Client</option>
+              <option value="buyer">Client</option>
               <option value="merchant">Commerçant</option>
               <option value="admin">Gestionnaire</option>
             </select>

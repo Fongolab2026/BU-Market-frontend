@@ -19,21 +19,21 @@ export const utilisateurEndpoints = {
 };
 
 /** Libelles de l'interface admin -> roles stockes en base. */
-const roleToApi = { admin: "admin", merchant: "merchant", client: "client" };
+const roleToApi = { admin: "admin", merchant: "merchant", buyer: "buyer" };
 
 /** Roles Django -> libelles de l'interface admin. */
 const roleToLabel = {
   superadmin: "admin",
   admin: "admin",
   seller: "merchant",
-  buyer: "client",
+  buyer: "buyer",
 };
 
 const mapUser = (user) => ({
   ...user,
   firstName: user.firstName || user.username || "Sans nom",
   initials: initialsOf(user.firstName || user.username),
-  role: roleToLabel[user.role] || "client",
+  role: roleToLabel[user.role] || "buyer",
   phone: user.phone || "",
   location: user.location || "Non précisée",
   joinedAt: formatDate(user.joinedAt),
