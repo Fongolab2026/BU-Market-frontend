@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, Ban, Building2, CheckCircle2, Clock3, Eye, EyeOff, LogIn, Mail, MapPin, MessageSquareText, Package, Phone, ShieldAlert, Star, Store, Trash2, UserPlus, UserRoundCheck } from 'lucide-react'
+import { ArrowLeft, Ban, Building2, Camera, CheckCircle2, Clock3, Eye, EyeOff, LogIn, Mail, MapPin, MessageSquareText, Package, Phone, ShieldAlert, Star, Store, Trash2, UserPlus, UserRoundCheck } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { utilisateursService } from '../services/utilisateursService.js'
@@ -29,6 +29,7 @@ export function UserDetailPage() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [photoBusy, setPhotoBusy] = useState(false)
   const [confirm, setConfirm] = useState(null)
 
   const reload = () => utilisateursService.detail(userId).then(setUser)
@@ -49,6 +50,27 @@ export function UserDetailPage() {
           : 'Le compte a été validé.'
         : 'Le compte a été suspendu.',
     )
+  }
+
+  const updatePhoto = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      toast.error('Sélectionnez un fichier image valide.')
+      return
+    }
+    setPhotoBusy(true)
+    try {
+      await utilisateursService.updatePhoto(user.id, file)
+      await reload()
+      toast.success('Photo de profil mise à jour.')
+    } catch (error) {
+      const message = error?.response?.data?.profilePic?.[0] || 'Impossible de mettre à jour la photo.'
+      toast.error(message)
+    } finally {
+      setPhotoBusy(false)
+    }
   }
 
   const toggleProduct = async (product) => {
@@ -95,7 +117,7 @@ export function UserDetailPage() {
         <ArrowLeft size={17} /> Retour aux utilisateurs
       </Link>
 
-      <IdentityCard user={user} />
+      <IdentityCard user={user} onPhotoChange={updatePhoto} photoBusy={photoBusy} />
 
       {user.shop ? (
         <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -131,18 +153,36 @@ export function UserDetailPage() {
   )
 }
 
-function IdentityCard({ user }) {
+function IdentityCard({ user, onPhotoChange, photoBusy }) {
   return (
     <section className="card overflow-hidden">
       <div className="h-1.5 bg-gradient-to-r from-brand via-brand-soft to-accent" />
       <div className="p-5 sm:p-6">
         <div className="flex items-center gap-4">
-          <Avatar
-            src={user.profilePic}
-            name={user.firstName}
-            alt=""
-            className="size-14 shrink-0 rounded-xl bg-gradient-to-br from-brand to-brand-soft text-base font-bold text-white shadow-md"
-          />
+          <div className="relative shrink-0">
+            <Avatar
+              src={user.profilePic}
+              name={user.firstName}
+              alt=""
+              className="size-14 rounded-xl bg-gradient-to-br from-brand to-brand-soft text-base font-bold text-white shadow-md"
+            />
+            <label
+              htmlFor={`photo-${user.id}`}
+              className="absolute -bottom-1.5 -right-1.5 grid size-6 cursor-pointer place-items-center rounded-full bg-brand text-white shadow-sm ring-2 ring-white transition hover:bg-brand-soft"
+              title="Changer la photo de profil"
+              aria-label="Changer la photo de profil"
+            >
+              <Camera size={13} aria-hidden="true" />
+              <input
+                id={`photo-${user.id}`}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={onPhotoChange}
+                disabled={photoBusy}
+              />
+            </label>
+          </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-xl font-bold tracking-tight text-base-content sm:text-2xl">{user.firstName}</h1>
@@ -203,9 +243,13 @@ function ShopCard({ shop }) {
             <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-semibold text-brand">{shop.category}</span>
           </div>
         </div>
-        <span className="grid size-10 place-items-center rounded-xl bg-brand text-white shadow-sm">
-          <Building2 size={20} />
-        </span>
+        <Avatar
+          src={shop.shopImage}
+          name={shop.name}
+          fallback={<Building2 size={20} />}
+          alt=""
+          className="size-14 shrink-0 rounded-xl bg-brand text-white shadow-sm"
+        />
       </div>
       <div className="px-5 py-4 sm:px-6">
         <p className="text-sm leading-6 text-base-content/70">{shop.description}</p>
@@ -253,8 +297,19 @@ function ProductsCard({ shop, busy, onToggle }) {
             {shop.productList.map((product) => (
               <tr key={product.id} className="transition hover:bg-base-50">
                 <td className="px-5 py-3.5">
-                  <p className="font-semibold text-base-content">{product.name}</p>
-                  <p className="mt-0.5 text-xs text-base-content/45">Publié le {product.date}</p>
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      src={product.mainImage}
+                      name={product.name}
+                      fallback={<Package size={16} />}
+                      alt=""
+                      className="size-9 shrink-0 rounded-lg bg-brand/10 text-brand"
+                    />
+                    <div>
+                      <p className="font-semibold text-base-content">{product.name}</p>
+                      <p className="mt-0.5 text-xs text-base-content/45">Publié le {product.date}</p>
+                    </div>
+                  </div>
                 </td>
                 <td className="px-5 py-3.5 font-semibold text-base-content">{product.price} BIF</td>
                 <td className="px-5 py-3.5 text-sm text-base-content/70">{product.stock} en stock</td>

@@ -12,9 +12,9 @@ export const produitEndpoints = {
 };
 
 /**
- * Payload produit.
- * - "category" (et non "categoryId") est le champ attendu par le serializer.
- * - "details" est obligatoire côté backend : une description est toujours envoyée.
+ * Payload produit pour le serializer d'écriture admin.
+ * - "categoryId" et "shopId" sont les clés attendues par AdminProductWriteSerializer.
+ * - "details" reste facultatif côté backend, mais le formulaire en demande une.
  */
 const toPayload = (input) => {
   const payload = {
@@ -23,8 +23,9 @@ const toPayload = (input) => {
     stock: Number(input.stock) || 0,
     details: (input.details || "").trim(),
   };
-  const category = input.category ?? input.categoryId;
-  if (category) payload.category = Number(category);
+  const category = input.categoryId ?? input.category;
+  if (category) payload.categoryId = Number(category);
+  if (input.shopId) payload.shopId = Number(input.shopId);
   return payload;
 };
 

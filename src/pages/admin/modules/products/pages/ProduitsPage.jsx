@@ -96,7 +96,7 @@ export function ProduitsPage() {
     setEditing(product)
     setForm({
       shopId: product.shopId,
-      categoryId: product.category,
+      categoryId: product.categoryId,
       name: product.name,
       price: product.price,
       stock: String(product.stock),
@@ -222,8 +222,12 @@ export function ProduitsPage() {
                 <tr key={product.id} className="align-middle">
                   <td className="py-3.5 pl-2">
                     <div className="flex items-center gap-3">
-                      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                        <Package size={18} />
+                      <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary/10 text-primary">
+                        {product.mainImage ? (
+                          <img src={product.mainImage} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <Package size={18} />
+                        )}
                       </span>
                       <div>
                         <p className="font-semibold text-base-content">{product.name}</p>

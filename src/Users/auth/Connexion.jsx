@@ -6,6 +6,7 @@ import AuthField from '../../components/AuthField.jsx'
 import AuthLayout from '../../components/AuthLayout.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { authApi, setTokens } from '../../services'
+import { extractApiError } from '../../utils/apiError.js'
 import { resolveRole } from '../../utils/roles.js'
 
 export default function Connexion() {
@@ -50,9 +51,13 @@ export default function Connexion() {
         navigate('/accueil', { replace: true })
       }
     } catch (err) {
-      const detail = err.response?.data?.detail
-      setError(detail || 'E-mail ou mot de passe incorrect')
       console.error('connexion:', err)
+      if (err.response?.status === 401) {
+        setError('E-mail ou mot de passe incorrect')
+        return
+      }
+      const { general, fields } = extractApiError(err)
+      setError(general || fields.email || fields.username || 'E-mail ou mot de passe incorrect')
     } finally {
       setLoading(false)
     }

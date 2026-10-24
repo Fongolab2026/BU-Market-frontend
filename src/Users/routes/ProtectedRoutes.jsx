@@ -33,7 +33,7 @@ import ProfilVendeur from "../Pages/ProfilVendeur.jsx";
 import Panier from "../Pages/Panier.jsx";
 import MesCommandes from "../Pages/MesCommandes.jsx";
 import Favoris from "../Pages/Favoris.jsx";
-import BuyerNotificationsPage from "../Pages/BuyerNotificationsPage.jsx";
+import Notifications from "../Pages/Notifications.jsx";
 
 function RequireUser() {
   return isAuthenticated() ? <Outlet /> : <Navigate to="/" replace />;
@@ -57,13 +57,17 @@ function DefaultEntry() {
   const { user, loading } = useAuth();
 
   if (loading) return null;
+
+  // La page d'atterrissage est strictement réservée aux visiteurs non connectés.
+  if (!isAuthenticated()) return <Landing />;
+
   if (user?.role === "merchant" || user?.role === "seller") {
     return <Navigate to="/marchand/tableau-de-bord" replace />;
   }
   if (user?.role === "admin" || user?.role === "superadmin") {
     return <Navigate to="/admin/tableau-de-bord" replace />;
   }
-  return <Landing />;
+  return <Navigate to="/accueil" replace />;
 }
 
 export const protectedRoutes = [
@@ -80,7 +84,7 @@ export const protectedRoutes = [
       { path: "profil-vendeur/:id", element: <ProfilVendeur /> },
       { path: "panier", element: <Panier /> },
       { path: "commandes", element: <MesCommandes /> },
-      { path: "notifications", element: <BuyerNotificationsPage /> },
+      { path: "notifications", element: <Notifications /> },
     ],
   },
   {

@@ -127,6 +127,8 @@
   --hero-content: #ffffff;
   --shadow-soft: 0.04;
   --shadow-strong: 0.05;
+  --scrollbar-thumb: color-mix(in srgb, var(--color-primary) 42%, var(--color-base-300));
+  --scrollbar-thumb-hover: var(--color-primary);
 }
 
 [data-theme="bumarket-dark"] {
@@ -139,6 +141,8 @@
   --hero-content: #ffffff;
   --shadow-soft: 0.3;
   --shadow-strong: 0.4;
+  --scrollbar-thumb: color-mix(in srgb, var(--color-primary) 48%, var(--color-base-300));
+  --scrollbar-thumb-hover: var(--color-primary);
 }
 
 @layer base {
@@ -157,6 +161,73 @@
   ::selection {
     background-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
   }
+
+  /* ---------- Barres de défilement ---------- */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track,
+  *::-webkit-scrollbar-track-piece {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-color: var(--scrollbar-thumb);
+    background-clip: content-box;
+    transition: background-color 0.2s ease;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-button {
+    display: none;
+  }
+}
+
+/* Barres latérales : le pouce de défilement n'apparaît qu'au survol de l'aside. */
+.aside-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.aside-scroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+aside:hover .aside-scroll,
+aside:focus-within .aside-scroll,
+.aside-scroll:hover,
+.aside-scroll:focus-within {
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+aside:hover .aside-scroll::-webkit-scrollbar-thumb,
+aside:focus-within .aside-scroll::-webkit-scrollbar-thumb,
+.aside-scroll:hover::-webkit-scrollbar-thumb,
+.aside-scroll:focus-within::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+}
+
+aside:hover .aside-scroll::-webkit-scrollbar-thumb:hover,
+aside:focus-within .aside-scroll::-webkit-scrollbar-thumb:hover,
+.aside-scroll:hover::-webkit-scrollbar-thumb:hover,
+.aside-scroll:focus-within::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
 }
 
 @layer components {
@@ -353,8 +424,32 @@
     --react-international-phone-border-color: var(--color-base-300);
     --react-international-phone-country-selector-border-color: var(--color-base-300);
     --react-international-phone-background-color: var(--surface);
-    --react-international-phone-country-selector-background-color: var(--surface);
     --react-international-phone-text-color: var(--color-base-content);
+    --react-international-phone-country-selector-background-color: var(--surface);
+    --react-international-phone-country-selector-background-color-hover: color-mix(
+      in srgb,
+      var(--color-primary) 8%,
+      var(--surface)
+    );
+    --react-international-phone-country-selector-arrow-color: var(--color-base-content);
+    --react-international-phone-dropdown-item-background-color: var(--surface);
+    --react-international-phone-dropdown-item-text-color: var(--color-base-content);
+    --react-international-phone-dropdown-item-dial-code-color: color-mix(
+      in srgb,
+      var(--color-base-content) 60%,
+      transparent
+    );
+    --react-international-phone-selected-dropdown-item-background-color: color-mix(
+      in srgb,
+      var(--color-primary) 16%,
+      var(--surface)
+    );
+    --react-international-phone-selected-dropdown-item-text-color: var(--color-base-content);
+    --react-international-phone-selected-dropdown-item-dial-code-color: color-mix(
+      in srgb,
+      var(--color-base-content) 60%,
+      transparent
+    );
     color: var(--color-base-content);
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
   }
@@ -391,15 +486,29 @@
     background-color: color-mix(in srgb, var(--color-primary) 8%, var(--surface));
   }
 
-  .phone-input .react-international-phone__input {
+  .phone-input .react-international-phone-input {
+    border-radius: 0 var(--radius-field) var(--radius-field) 0;
     background-color: var(--surface);
     color: var(--color-base-content);
-    border-radius: 0 var(--radius-field) var(--radius-field) 0;
-    transition: border-color 0.2s ease;
+    caret-color: var(--color-base-content);
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
   }
 
-  .phone-input .react-international-phone__input:focus {
+  .phone-input .react-international-phone-input::placeholder {
+    color: color-mix(in srgb, var(--color-base-content) 40%, transparent);
+  }
+
+  .phone-input .react-international-phone-input:focus {
     outline: none;
+  }
+
+  /* Évite le fond blanc imposé par l'autocomplétion du navigateur. */
+  .phone-input .react-international-phone-input:-webkit-autofill,
+  .phone-input .react-international-phone-input:-webkit-autofill:hover,
+  .phone-input .react-international-phone-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-base-content);
+    -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+    caret-color: var(--color-base-content);
   }
 
   /* État d'erreur : bordure rouge, halo rouge discret au focus. */
@@ -423,22 +532,38 @@
     color: var(--color-base-content);
   }
 
-  .phone-input .react-international-phone-country-selector-dropdown__listitem {
+  .phone-input
+    .react-international-phone-country-selector-dropdown__list-item {
     color: var(--color-base-content);
   }
 
   .phone-input
-    .react-international-phone-country-selector-dropdown__listitem:hover,
+    .react-international-phone-country-selector-dropdown__list-item-dial-code {
+    color: color-mix(in srgb, var(--color-base-content) 60%, transparent);
+  }
+
   .phone-input
-    .react-international-phone-country-selector-dropdown__listitem--focused {
-    background-color: color-mix(in srgb, var(--color-primary) 12%, var(--surface));
+    .react-international-phone-country-selector-dropdown__list-item:hover,
+  .phone-input
+    .react-international-phone-country-selector-dropdown__list-item--focused,
+  .phone-input
+    .react-international-phone-country-selector-dropdown__list-item--selected {
+    background-color: color-mix(in srgb, var(--color-primary) 16%, var(--surface));
     color: var(--color-base-content);
   }
 
   .phone-input
-    .react-international-phone-country-selector-dropdown__listitem[aria-selected='true'] {
-    background-color: color-mix(in srgb, var(--color-primary) 18%, var(--surface));
-    color: var(--color-base-content);
+    .react-international-phone-country-selector-dropdown__list-item--focused
+    .react-international-phone-country-selector-dropdown__list-item-dial-code,
+  .phone-input
+    .react-international-phone-country-selector-dropdown__list-item--selected
+    .react-international-phone-country-selector-dropdown__list-item-dial-code {
+    color: color-mix(in srgb, var(--color-base-content) 60%, transparent);
+  }
+
+  .phone-input
+    .react-international-phone-country-selector-dropdown__preferred-list-divider {
+    background: var(--color-base-300);
   }
 
   /* ---------- Cartes ---------- */
@@ -451,3 +576,4 @@
       0 8px 24px rgb(0 0 0 / var(--shadow-strong, 0.05));
   }
 }
+

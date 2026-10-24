@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Package,
   ShoppingCart,
+  TrendingDown,
   TrendingUp,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -21,6 +22,15 @@ import { DashboardSkeleton } from '../../../../../components/skeletons'
 const iconByStat = { sales: Banknote, orders: ShoppingCart, products: Package, views: TrendingUp }
 const activityIcon = { order: ShoppingCart, product: Package, message: MessageSquare, delivery: CheckCircle2 }
 const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
+
+const formatWeekDay = (value) => {
+  if (!value) return ''
+  const date = new Date(`${value}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return ''
+  const label = date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
+  return label.charAt(0).toUpperCase() + label.slice(1)
+}
+
 const activityTarget = (kind) =>
   kind === 'order'
     ? '/marchand/commandes'
@@ -75,9 +85,13 @@ export function MerchantDashboardPage() {
   if (error) return <MerchantDashboardError />
   if (!data) return <DashboardSkeleton />
 
-  const maxSales = Math.max(...data.weeklySales, 0)
-  const totalSales = data.weeklySales.reduce((sum, value) => sum + value, 0)
-  const averageSales = data.weeklySales.length ? Math.round(totalSales / data.weeklySales.length) : 0
+  const weeklySales = data.weeklySales || []
+  const weeklyLabels = weeklySales.map(
+    (_, index) => formatWeekDay(data.weeklySalesDates?.[index]) || weekDays[index],
+  )
+  const maxSales = Math.max(...weeklySales, 0)
+  const totalSales = weeklySales.reduce((sum, value) => sum + value, 0)
+  const averageSales = weeklySales.length ? Math.round(totalSales / weeklySales.length) : 0
   const recentOrders = (data.orders || []).slice(0, 5)
   const shopName = data.shop?.name || 'votre boutique'
 
@@ -127,11 +141,12 @@ export function MerchantDashboardPage() {
           </div>
 
           <div className="flex h-40 items-end justify-between gap-1 border-b border-base-300 px-1 pb-3 sm:h-48 sm:gap-2 sm:px-4">
-            {data.weeklySales.map((value, index) => {
+            {weeklySales.map((value, index) => {
               const heightPct = maxSales > 0 ? Math.max(8, (value / maxSales) * 100) : 8
               const isPeak = maxSales > 0 && value === maxSales
+              const label = weeklyLabels[index]
               return (
-                <div key={weekDays[index]} className="flex flex-1 flex-col items-center gap-2" style={{ maxWidth: 44 }}>
+                <div key={`${data.weeklySalesDates?.[index] || index}`} className="flex flex-1 flex-col items-center gap-2" style={{ maxWidth: 44 }}>
                   <span className="text-[11px] font-bold text-base-content/70">
                     {value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
                   </span>
@@ -140,11 +155,11 @@ export function MerchantDashboardPage() {
                       className={`w-full rounded-t-lg transition-all ${isPeak ? 'bg-primary' : 'bg-primary/20'}`}
                       style={{ height: `${heightPct}%` }}
                       role="img"
-                      aria-label={`${weekDays[index]} : ${value.toLocaleString('fr-FR')} BIF`}
+                      aria-label={`${label} : ${value.toLocaleString('fr-FR')} BIF`}
                     />
                   </div>
                   <span className={`text-xs ${isPeak ? 'font-bold text-base-content' : 'text-base-content/50'}`}>
-                    {weekDays[index]}
+                    {label}
                   </span>
                 </div>
               )
@@ -279,7 +294,7 @@ export function MerchantDashboardPage() {
   )
 }
 
-function StatCard({ label, value, change, icon: Icon, tone = 'brand' }) {
+function StatCard({ label, value, change, hint, trend, icon: Icon, tone = 'brand' }) {
   const tones = {
     brand: 'bg-primary/10 text-primary',
     orange: 'bg-primary/10 text-primary',
@@ -290,6 +305,8 @@ function StatCard({ label, value, change, icon: Icon, tone = 'brand' }) {
     warning: 'bg-warning/10 text-warning',
   }
   const isPercent = /%/.test(String(change))
+  const isDown = trend === 'down' || String(change).trim().startsWith('-')
+  const TrendIcon = isDown ? TrendingDown : TrendingUp
 
   return (
     <div className="flex flex-col justify-between rounded-2xl border border-base-300 bg-white p-5 shadow-sm">
@@ -302,16 +319,19 @@ function StatCard({ label, value, change, icon: Icon, tone = 'brand' }) {
       <div>
         <p className="break-words text-2xl font-black tracking-tight text-base-content">{value}</p>
         <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs font-bold">
-          {isPercent ? (
-            <span className="flex items-center gap-1 rounded border border-success/25 bg-success/10 px-1.5 py-0.5 text-success">
-              <TrendingUp className="size-3" /> {change}
-            </span>
-          ) : (
-            <span className="flex items-center gap-1 rounded border border-base-300 bg-base-200 px-1.5 py-0.5 text-base-content/60">
-              <span className="size-1.5 rounded-full bg-accent" /> {change}
-            </span>
-          )}
-          <span className="text-[11px] font-normal text-base-content/40">vs. mois dernier</span>
+          <span
+            className={`flex items-center gap-1 rounded border px-1.5 py-0.5 ${
+              isPercent
+                ? isDown
+                  ? 'border-error/25 bg-error/10 text-error'
+                  : 'border-success/25 bg-success/10 text-success'
+                : 'border-base-300 bg-base-200 text-base-content/60'
+            }`}
+          >
+            {isPercent ? <TrendIcon className="size-3" /> : <span className="size-1.5 rounded-full bg-accent" />}
+            {change}
+          </span>
+          {hint ? <span className="text-[11px] font-normal text-base-content/40">{hint}</span> : null}
         </div>
       </div>
     </div>

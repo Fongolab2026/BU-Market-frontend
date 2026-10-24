@@ -1,4 +1,4 @@
-import { endpoints, apiPost, apiPatch, apiDelete } from "../../../../../services/api.js";
+import { endpoints, apiGet, apiPost, apiPatch, apiDelete } from "../../../../../services/api.js";
 import { fetchAllPages, formatRelative } from "../../shared/adminApi.js";
 
 export const notificationEndpoints = {
@@ -24,6 +24,10 @@ export const notificationsService = {
   list: async ({ query = "" } = {}) => {
     const notifications = await fetchAllPages(notificationEndpoints.list, { search: query });
     return notifications.map(mapNotification);
+  },
+  unreadCount: async () => {
+    const response = await apiGet(endpoints.notifications.unreadCount);
+    return Number(response?.count) || 0;
   },
   markRead: async (id) => {
     const updated = await apiPatch(notificationEndpoints.markRead(id), {});

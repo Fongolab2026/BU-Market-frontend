@@ -15,6 +15,7 @@ import AuthField from "../../../../../components/AuthField.jsx";
 import AuthLayout from "../../../../../components/AuthLayout.jsx";
 import { useAuth } from "../../../../../context/AuthContext.jsx";
 import { isAuthenticated } from "../../../../../services/api.js";
+import { extractApiError } from "../../../../../utils/apiError.js";
 import { AdminAccessError, authAdminService } from "../services/authAdminService.js";
 
 const emptyForm = { email: "", password: "" };
@@ -67,8 +68,12 @@ export function ConnexionAdminPage() {
         setError(err.message);
         toast.error(err.message);
       } else {
-        const detail = err.response?.data?.detail;
-        setError(detail || "E-mail ou mot de passe incorrect");
+        const { general, fields } = extractApiError(err);
+        const message =
+          err.response?.status === 401
+            ? "E-mail ou mot de passe incorrect"
+            : general || fields.email || fields.username || "Connexion impossible";
+        setError(message);
         toast.error("Connexion impossible");
       }
       console.error("connexion administrateur:", err);

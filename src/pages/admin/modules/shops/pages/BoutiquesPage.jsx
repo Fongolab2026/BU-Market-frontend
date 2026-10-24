@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { boutiquesService } from '../services/boutiquesService.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import Avatar from '../../../../../components/Avatar.jsx'
 import { TableRowsSkeleton } from '../../../../../components/skeletons'
 
 const PAGE_SIZE = 6
@@ -142,16 +143,30 @@ export function BoutiquesPage() {
                   <tr key={shop.id} className="transition hover:bg-base-50">
                     <td className="py-4 pl-5">
                       <div className="flex items-center gap-3">
-                        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand/10 text-brand">
-                          <Building2 size={18} />
-                        </span>
+                        <Avatar
+                          src={shop.shopImage}
+                          name={shop.name}
+                          fallback={<Building2 size={18} />}
+                          alt=""
+                          className="size-10 shrink-0 rounded-xl bg-brand/10 text-brand"
+                        />
                         <div>
                           <p className="font-semibold text-base-content">{shop.name}</p>
                           <p className="mt-0.5 text-xs text-base-content/50">{shop.category}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 text-sm font-medium text-base-content/70">{shop.owner}</td>
+                    <td className="py-4 text-sm font-medium text-base-content/70">
+                      <div className="flex items-center gap-2">
+                        <Avatar
+                          src={shop.creatorPhoto}
+                          name={shop.creatorName || shop.owner}
+                          alt=""
+                          className="size-7 shrink-0 rounded-full bg-brand/10 text-[10px] font-semibold text-brand"
+                        />
+                        <span>{shop.owner}</span>
+                      </div>
+                    </td>
                     <td className="py-4 text-sm text-base-content/70">{shop.products}</td>
                     <td className="py-4">
                       <StatusBadge status={shop.status} label={shop.status === 'validated' ? 'Validée' : shop.status === 'suspended' ? 'Suspendue' : 'En attente'} />

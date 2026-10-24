@@ -1,76 +1,178 @@
-import { useEffect, useState } from 'react'
-import { CheckCheck, Mail, MailOpen, MessageSquareText, Search, Send, Store } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  AlertCircle,
+  CheckCheck,
+  ChevronLeft,
+  Inbox,
+  Loader2,
+  Mail,
+  MailOpen,
+  MessageSquareText,
+  Search,
+  Send,
+  Store,
+  X,
+} from 'lucide-react'
 import toast from 'react-hot-toast'
 import { messagesService } from '../services/messagesService.js'
 import { PageHeader } from '../../../components/ui.jsx'
 import Avatar from '../../../../../components/Avatar.jsx'
-import { ConversationListSkeleton } from '../../../../../components/skeletons'
+import { ConversationListSkeleton, Skeleton } from '../../../../../components/skeletons'
+import { useAuth } from '../../../../../context/AuthContext.jsx'
+
+const formatBadge = (count) => (count > 99 ? '99+' : count)
+const plural = (count, singular, pluralForm) =>
+  `${count} ${count > 1 ? pluralForm : singular}`
 
 export function MessagesPage() {
+  const { user } = useAuth()
   const [conversations, setConversations] = useState([])
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState(null)
   const [thread, setThread] = useState([])
-  const [reply, setReply] = useState('')
-  const [sending, setSending] = useState(false)
+  const [draft, setDraft] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [threadLoading, setThreadLoading] = useState(false)
+  const [threadError, setThreadError] = useState(false)
+  const [threadReloadToken, setThreadReloadToken] = useState(0)
+  const [sending, setSending] = useState(false)
+  const threadRef = useRef(null)
+  const selectedIdRef = useRef(null)
 
-  useEffect(() => {
-    messagesService.list().then((result) => {
-      setConversations(result)
+  const loadConversations = useCallback(async () => {
+    setLoading(true)
+    setError(false)
+    try {
+      setConversations(await messagesService.list())
+    } catch {
+      setError(true)
+      toast.error('Impossible de charger les messages.')
+    } finally {
       setLoading(false)
-    })
+    }
   }, [])
 
-  const unreadCount = conversations.filter((conversation) => conversation.unread > 0).length
-  const selected = conversations.find((conversation) => conversation.id === selectedId) || null
+  useEffect(() => {
+    loadConversations()
+  }, [loadConversations])
+
+  useEffect(() => {
+    if (!selectedId) {
+      setThread([])
+      setThreadError(false)
+      setThreadLoading(false)
+      return undefined
+    }
+    let active = true
+    setThreadLoading(true)
+    setThreadError(false)
+    messagesService
+      .thread(selectedId)
+      .then((messages) => {
+        if (active) setThread(messages)
+      })
+      .catch(() => {
+        if (active) setThreadError(true)
+      })
+      .finally(() => {
+        if (active) setThreadLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [selectedId, threadReloadToken])
+
+  useEffect(() => {
+    const node = threadRef.current
+    if (node) node.scrollTop = node.scrollHeight
+  }, [selectedId, thread.length])
+
+  const unreadCount = conversations.reduce(
+    (total, conversation) => total + (Number(conversation.unread) || 0),
+    0,
+  )
+  const selected =
+    conversations.find((conversation) => conversation.id === selectedId) || null
 
   const filtered = conversations.filter((conversation) => {
     const text = `${conversation.sender} ${conversation.shop} ${conversation.message}`.toLowerCase()
     return !search.trim() || text.includes(search.trim().toLowerCase())
   })
 
-  const openConversation = async (conversation) => {
+  const openConversation = (conversation) => {
+    if (conversation.id === selectedId) return
+    selectedIdRef.current = conversation.id
     setSelectedId(conversation.id)
-    setReply('')
+    setThread([])
+    setThreadLoading(true)
+    setThreadError(false)
+    setDraft('')
+    if (conversation.unread > 0) {
+      messagesService
+        .markRead(conversation.id)
+        .then(() => {
+          setConversations((current) =>
+            current.map((item) =>
+              item.id === conversation.id
+                ? { ...item, unread: 0, status: 'closed' }
+                : item,
+            ),
+          )
+        })
+        .catch(() => {})
+    }
+  }
+
+  const closeConversation = () => {
+    selectedIdRef.current = null
+    setSelectedId(null)
+  }
+
+  const markAll = async () => {
     try {
-      const [messages] = await Promise.all([
-        messagesService.thread(conversation.id),
-        conversation.unread > 0 ? messagesService.markRead(conversation.id) : Promise.resolve(),
-      ])
-      setThread(messages)
-      if (conversation.unread > 0) {
-        setConversations((current) => current.map((item) => (item.id === conversation.id ? { ...item, unread: 0, status: 'closed' } : item)))
-      }
+      await messagesService.markAllRead()
+      setConversations((current) =>
+        current.map((item) => ({ ...item, unread: 0, status: 'closed' })),
+      )
+      toast.success('Tous les messages sont marqués comme lus.')
     } catch {
-      toast.error('Impossible de charger cette conversation.')
+      toast.error('Impossible de marquer les messages comme lus.')
     }
   }
 
   const sendReply = async (event) => {
     event.preventDefault()
-    if (!selected || !reply.trim()) return
+    const content = draft.trim()
+    if (!selected || !content || sending || threadLoading || threadError) return
+    const targetId = selected.id
     setSending(true)
     try {
-      await messagesService.send(selected.id, reply.trim())
-      const updatedThread = await messagesService.thread(selected.id)
-      setThread(updatedThread)
-      setReply('')
-      setConversations((current) => current.map((item) => item.id === selected.id
-        ? { ...item, message: reply.trim(), time: "À l'instant" }
-        : item))
-      toast.success('Réponse envoyée. L’utilisateur recevra une notification.')
+      const sent = await messagesService.send(targetId, content)
+      if (selectedIdRef.current === targetId) {
+        setThread((current) => [...current, sent])
+      }
+      setConversations((current) =>
+        current.map((item) =>
+          item.id === targetId
+            ? { ...item, message: content, time: 'À l’instant', unread: 0 }
+            : item,
+        ),
+      )
+      if (selectedIdRef.current === targetId) setDraft('')
+      toast.success('Votre réponse a été envoyée.')
     } catch {
-      toast.error("Impossible d'envoyer la réponse.")
+      toast.error("Impossible d'envoyer votre message.")
     } finally {
       setSending(false)
     }
   }
 
-  const markAll = async () => {
-    const result = await messagesService.markAllRead()
-    setConversations(result.map((item) => ({ ...item, unread: 0 })))
-    toast.success('Tous les messages sont marqués comme lus.')
+  const handleComposerKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      event.currentTarget.form?.requestSubmit()
+    }
   }
 
   return (
@@ -78,129 +180,349 @@ export function MessagesPage() {
       <PageHeader
         eyebrow="Commerce"
         title="Messages"
-        description="Consultez les échanges entre les commerçants et la plateforme."
+        description="Consultez et poursuivez les échanges avec les commerçants de la plateforme."
         action={
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3 py-1.5 text-sm font-semibold text-brand">
-              <MessageSquareText size={17} /> {unreadCount} non lu{unreadCount > 1 ? 's' : ''}
-            </span>
-          </div>
+          <span
+            aria-live="polite"
+            className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold ring-1 ring-inset ${
+              unreadCount > 0
+                ? 'bg-primary/10 text-primary ring-primary/15'
+                : 'bg-base-200/70 text-base-content/55 ring-base-300/70'
+            }`}
+          >
+            <MessageSquareText size={17} />
+            {unreadCount > 0
+              ? `${formatBadge(unreadCount)} non lu${unreadCount > 1 ? 's' : ''}`
+              : 'Tout est lu'}
+          </span>
         }
       />
 
-      <div className="card mt-5 flex flex-col gap-4 p-4 lg:flex-row lg:items-stretch">
-        <div className="w-full lg:max-w-sm lg:shrink-0">
-          <div className="relative mb-3">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40" />
-            <input
-              type="search"
-              placeholder="Rechercher un commerçant..."
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              className="input w-full border-none bg-base-100 pl-11"
-            />
+      <div className="card mt-5 flex h-[calc(100dvh-11rem)] min-h-[540px] flex-col overflow-hidden p-0 lg:h-[calc(100dvh-13rem)] lg:flex-row">
+        <aside
+          className={`${
+            selected ? 'hidden lg:flex' : 'flex'
+          } min-h-0 w-full flex-col border-b border-base-200 lg:w-[340px] lg:shrink-0 lg:border-b-0 lg:border-r`}
+        >
+          <div className="flex items-start justify-between gap-3 px-4 pb-3 pt-4 sm:px-5">
+            <div>
+              <p className="text-sm font-bold text-base-content">Boîte de réception</p>
+              <p className="mt-1 text-xs text-base-content/45">
+                {conversations.length === 0
+                  ? 'Aucune conversation'
+                  : plural(conversations.length, 'conversation', 'conversations')}
+                {unreadCount > 0 &&
+                  ` · ${formatBadge(unreadCount)} non lu${unreadCount > 1 ? 's' : ''}`}
+              </p>
+            </div>
+            <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary">
+              <MessageSquareText size={17} />
+            </span>
           </div>
-          <div className="flex items-center justify-between px-1">
-            <p className="text-xs font-semibold uppercase tracking-wide text-base-content/50">Conversations</p>
+
+          <div className="px-3 sm:px-4">
+            <label className="relative block">
+              <Search
+                size={17}
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-base-content/35"
+              />
+              <input
+                type="text"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Rechercher un commerçant…"
+                aria-label="Rechercher une conversation"
+                className="input h-11 w-full border-base-200 bg-base-100 pl-10 pr-10 text-sm"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  aria-label="Effacer la recherche"
+                  className="absolute right-2.5 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-base-content/40 transition hover:bg-base-200 hover:text-base-content"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </label>
+          </div>
+
+          <div className="flex items-center justify-between gap-2 px-4 pb-2 pt-3 sm:px-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-base-content/35">
+              Conversations
+            </p>
             {unreadCount > 0 && (
-              <button type="button" onClick={markAll} className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:text-brand-soft">
-                <CheckCheck size={14} /> Tout marquer comme lu
+              <button
+                type="button"
+                onClick={markAll}
+                title="Tout marquer comme lu"
+                aria-label="Tout marquer comme lu"
+                className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[11px] font-semibold text-primary transition hover:bg-primary/10"
+              >
+                <CheckCheck size={14} />
+                <span className="hidden sm:inline">Tout marquer</span>
               </button>
             )}
           </div>
-          <div className="mt-2 max-h-[480px] space-y-1.5 overflow-y-auto pr-1">
+
+          <div className="aside-scroll min-h-0 flex-1 overflow-y-auto px-2 pb-3 sm:px-3">
             {loading ? (
-              <ConversationListSkeleton rows={6} />
+              <ConversationListSkeleton rows={6} className="space-y-1" />
+            ) : error ? (
+              <div className="flex h-full min-h-56 flex-col items-center justify-center px-5 text-center">
+                <span className="grid size-12 place-items-center rounded-2xl bg-rose-500/10 text-rose-500">
+                  <AlertCircle size={22} />
+                </span>
+                <p className="mt-3 text-sm font-semibold">Impossible de charger les messages</p>
+                <p className="mt-1 text-xs leading-5 text-base-content/50">
+                  Vérifiez votre connexion puis réessayez.
+                </p>
+                <button
+                  type="button"
+                  onClick={loadConversations}
+                  className="mt-4 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-content transition hover:bg-primary/90"
+                >
+                  Réessayer
+                </button>
+              </div>
             ) : filtered.length === 0 ? (
-              <p className="p-6 text-center text-sm text-base-content/50">Aucun message</p>
+              <div className="flex h-full min-h-56 flex-col items-center justify-center px-5 text-center">
+                <span className="grid size-12 place-items-center rounded-2xl bg-base-200 text-base-content/35">
+                  {search ? <Search size={22} /> : <Inbox size={22} />}
+                </span>
+                <p className="mt-3 text-sm font-semibold">
+                  {search ? 'Aucun résultat' : 'Aucune conversation'}
+                </p>
+                <p className="mt-1 max-w-[220px] text-xs leading-5 text-base-content/50">
+                  {search
+                    ? `Aucun échange ne correspond à « ${search} ».`
+                    : 'Les échanges avec les commerçants apparaîtront ici.'}
+                </p>
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => setSearch('')}
+                    className="mt-4 rounded-full bg-base-200 px-3.5 py-1.5 text-xs font-semibold text-base-content/65 transition hover:bg-base-300"
+                  >
+                    Effacer la recherche
+                  </button>
+                )}
+              </div>
             ) : (
               filtered.map((conversation) => (
                 <button
                   key={conversation.id}
                   type="button"
                   onClick={() => openConversation(conversation)}
-                  className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${selectedId === conversation.id ? 'border-brand bg-brand/5' : 'border-transparent hover:bg-base-100'}`}
+                  aria-pressed={selectedId === conversation.id}
+                  className={`group relative flex w-full items-start gap-3 rounded-2xl px-2.5 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+                    selectedId === conversation.id
+                      ? 'bg-primary/[0.07] ring-1 ring-inset ring-primary/15'
+                      : 'hover:bg-base-200/60'
+                  }`}
                 >
+                  {selectedId === conversation.id && (
+                    <span className="absolute inset-y-3 left-0 w-1 rounded-full bg-primary" />
+                  )}
                   <Avatar
                     src={conversation.avatar}
                     name={conversation.sender}
                     alt=""
-                    className={`size-10 shrink-0 rounded-full text-xs font-bold ${conversation.unread > 0 ? 'bg-brand text-white' : 'bg-brand/10 text-brand'}`}
+                    className={`size-11 shrink-0 rounded-full text-xs font-bold ${
+                      conversation.unread > 0
+                        ? 'bg-primary text-primary-content ring-2 ring-primary/15'
+                        : 'bg-primary/10 text-primary'
+                    }`}
                   />
                   <span className="min-w-0 flex-1">
-                    <span className="flex items-center justify-between gap-2">
-                      <span className={`truncate text-sm ${conversation.unread > 0 ? 'font-bold text-base-content' : 'font-semibold text-base-content/80'}`}>{conversation.sender}</span>
-                      <span className="shrink-0 text-[11px] text-base-content/45">{conversation.time}</span>
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span
+                        className={`truncate text-sm ${
+                          conversation.unread > 0
+                            ? 'font-bold text-base-content'
+                            : 'font-semibold text-base-content/85'
+                        }`}
+                      >
+                        {conversation.sender}
+                      </span>
+                      <span className="shrink-0 text-[10px] font-medium text-base-content/35">
+                        {conversation.time}
+                      </span>
                     </span>
-                    <span className="mt-0.5 flex items-center gap-1.5 text-xs text-base-content/55">
-                      <Store size={11} /> {conversation.shop}
+                    <span className="mt-1 flex items-center gap-1.5 text-[11px] text-base-content/45">
+                      <Store size={11} className="shrink-0" />
+                      <span className="truncate">{conversation.shop || 'Boutique'}</span>
+                    </span>
+                    <span
+                      className={`mt-1 block truncate text-xs leading-5 ${
+                        conversation.unread > 0
+                          ? 'font-medium text-base-content/70'
+                          : 'text-base-content/50'
+                      }`}
+                    >
+                      {conversation.message || 'Aucun message'}
                     </span>
                   </span>
-                  {conversation.unread > 0 && <span className="grid size-5 shrink-0 place-items-center rounded-full bg-brand text-[10px] font-bold text-white">{conversation.unread}</span>}
+                  {conversation.unread > 0 && (
+                    <span className="mt-0.5 grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-content">
+                      {formatBadge(conversation.unread)}
+                    </span>
+                  )}
                 </button>
               ))
             )}
           </div>
-        </div>
+        </aside>
 
-        <div className="flex min-h-[560px] min-w-0 flex-1 flex-col rounded-2xl border border-base-300 bg-base-200/40 p-4 sm:p-5">
+        <section
+          className={`${
+            selected ? 'flex' : 'hidden lg:flex'
+          } min-h-0 min-w-0 flex-1 flex-col bg-base-200/30`}
+        >
           {selected ? (
             <>
-              <div className="flex items-center justify-between gap-3 border-b border-base-300 pb-4">
-                <div className="flex items-center gap-3">
-                  <Avatar
-                    src={selected.avatar}
-                    name={selected.sender}
-                    alt=""
-                    className="size-11 shrink-0 rounded-full bg-brand text-sm font-bold text-white"
-                  />
-                  <div>
-                    <p className="flex items-center gap-1.5 font-bold text-base-content">
-                      {selected.sender}
-                      {selected.unread > 0 && <span className="rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-bold uppercase text-brand">Nouveau</span>}
-                    </p>
-                    <p className="text-sm text-base-content/60">{selected.shop}</p>
-                  </div>
+              <header className="flex items-center gap-3 border-b border-base-200 bg-base-100/80 px-3 py-3.5 backdrop-blur sm:px-5">
+                <button
+                  type="button"
+                  onClick={closeConversation}
+                  aria-label="Retour aux conversations"
+                  className="grid size-9 shrink-0 place-items-center rounded-full text-base-content/55 transition hover:bg-base-200 hover:text-base-content lg:hidden"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                <Avatar
+                  src={selected.avatar}
+                  name={selected.sender}
+                  alt=""
+                  className="size-11 shrink-0 rounded-full bg-primary text-sm font-bold text-primary-content"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold text-base-content">{selected.sender}</p>
+                  <p className="mt-0.5 flex items-center gap-1.5 text-xs text-base-content/50">
+                    <Store size={12} className="shrink-0" />
+                    <span className="truncate">{selected.shop || 'Boutique'}</span>
+                  </p>
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-2.5 py-1 text-xs font-semibold text-brand">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary ring-1 ring-inset ring-primary/15">
                   {selected.unread > 0 ? <Mail size={13} /> : <MailOpen size={13} />}
                   {selected.unread > 0 ? 'Non lu' : 'Lu'}
                 </span>
-              </div>
-              <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-5">
-                {thread.map((message) => (
-                  <div key={message.id} className={`flex ${message.from === 'me' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] break-words rounded-2xl px-4 py-3 shadow-sm ${message.from === 'me' ? 'rounded-br-sm bg-brand text-white' : 'rounded-bl-sm border border-base-300 bg-(--surface) text-base-content'}`}>
-                      <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
-                      <p className={`mt-1 text-right text-[11px] ${message.from === 'me' ? 'text-white/65' : 'text-base-content/45'}`}>{message.time}</p>
-                    </div>
+              </header>
+
+              <div
+                ref={threadRef}
+                role="log"
+                aria-live="polite"
+                className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-6"
+              >
+                <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.14em] text-base-content/30">
+                  <span className="h-px flex-1 bg-base-300/60" />
+                  Conversation
+                  <span className="h-px flex-1 bg-base-300/60" />
+                </div>
+                {threadLoading ? (
+                  <div className="space-y-4">
+                    <Skeleton rounded="rounded-2xl" className="h-16 w-2/3" />
+                    <Skeleton rounded="rounded-2xl" className="ml-auto h-20 w-3/4" />
+                    <Skeleton rounded="rounded-2xl" className="h-14 w-1/2" />
                   </div>
-                ))}
+                ) : threadError ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <span className="grid size-12 place-items-center rounded-2xl bg-rose-500/10 text-rose-500">
+                      <AlertCircle size={22} />
+                    </span>
+                    <p className="mt-3 text-sm font-semibold">Conversation indisponible</p>
+                    <button
+                      type="button"
+                      onClick={() => setThreadReloadToken((value) => value + 1)}
+                      className="mt-4 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-content transition hover:bg-primary/90"
+                    >
+                      Réessayer
+                    </button>
+                  </div>
+                ) : thread.length ? (
+                  thread.map((message) => {
+                    const isMine = message.sender === user?.id
+                    return (
+                      <div
+                        key={message.id}
+                        className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[82%] rounded-2xl px-4 py-2.5 shadow-sm sm:max-w-[72%] ${
+                            isMine
+                              ? 'rounded-br-md bg-primary text-primary-content'
+                              : 'rounded-bl-md border border-base-200 bg-base-100 text-base-content'
+                          }`}
+                        >
+                          <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
+                          <p
+                            className={`mt-1 text-[10px] ${
+                              isMine
+                                ? 'text-primary-content/65'
+                                : 'text-base-content/35'
+                            }`}
+                          >
+                            {message.time}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <p className="py-10 text-center text-sm text-base-content/45">
+                    Aucun message dans cette conversation.
+                  </p>
+                )}
               </div>
-              <form onSubmit={sendReply} className="flex items-end gap-2 border-t border-base-300 pt-4">
-                <textarea
-                  value={reply}
-                  onChange={(event) => setReply(event.target.value)}
-                  rows={2}
-                  maxLength={5000}
-                  placeholder="Écrivez votre réponse…"
-                  aria-label="Votre réponse"
-                  className="textarea textarea-bordered min-h-12 flex-1 resize-y bg-(--surface) text-sm text-base-content placeholder:text-base-content/45"
-                />
-                <button type="submit" disabled={!reply.trim() || sending} className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-white transition hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50">
-                  <Send size={16} /> <span className="hidden sm:inline">Répondre</span>
-                </button>
+
+              <form
+                onSubmit={sendReply}
+                className="border-t border-base-200 bg-base-100/90 p-3 sm:p-4"
+              >
+                <div className="flex items-end gap-2 rounded-2xl border border-base-300/80 bg-base-100 p-1.5 shadow-sm transition focus-within:border-primary/50 focus-within:ring-4 focus-within:ring-primary/10">
+                  <textarea
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    onKeyDown={handleComposerKeyDown}
+                    rows={1}
+                    disabled={sending}
+                    placeholder="Écrivez votre réponse…"
+                    aria-label="Votre réponse"
+                    className="max-h-32 min-h-10 flex-1 resize-none bg-transparent px-2.5 py-2 text-sm text-base-content placeholder:text-base-content/35 focus:outline-none disabled:opacity-60"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!draft.trim() || sending || threadLoading || threadError}
+                    aria-label={sending ? 'Envoi en cours' : 'Envoyer le message'}
+                    className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-primary px-3.5 text-sm font-semibold text-primary-content shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-45"
+                  >
+                    {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                    <span className="hidden sm:inline">{sending ? 'Envoi…' : 'Envoyer'}</span>
+                  </button>
+                </div>
+                <p className="mt-2 hidden px-1 text-[10px] text-base-content/35 sm:block">
+                  Entrée pour envoyer · Maj + Entrée pour une nouvelle ligne
+                </p>
               </form>
             </>
           ) : (
-            <div className="grid h-full min-h-64 place-items-center text-center">
-              <div>
-                <MailOpen size={40} className="mx-auto opacity-30" />
-                <p className="mt-2 text-sm text-base-content/50">Sélectionnez une conversation pour l’ouvrir</p>
+            <div className="flex h-full min-h-[420px] flex-col items-center justify-center px-6 py-12 text-center">
+              <span className="grid size-16 place-items-center rounded-[1.75rem] bg-gradient-to-br from-primary/15 to-primary/5 text-primary ring-1 ring-primary/15">
+                <MessageSquareText size={30} />
+              </span>
+              <h2 className="mt-4 text-lg font-bold tracking-tight text-base-content">
+                Sélectionnez une conversation
+              </h2>
+              <p className="mt-1 max-w-xs text-sm leading-6 text-base-content/50">
+                Choisissez un commerçant dans la liste pour consulter l’échange et répondre.
+              </p>
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-base-100 px-3 py-1.5 text-[11px] font-medium text-base-content/45 ring-1 ring-base-300/70">
+                <MailOpen size={13} /> Conversations synchronisées
               </div>
             </div>
           )}
-        </div>
+        </section>
       </div>
     </>
   )

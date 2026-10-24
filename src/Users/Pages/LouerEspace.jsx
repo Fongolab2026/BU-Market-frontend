@@ -26,6 +26,7 @@ import api, { endpoints } from '../../services/api'
 import { useAuth } from '../../context/AuthContext.jsx'
 import PhoneInput from '../../components/PhoneInput.jsx'
 import { getPhoneError } from '../../utils/phone.js'
+import { BURUNDI_LOCATIONS } from '../../data/burundiLocations.js'
 
 const industries = [
   'Alimentation et boissons',
@@ -37,31 +38,6 @@ const industries = [
   'Services',
   'Autre',
 ]
-
-const locations = {
-  Bujumbura: {
-    communes: ['Bujumbura', 'Isare', 'Kabezi', 'Kanyosha', 'Mubimbi', 'Mutambu', 'Mutimbuzi', 'Nyabiraba'],
-  },
-  Buhumuza: {
-    communes: ['Cankuzo', 'Cendajuru', 'Gisagara', 'Giteranyi', 'Muyinga', 'Ruyigi'],
-  },
-  Burunga: {
-    communes: ['Bururi', 'Makamba', 'Matana', 'Nyanza-Lac', 'Rutana'],
-  },
-  Butanyerera: {
-    communes: ['Busoni', 'Gashikanwa', 'Kayanza', 'Kiremba', 'Kirundo', 'Ngozi'],
-  },
-  Gitega: {
-    communes: ['Bugendana', 'Gitega', 'Giheta', 'Itaba', 'Makebuko', 'Mutaho', 'Ryansoro'],
-  },
-}
-
-const neighborhoods = {
-  Bujumbura: ['Bwiza', 'Buyenzi', 'Kamenge', 'Kinama', 'Kinindo', 'Ngagara', 'Nyakabiga', 'Rohero', 'Autre'],
-  Gitega: ['Centre-ville', 'Gihetangwe', 'Magarama', 'Yoba', 'Autre'],
-  Ngozi: ['Centre-ville', 'Kinyami', 'Muremera', 'Rubuye', 'Autre'],
-  Muyinga: ['Centre-ville', 'Cibitoke', 'Gasave', 'Kigoganya', 'Autre'],
-}
 
 const initialForm = {
   companyName: '',
@@ -135,11 +111,25 @@ export default function LouerEspace() {
   const [sending, setSending] = useState(false)
   const [activeStep, setActiveStep] = useState(0)
   const [completedSteps, setCompletedSteps] = useState([])
+  const [neighborhoodKey, setNeighborhoodKey] = useState('')
   const sectionRefs = useRef([])
   const swipe = useRef({ x: 0, y: 0, tracking: false })
 
-  const communes = form.province ? (locations[form.province]?.communes ?? []) : []
-  const neighborhoodOptions = neighborhoods[form.commune] || ['Centre-ville', 'Autre']
+  const communes = useMemo(
+    () => (form.province ? Object.keys(BURUNDI_LOCATIONS[form.province] ?? {}) : []),
+    [form.province],
+  )
+  const neighborhoodZones = useMemo(
+    () => (form.province && form.commune
+      ? (BURUNDI_LOCATIONS[form.province]?.[form.commune] ?? {})
+      : {}),
+    [form.province, form.commune],
+  )
+  const locationLabel = [
+    form.province,
+    form.commune,
+    form.neighborhood === 'Autre' ? form.otherNeighborhood : form.neighborhood,
+  ].filter(Boolean).join(' · ') || '—'
   const progress = Math.round((completedSteps.length / STEPS.length) * 100)
   const isLastStep = activeStep === STEPS.length - 1
 
@@ -159,9 +149,9 @@ export default function LouerEspace() {
     () => [
       { label: 'Boutique', value: form.companyName || '—', icon: Building2 },
       { label: 'Industrie', value: form.industry || '—', icon: Sparkles },
-      { label: 'Emplacement', value: form.province ? `${form.province}${form.commune ? ` · ${form.commune}` : ''}` : '—', icon: MapPin },
+      { label: 'Emplacement', value: locationLabel, icon: MapPin },
     ],
-    [form.companyName, form.industry, form.province, form.commune],
+    [form.companyName, form.industry, locationLabel],
   )
 
   const invalidateStepsFrom = (step) => {
@@ -178,13 +168,30 @@ export default function LouerEspace() {
 
   const handleProvinceChange = (event) => {
     setForm((current) => ({ ...current, province: event.target.value, commune: '', neighborhood: '', otherNeighborhood: '' }))
+    setNeighborhoodKey('')
     setFeedback(null)
     invalidateStepsFrom(activeStep)
   }
 
   const handleCommuneChange = (event) => {
     setForm((current) => ({ ...current, commune: event.target.value, neighborhood: '', otherNeighborhood: '' }))
+    setNeighborhoodKey('')
     setFeedback(null)
+    invalidateStepsFrom(activeStep)
+  }
+
+  /**
+   * La valeur de l'option combine la zone et le quartier pour distinguer les
+   * homonymes d'une même commune. Seul le nom du quartier est enregistré.
+   */
+  const handleNeighborhoodChange = (event) => {
+    const key = event.target.value
+    const separator = key.indexOf('::')
+    const neighborhood = separator >= 0 ? key.slice(separator + 2) : key
+    setNeighborhoodKey(key)
+    setForm((current) => ({ ...current, neighborhood, otherNeighborhood: '' }))
+    setFeedback(null)
+    setErrors((current) => ({ ...current, neighborhood: undefined, otherNeighborhood: undefined }))
     invalidateStepsFrom(activeStep)
   }
 
@@ -459,10 +466,10 @@ export default function LouerEspace() {
                       </div>
                     </div>
                     <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
-                      <Field label="Lien Facebook" name="facebook" value={form.facebook} error={errors.facebook} onChange={updateField} type="url" placeholder="https://facebook.com/..." />
-                      <Field label="Lien Instagram" name="instagram" value={form.instagram} error={errors.instagram} onChange={updateField} type="url" placeholder="https://instagram.com/..." />
-                      <Field label="Lien TikTok" name="tiktok" value={form.tiktok} error={errors.tiktok} onChange={updateField} type="url" placeholder="https://tiktok.com/@..." />
-                      <Field label="Site web" name="website" value={form.website} error={errors.website} onChange={updateField} type="url" placeholder="https://..." />
+                      <Field label="Lien Facebook" name="facebook" value={form.facebook} error={errors.facebook} onChange={updateField} type="url" placeholder="https://facebook.com ou optionnel" />
+                      <Field label="Lien Instagram" name="instagram" value={form.instagram} error={errors.instagram} onChange={updateField} type="url" placeholder="https://instagram.com ou optionnel" />
+                      <Field label="Lien TikTok" name="tiktok" value={form.tiktok} error={errors.tiktok} onChange={updateField} type="url" placeholder="https://tiktok.com ou optionnel" />
+                      <Field label="Site web" name="website" value={form.website} error={errors.website} onChange={updateField} type="url" placeholder="https://votre-site.com ou optionnel" />
                     </div>
                   </section>
                 )}
@@ -473,14 +480,14 @@ export default function LouerEspace() {
                       <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><MapPin size={22} aria-hidden="true" /></span>
                       <div>
                         <h2 id="location-heading" className="text-xl font-bold">Emplacement de l’entreprise</h2>
-                        <p className="mt-0.5 text-sm text-base-content/55">Choisissez une province, puis précisez la commune et le quartier</p>
+                        <p className="mt-0.5 text-sm text-base-content/55">Choisissez une province, puis précisez la commune et le quartier ou la colline</p>
                       </div>
                     </div>
                     <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
                       <Field label="Province" name="province" error={errors.province} required>
                         <select id="province" name="province" value={form.province} onChange={handleProvinceChange} required className="select select-bordered w-full bg-[var(--surface)] text-base-content">
                           <option value="" disabled>Sélectionner une province</option>
-                          {Object.keys(locations).map((province) => <option key={province} value={province}>{province}</option>)}
+                          {Object.keys(BURUNDI_LOCATIONS).map((province) => <option key={province} value={province}>{province}</option>)}
                         </select>
                       </Field>
                       <Field label="Commune" name="commune" error={errors.commune} required>
@@ -489,14 +496,21 @@ export default function LouerEspace() {
                           {communes.map((commune) => <option key={commune} value={commune}>{commune}</option>)}
                         </select>
                       </Field>
-                      <Field label="Quartier" name="neighborhood" error={errors.neighborhood} required>
-                        <select id="neighborhood" name="neighborhood" value={form.neighborhood} onChange={updateField} required disabled={!form.commune} className="select select-bordered w-full bg-[var(--surface)] text-base-content disabled:opacity-50">
-                          <option value="" disabled>{form.commune ? 'Sélectionner un quartier' : 'Choisir d’abord une commune'}</option>
-                          {neighborhoodOptions.map((neighborhood) => <option key={neighborhood} value={neighborhood}>{neighborhood}</option>)}
+                      <Field label="Quartier / colline" name="neighborhood" error={errors.neighborhood} required>
+                        <select id="neighborhood" name="neighborhood" value={neighborhoodKey} onChange={handleNeighborhoodChange} required disabled={!form.commune} className="select select-bordered w-full bg-[var(--surface)] text-base-content disabled:opacity-50">
+                          <option value="" disabled>{form.commune ? 'Sélectionner un quartier ou une colline' : 'Choisir d’abord une commune'}</option>
+                          {Object.entries(neighborhoodZones).map(([zone, quartiers]) => (
+                            <optgroup key={zone} label={`Zone ${zone}`}>
+                              {quartiers.map((neighborhood, index) => (
+                                <option key={`${zone}-${neighborhood}-${index}`} value={`${zone}::${neighborhood}`}>{neighborhood}</option>
+                              ))}
+                            </optgroup>
+                          ))}
+                          <option value="Autre">Autre</option>
                         </select>
                       </Field>
                       {form.neighborhood === 'Autre' && (
-                        <Field label="Précisez le quartier" name="otherNeighborhood" value={form.otherNeighborhood} error={errors.otherNeighborhood} onChange={updateField} required placeholder="Nom du quartier" />
+                        <Field label="Précisez le quartier ou la colline" name="otherNeighborhood" value={form.otherNeighborhood} error={errors.otherNeighborhood} onChange={updateField} required placeholder="Nom du quartier ou de la colline" />
                       )}
                     </div>
                   </section>

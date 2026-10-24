@@ -9,7 +9,6 @@ import {
   EyeOff,
   Lock,
   Mail,
-  MapPin,
   ShieldCheck,
   Sparkles,
   Store,
@@ -18,9 +17,8 @@ import {
 import toast from 'react-hot-toast'
 import AuthField from '../../components/AuthField.jsx'
 import AuthLayout from '../../components/AuthLayout.jsx'
-import PhoneInput from '../../components/PhoneInput.jsx'
 import { userApi } from '../../services'
-import { getPhoneError } from '../../utils/phone.js'
+import { extractApiError } from '../../utils/apiError.js'
 
 export default function Inscription() {
   const navigate = useNavigate()
@@ -28,8 +26,6 @@ export default function Inscription() {
     username: '',
     email: '',
     first_name: '',
-    phone: '',
-    adresse: '',
     profile_pic: null,
     password: '',
     password_confirm: '',
@@ -48,24 +44,12 @@ export default function Inscription() {
     }
   }
 
-  const handlePhoneChange = (phone) => {
-    setFormData((prev) => ({ ...prev, phone }))
-    if (errors.phone) {
-      setErrors((prev) => ({ ...prev, phone: '' }))
-    }
-  }
-
   const validateForm = () => {
     const newErrors = {}
     if (!formData.username.trim()) newErrors.username = "Nom d'utilisateur requis"
     if (!formData.email.trim()) newErrors.email = 'Email requis'
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Email invalide'
     if (!formData.first_name.trim()) newErrors.first_name = 'Prénom requis'
-    // Le téléphone est optionnel côté backend : on le valide seulement s'il est saisi
-    if (formData.phone && formData.phone.trim()) {
-      const phoneError = getPhoneError(formData.phone, 'bi')
-      if (phoneError) newErrors.phone = phoneError
-    }
     if (!formData.password) newErrors.password = 'Mot de passe requis'
     else if (formData.password.length < 8) newErrors.password = '8 caractères minimum'
     if (formData.password !== formData.password_confirm)
@@ -84,33 +68,16 @@ export default function Inscription() {
     setLoading(true)
     try {
       // Don't send password_confirm to backend
-      const { password_confirm, profile_pic, ...payload } = formData
+      const payload = { ...formData }
+      delete payload.password_confirm
+      delete payload.profile_pic
       await userApi.create(payload)
       toast.success('Inscription réussie, connectez-vous')
       navigate('/connexion')
     } catch (err) {
       console.error('inscription:', err)
-      if (err.response?.data) {
-        const data = err.response.data
-        if (typeof data === 'object' && !Array.isArray(data)) {
-          // Field-level validation errors from DRF
-          const fieldErrors = {}
-          Object.keys(data).forEach((key) => {
-            if (Array.isArray(data[key])) {
-              fieldErrors[key] = data[key].join(', ')
-            } else {
-              fieldErrors[key] = data[key]
-            }
-          })
-          setErrors(fieldErrors)
-        } else if (data.detail) {
-          setErrors({ general: data.detail })
-        } else {
-          setErrors({ general: "Une erreur est survenue lors de l'inscription" })
-        }
-      } else {
-        setErrors({ general: 'Erreur de connexion au serveur' })
-      }
+      const { general, fields } = extractApiError(err)
+      setErrors({ ...fields, ...(general ? { general } : {}) })
     } finally {
       setLoading(false)
     }
@@ -217,35 +184,6 @@ export default function Inscription() {
           error={errors.email}
           required
         />
-
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-base-content" htmlFor="phone">
-              Téléphone
-            </label>
-            <PhoneInput
-              id="phone"
-              name="phone"
-              height="3rem"
-              error={errors.phone || undefined}
-              placeholder="Numéro de téléphone"
-              value={formData.phone}
-              onChange={handlePhoneChange}
-            />
-          </div>
-          <AuthField
-            id="adresse"
-            label="Adresse"
-            icon={MapPin}
-            type="text"
-            name="adresse"
-            autoComplete="street-address"
-            placeholder="Votre adresse"
-            value={formData.adresse}
-            onChange={handleChange}
-            error={errors.adresse}
-          />
-        </div>
 
         <div className="border-t border-base-200 pt-6">
           <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-base-content/70">

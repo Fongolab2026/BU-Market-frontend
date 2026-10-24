@@ -20,6 +20,15 @@ import { DashboardSkeleton } from '../../../../../components/skeletons'
 const iconByStat = { users: UsersRound, shops: Store, products: Package, moderation: AlertTriangle }
 const activityIcon = { shop: Store, user: UsersRound, alert: AlertTriangle, settings: CheckCircle2 }
 const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
+
+const formatWeekDay = (value) => {
+  if (!value) return ''
+  const date = new Date(`${value}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return ''
+  const label = date.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '')
+  return label.charAt(0).toUpperCase() + label.slice(1)
+}
+
 const queueTarget = (type) =>
   type === 'Boutique'
     ? '/admin/boutiques?status=pending'
@@ -49,7 +58,11 @@ export function DashboardPage() {
   if (error) return <DashboardError />
   if (!data) return <DashboardSkeleton />
 
-  const maxActivity = Math.max(...data.weeklyActivity, 0)
+  const weeklyActivity = data.weeklyActivity || []
+  const weeklyLabels = weeklyActivity.map(
+    (_, index) => formatWeekDay(data.weeklyActivityDates?.[index]) || weekDays[index],
+  )
+  const maxActivity = Math.max(...weeklyActivity, 0)
 
   return (
     <div className="space-y-6">
@@ -86,7 +99,7 @@ export function DashboardPage() {
                 Activité de la plateforme
               </h2>
               <p className="mt-0.5 text-xs text-base-content/50">
-                Nouvelles inscriptions et publications cette semaine
+                Commandes enregistrées cette semaine
               </p>
             </div>
             <span className="flex items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-3 py-1.5 text-xs font-medium text-base-content/60">
@@ -96,21 +109,22 @@ export function DashboardPage() {
           </div>
 
           <div className="flex h-40 items-end justify-between gap-1 border-b border-base-300 px-1 pb-3 sm:h-48 sm:gap-2 sm:px-4">
-            {data.weeklyActivity.map((value, index) => {
+            {weeklyActivity.map((value, index) => {
               const heightPct = maxActivity > 0 ? Math.max(8, (value / maxActivity) * 100) : 8
               const isPeak = maxActivity > 0 && value === maxActivity
+              const label = weeklyLabels[index]
               return (
-                <div key={weekDays[index]} className="flex flex-1 flex-col items-center gap-2" style={{ maxWidth: 44 }}>
+                <div key={`${data.weeklyActivityDates?.[index] || index}`} className="flex flex-1 flex-col items-center gap-2" style={{ maxWidth: 44 }}>
                   <span className="text-[11px] font-bold text-base-content/70">{value}</span>
                   <div className="flex h-24 w-full items-end justify-center rounded-t-lg bg-base-200/70 sm:h-32">
                     <div
                       className={`w-full rounded-t-lg transition-all ${isPeak ? 'bg-primary' : 'bg-primary/20'}`}
                       style={{ height: `${heightPct}%` }}
-                      aria-label={`${weekDays[index]} : ${value}`}
+                      aria-label={`${label} : ${value}`}
                     />
                   </div>
                   <span className={`text-xs ${isPeak ? 'font-bold text-base-content' : 'text-base-content/50'}`}>
-                    {weekDays[index]}
+                    {label}
                   </span>
                 </div>
               )

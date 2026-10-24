@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
@@ -29,8 +29,6 @@ import {
 } from 'lucide-react'
 import { Divider } from 'primereact/divider'
 import { Button } from 'primereact/button'
-import { InputText } from 'primereact/inputtext'
-import { InputTextarea } from 'primereact/inputtextarea'
 import CardProducts from '../products/ui/cardProduct'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
@@ -39,6 +37,7 @@ import { productApi, categoryApi, shopApi } from '../../services'
 import HeroSlideshow from '../../components/HeroSlideshow.jsx'
 import { ProductGridSkeleton } from '../../components/skeletons'
 import { apiPost, endpoints } from '../../services/api.js'
+import { extractApiError } from '../../utils/apiError.js'
 import { useSpaceRequest } from '../../hooks/useSpaceRequest.js'
 
 const TRUST_POINTS = [
@@ -90,6 +89,8 @@ export default function Home() {
   const [initialLoading, setInitialLoading] = useState(true)
   const [error, setError] = useState('')
 
+  // Le nom et l'e-mail ne sont plus demandés : le backend reprend ceux du
+  // compte connecté pour éviter toute usurpation d'identité.
   const [contactForm, setContactForm] = useState({ subject: '', message: '' })
   const [contactSent, setContactSent] = useState(false)
   const [contactSending, setContactSending] = useState(false)
@@ -97,6 +98,46 @@ export default function Home() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   // Bannière « demande en attente » masquable à la demande du client.
   const [pendingBannerDismissed, setPendingBannerDismissed] = useState(false)
+  const [pendingBannerLeaving, setPendingBannerLeaving] = useState(false)
+  const pendingBannerRef = useRef(null)
+  const [pendingBannerHeight, setPendingBannerHeight] = useState(0)
+  // Le bandeau reste fixé sous la barre de navigation, comme s'il était posé
+  // en haut de la section hero.
+  const showPendingBanner = status === 'pending' && !pendingBannerDismissed
+  // On le garde monté pendant l'animation de sortie.
+  const renderPendingBanner = showPendingBanner || pendingBannerLeaving
+
+  // Le bandeau commence à disparaître après 3 secondes.
+  useEffect(() => {
+    if (!showPendingBanner || pendingBannerLeaving) return undefined
+    const timer = window.setTimeout(() => setPendingBannerLeaving(true), 3000)
+    return () => window.clearTimeout(timer)
+  }, [showPendingBanner, pendingBannerLeaving])
+
+  // Une fois l'animation terminée, on retire réellement le bandeau du DOM.
+  useEffect(() => {
+    if (!pendingBannerLeaving) return undefined
+    const timer = window.setTimeout(() => {
+      setPendingBannerDismissed(true)
+      setPendingBannerLeaving(false)
+    }, 320)
+    return () => window.clearTimeout(timer)
+  }, [pendingBannerLeaving])
+
+  // Réserve dans le hero la hauteur exacte du bandeau fixe pour ne jamais
+  // recouvrir le titre, quelle que soit la largeur de l'écran.
+  useEffect(() => {
+    const node = pendingBannerRef.current
+    if (!renderPendingBanner || !node) {
+      setPendingBannerHeight(0)
+      return undefined
+    }
+    const updateHeight = () => setPendingBannerHeight(node.offsetHeight)
+    updateHeight()
+    const observer = new ResizeObserver(updateHeight)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [renderPendingBanner])
 
   useEffect(() => {
     const load = async () => {
@@ -179,11 +220,12 @@ export default function Home() {
       setContactForm({ subject: '', message: '' })
       setTimeout(() => setContactSent(false), 5000)
     } catch (err) {
-      const detail = err.response?.data?.detail || err.response?.data?.message
+      const { general, fields } = extractApiError(err)
       setContactError(
-        typeof detail === 'string'
-          ? detail
-          : "Impossible d'envoyer le message. Veuillez réessayer plus tard.",
+        general ||
+          fields.message ||
+          fields.subject ||
+          "Impossible d'envoyer le message. Veuillez réessayer plus tard.",
       )
     } finally {
       setContactSending(false)
@@ -198,19 +240,24 @@ export default function Home() {
         onCloseMobile={() => setMobileNavOpen(false)}
       />
 
-      <main
-        onClick={() => setMobileNavOpen(false)}
-        className={mobileNavOpen ? 'blur-sm md:blur-none' : ''}
-      >
-        {/* ---------- Demande de location en attente ---------- */}
-        {status === 'pending' && !pendingBannerDismissed && (
+      {/* ---------- Demande de location en attente ---------- */}
+      {renderPendingBanner && (
           <section
-            className="mx-auto max-w-7xl px-4 pt-6 sm:px-6"
+            className={`pointer-events-none fixed inset-x-0 top-[4.5rem] z-40 px-4 transition-all duration-300 ease-out motion-reduce:transition-none sm:px-6 ${
+              pendingBannerLeaving
+                ? '-translate-y-2 scale-[0.98] opacity-0'
+                : 'translate-y-0 scale-100 opacity-100'
+            }`}
             role="status"
             aria-live="polite"
             aria-label="Demande de location en attente de confirmation"
           >
-            <div className="flex items-start gap-3 rounded-2xl border border-accent/40 bg-accent/10 p-4 shadow-sm sm:items-center">
+            <div
+              ref={pendingBannerRef}
+              className={`mx-auto flex max-w-7xl items-start gap-3 rounded-2xl border border-accent/40 bg-base-100/95 p-4 shadow-lg shadow-base-content/10 backdrop-blur-xl sm:items-center ${
+                pendingBannerLeaving ? 'pointer-events-none' : 'pointer-events-auto'
+              }`}
+            >
               <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent/20 text-accent">
                 <Clock size={20} aria-hidden="true" />
               </span>
@@ -226,7 +273,7 @@ export default function Home() {
               </div>
               <button
                 type="button"
-                onClick={() => setPendingBannerDismissed(true)}
+                onClick={() => setPendingBannerLeaving(true)}
                 className="grid size-8 shrink-0 place-items-center rounded-lg text-base-content/40 transition hover:bg-base-200 hover:text-base-content"
                 aria-label="Masquer cette information"
               >
@@ -234,8 +281,12 @@ export default function Home() {
               </button>
             </div>
           </section>
-        )}
+      )}
 
+      <main
+        onClick={() => setMobileNavOpen(false)}
+        className={mobileNavOpen ? 'blur-sm md:blur-none' : ''}
+      >
         {/* ---------- Bandeau d'accueil ---------- */}
         <section className="home-hero relative overflow-hidden text-primary-content">
           {/* Diaporama de fond + voile pour la lisibilité du texte */}
@@ -243,7 +294,14 @@ export default function Home() {
           <div className="absolute -left-20 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
           <div className="absolute -bottom-28 right-0 h-80 w-80 rounded-full bg-accent/20 blur-3xl" aria-hidden="true" />
 
-          <div className="relative mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-16 sm:px-6 md:py-24">
+          <div
+            className="relative mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 pb-16 pt-16 transition-[padding] duration-300 ease-out motion-reduce:transition-none sm:px-6 md:pb-24 md:pt-24"
+            style={
+              renderPendingBanner && pendingBannerHeight
+                ? { paddingTop: `${pendingBannerHeight + 24}px` }
+                : undefined
+            }
+          >
             <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-sm font-medium backdrop-blur">
               <Sparkles size={16} className="text-accent" aria-hidden="true" />
               Nouvelle collection disponible
@@ -691,66 +749,48 @@ export default function Home() {
                 ) : (
                   <form onSubmit={handleContactSubmit}>
                     {contactError && (
-                      <div className="mb-6 p-4 rounded-xl bg-error/10 border border-error/30 flex items-start gap-3" role="alert">
-                        <div className="flex-shrink-0 mt-0.5">
-                          <svg className="size-5 text-error" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <p className="text-sm text-error">{contactError}</p>
-                      </div>
+                      <p className="mb-4 rounded-lg bg-error/10 px-3 py-2 text-sm text-error">
+                        {contactError}
+                      </p>
                     )}
                     <div className="mb-4">
-                      <label htmlFor="contact-subject" className="mb-2 block text-sm font-semibold text-base-content">
-                        Sujet <span className="text-error" aria-hidden="true">*</span>
+                      <label htmlFor="contact-subject" className="mb-1 block text-sm font-semibold text-base-content">
+                        Sujet
                       </label>
-                      <select
+                      <input
+                        type="text"
                         id="contact-subject"
                         required
+                        maxLength={200}
                         value={contactForm.subject}
                         onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
-                        className="select select-bordered w-full h-12 px-4 text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20 transition-colors"
-                      >
-                        <option value="" disabled>Sélectionnez un sujet</option>
-                        <option value="question">Question générale</option>
-                        <option value="technical">Problème technique</option>
-                        <option value="order">Question sur une commande</option>
-                        <option value="payment">Problème de paiement</option>
-                        <option value="delivery">Livraison</option>
-                        <option value="return">Retour / Remboursement</option>
-                        <option value="partnership">Partenariat / Devenir vendeur</option>
-                        <option value="other">Autre</option>
-                      </select>
+                        className="field-input h-12 w-full px-4 text-sm"
+                        placeholder="Objet de votre message"
+                      />
                     </div>
                     <div className="mb-4">
-                      <label htmlFor="contact-message" className="mb-2 block text-sm font-semibold text-base-content">
-                        Message <span className="text-error" aria-hidden="true">*</span>
+                      <label htmlFor="contact-message" className="mb-1 block text-sm font-semibold text-base-content">
+                        Message
                       </label>
                       <textarea
                         id="contact-message"
+                        rows={5}
                         required
-                        rows={6}
+                        maxLength={5000}
                         value={contactForm.message}
                         onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                        className="textarea textarea-bordered w-full h-40 px-4 py-3 text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20 transition-colors resize-y"
-                        placeholder="Décrivez votre demande en détail..."
-                        aria-describedby="message-hint"
-                      ></textarea>
-                      <p id="message-hint" className="mt-1.5 text-xs text-base-content/50">Soyez le plus précis possible pour que nous puissions vous aider rapidement.</p>
+                        className="field-input min-h-32 w-full resize-y px-4 py-3 text-sm"
+                        placeholder="Votre message..."
+                      />
                     </div>
                     <Button
                       type="submit"
                       disabled={contactSending}
-                      className="mt-4 w-full sm:w-auto gap-2 px-6 py-3"
+                      className="mt-2 gap-2"
                       severity="primary"
                     >
                       <Send size={18} aria-hidden="true" />
-                      {contactSending ? (
-                        <>
-                          <span className="animate-spin mr-2">⏳</span>
-                          Envoi en cours...
-                        </>
-                      ) : 'Envoyer le message'}
+                      {contactSending ? 'Envoi...' : 'Envoyer le message'}
                     </Button>
                   </form>
                 )}

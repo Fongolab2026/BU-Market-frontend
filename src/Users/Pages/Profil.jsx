@@ -7,14 +7,16 @@ import { useAuth } from '../../context/AuthContext.jsx'
 import api, { endpoints } from '../../services/api'
 import { authApi } from '../../services/authService'
 import { userApi } from '../../services/userService'
-import { resolveRole } from '../../utils/roles.js'
+import { hasRentedSpace, resolveRole } from '../../utils/roles.js'
 import PhoneInput from '../../components/PhoneInput.jsx'
 import { getPhoneError } from '../../utils/phone.js'
 
 function formFromUser(source) {
   return {
     firstName: source?.firstName ?? source?.first_name ?? '',
-    lastName: source?.lastName ?? source?.last_name ?? '',
+    // Le backend ne stocke pas de nom de famille séparé : le champ « Nom »
+    // affiche donc le nom d'utilisateur actuel du compte (lecture seule).
+    username: source?.username ?? '',
     phone: source?.phone ?? source?.phone_number ?? '',
     adresse: source?.adresse ?? source?.address ?? source?.location ?? '',
     email: source?.email ?? '',
@@ -121,6 +123,9 @@ export default function Profil() {
   const displayName =
     user?.firstName || user?.first_name || user?.username || 'Utilisateur'
   const profileImage = profilePreview || user?.profile_pic || user?.profilePic || ''
+  // Téléphone et adresse ne sont demandés qu'aux utilisateurs ayant loué un
+  // espace : on les masque tant que le compte est encore un simple acheteur.
+  const showContactFields = hasRentedSpace(user)
 
   const profileSections = [
     { id: 'infos', label: 'Informations personnelles', icon: UserRound },
@@ -152,7 +157,10 @@ export default function Profil() {
   const handleProfileSubmit = async (event) => {
     event.preventDefault()
     if (saving) return
-    const phoneError = (form.phone || '').trim() ? getPhoneError(form.phone, 'bi') : null
+    const phoneError =
+      showContactFields && (form.phone || '').trim()
+        ? getPhoneError(form.phone, 'bi')
+        : null
     setPhoneError(phoneError)
     if (phoneError) {
       toast.error(phoneError)
@@ -161,11 +169,12 @@ export default function Profil() {
     setSaving(true)
     try {
       let updatedProfile = user
+      const contactFields = showContactFields
+        ? { phone: form.phone, adresse: form.adresse }
+        : {}
       const { data } = await api.patch(endpoints.users.me, {
         first_name: form.firstName,
-        last_name: form.lastName,
-        phone: form.phone,
-        adresse: form.adresse,
+        ...contactFields,
       })
       updatedProfile = { ...updatedProfile, ...data }
       if (profileFile) {
@@ -177,11 +186,10 @@ export default function Profil() {
       signIn({
         ...updatedProfile,
         firstName: form.firstName,
-        lastName: form.lastName,
         first_name: form.firstName,
-        last_name: form.lastName,
-        phone: form.phone,
-        adresse: form.adresse,
+        ...(showContactFields
+          ? { phone: form.phone, adresse: form.adresse }
+          : {}),
         email: form.email,
       })
       editedRef.current = false
@@ -323,13 +331,17 @@ export default function Profil() {
             </div>
             <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
               <Field label="Prénom" name="firstName" value={form.firstName} onChange={updateField} required placeholder="Ex. Espoir" />
-              <Field label="Nom" name="lastName" value={form.lastName} onChange={updateField} required placeholder="Ex. Durand" />
-              <Field label="Téléphone" name="phone" isPhone error={phoneError} value={form.phone} onChange={(phone) => {
-                editedRef.current = true
-                setForm((current) => ({ ...current, phone }))
-                setPhoneError((phone || '').trim() ? getPhoneError(phone, 'bi') : null)
-              }} />
-              <Field label="Adresse" name="adresse" value={form.adresse} onChange={updateField} placeholder="Ex. Bujumbura, Rohero" className="sm:col-span-2" />
+              <Field label="Nom" name="username" value={form.username} readOnly placeholder="Nom du compte" />
+              {showContactFields && (
+                <>
+                  <Field label="Téléphone" name="phone" isPhone error={phoneError} value={form.phone} onChange={(phone) => {
+                    editedRef.current = true
+                    setForm((current) => ({ ...current, phone }))
+                    setPhoneError((phone || '').trim() ? getPhoneError(phone, 'bi') : null)
+                  }} />
+                  <Field label="Adresse" name="adresse" value={form.adresse} onChange={updateField} placeholder="Ex. Bujumbura, Rohero" className="sm:col-span-2" />
+                </>
+              )}
               <Field label="Adresse e-mail" name="email" type="email" value={form.email} onChange={updateField} readOnly className="sm:col-span-2" />
             </div>
             <div className="mt-6 flex items-center justify-end gap-3 border-t border-base-300/70 pt-5">

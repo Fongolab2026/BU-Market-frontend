@@ -1,4 +1,4 @@
-import { endpoints, apiGet, apiPost, apiPatch, apiDelete } from "../../../../../services/api.js";
+import { endpoints, api, apiGet, apiPost, apiPatch, apiDelete } from "../../../../../services/api.js";
 import {
   cleanFilters,
   formatDate,
@@ -19,74 +19,54 @@ export const utilisateurEndpoints = {
 };
 
 /** Libelles de l'interface admin -> roles stockes en base. */
-const roleToApi = { admin: "admin", merchant: "merchant", buyer: "buyer" };
+const roleToApi = { admin: "admin", merchant: "merchant", client: "client" };
 
 /** Roles Django -> libelles de l'interface admin. */
 const roleToLabel = {
   superadmin: "admin",
   admin: "admin",
   seller: "merchant",
-  buyer: "buyer",
+  buyer: "client",
 };
 
-const mapUser = (user) => {
-  const apiRole = user.apiRole || user.role || "buyer";
-  return {
-    ...user,
-    // Role brut conserve pour ne pas retrograder un superadmin lors d'une
-    // simple modification de son profil.
-    apiRole,
-    isSuperAdmin: apiRole === "superadmin",
-    firstName: user.firstName || user.username || "Sans nom",
-    initials: initialsOf(user.firstName || user.username),
-    role: roleToLabel[apiRole] || "buyer",
-    phone: user.phone || "",
-    location: user.location || "Non précisée",
-    joinedAt: formatDate(user.joinedAt),
-    lastActive: user.lastActive ? formatRelative(user.lastActive) : "Jamais",
-    shop: user.shop
-      ? { ...user.shop, name: user.shop.name || user.username, status: user.shop.status }
-      : null,
-    timeline: (user.timeline || []).map((entry) => ({
-      ...entry,
-      date: formatDateTime(entry.date),
-    })),
-  };
-};
-
-const mapPage = (page) => ({
-  ...page,
-  results: page.results.map(mapUser),
+const mapUser = (user) => ({
+  ...user,
+  firstName: user.firstName || user.username || "Sans nom",
+  initials: initialsOf(user.firstName || user.username),
+  profilePic: user.profilePic || user.profile_pic || null,
+  role: roleToLabel[user.role] || "client",
+  phone: user.phone || "",
+  location: user.location || "Non précisée",
+  joinedAt: formatDate(user.joinedAt),
+  lastActive: user.lastActive ? formatRelative(user.lastActive) : "Jamais",
+  shop: user.shop
+    ? {
+        ...user.shop,
+        name: user.shop.name || user.username,
+        status: user.shop.status,
+        shopImage: user.shop.shopImage || null,
+        creatorPhoto: user.shop.creatorPhoto || null,
+      }
+    : null,
+  timeline: (user.timeline || []).map((entry) => ({
+    ...entry,
+    date: formatDateTime(entry.date),
+  })),
 });
 
-const toPayload = (input) => {
-  const phone = (input.phone || "").trim();
-  const payload = {
-    username: (input.username || "").trim(),
-    firstName: (input.firstName || "").trim(),
-    lastName: (input.lastName || "").trim(),
-    email: (input.email || "").trim(),
-    phone: phone === "+257" ? "" : phone,
-    location: (input.location || "").trim(),
-    role: roleToApi[input.role] || input.role,
-  };
-
-  // Le formulaire ne propose pas de role « superadmin » distinct : on
-  // conserve le role d'origine si l'administrateur n'a pas change la valeur.
-  if (input.apiRole === "superadmin" && payload.role === "admin") {
-    payload.role = "superadmin";
-  }
-
-  const password = (input.password || "").trim();
-  if (password) payload.password = password;
-
-  return payload;
-};
+const toPayload = (input) => ({
+  firstName: (input.firstName || "").trim(),
+  email: (input.email || "").trim(),
+  phone: (input.phone || "").trim(),
+  location: (input.location || "").trim(),
+  role: roleToApi[input.role] || input.role,
+});
 
 export const utilisateursService = {
   list: async ({ query = "", role = "all", status = "all", page = 1, perPage = 5 } = {}) => {
     const params = cleanFilters({ search: query, role, status, page, perPage });
-    return mapPage(toPage(await apiGet(utilisateurEndpoints.list, params), perPage));
+    const response = toPage(await apiGet(utilisateurEndpoints.list, params), perPage);
+    return { ...response, results: response.results.map(mapUser) };
   },
   detail: async (id) => {
     const user = await apiGet(utilisateurEndpoints.detail(id));
@@ -101,6 +81,12 @@ export const utilisateursService = {
   update: async (id, input) => {
     const updated = await apiPatch(utilisateurEndpoints.update(id), toPayload(input));
     return mapUser(updated);
+  },
+  updatePhoto: async (id, file) => {
+    const data = new FormData();
+    data.append("profilePic", file);
+    const response = await api.patch(utilisateurEndpoints.update(id), data);
+    return mapUser(response.data);
   },
   updateStatus: async (id, status) => {
     const updated = await apiPatch(utilisateurEndpoints.setStatus(id), { status });

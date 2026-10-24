@@ -157,6 +157,7 @@ export const mapProduct = (product) => ({
   shopStatus: product.shopStatus || "",
   category: product.categoryName || product.category_name || product.category || "",
   categoryId: product.categoryId ?? product.category ?? null,
+  details: product.details || "",
   mainImage: product.main_image || null,
 });
 

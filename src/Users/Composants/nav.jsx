@@ -1,11 +1,12 @@
 import {
+  Bell,
   ChevronDown,
   ClipboardList,
-  Bell,
   Heart,
   LogOut,
   Menu,
   Moon,
+  Package,
   Repeat,
   Settings,
   ShoppingCart,
@@ -21,8 +22,8 @@ import { useAuth } from "../../context/AuthContext.jsx";
 import { useCart } from "../../context/CartContext.jsx";
 import { useTheme } from "../../context/ThemeContext.jsx";
 import { useFavorites } from "../../hooks/useFavorites";
-import { notificationApi, orderApi } from "../../services";
-import { clearTokens, isAuthenticated } from "../../services/api";
+import { apiGet, clearTokens, endpoints, isAuthenticated } from "../../services/api";
+import { BUYER_NOTIFICATIONS_UPDATED } from "../../services/buyerNotificationService.js";
 
 const NAV_LINKS = [
   { label: "Accueil", path: "/accueil" },
@@ -35,8 +36,6 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
   const navigate = useNavigate();
   const menuRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [pendingOrderCount, setPendingOrderCount] = useState(0);
-  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
   const [internalMobileOpen, setInternalMobileOpen] = useState(false);
   const mobileOpen = controlledOpen ?? internalMobileOpen;
   const toggleMobile = () => {
@@ -52,9 +51,12 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
   const { user, signOut } = useAuth();
   const { favoriteIds, loading: favoritesLoading } = useFavorites();
   const { itemCount: cartCount } = useCart();
+  const [pendingOrderCount, setPendingOrderCount] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
   const favoriteCount = favoriteIds.size;
   const authenticated = isAuthenticated();
   const showLandingAuth = variant === "landing";
+  const isBuyer = authenticated && !showLandingAuth && user?.role === "client";
 
   const displayName =
     user?.firstName || user?.first_name || user?.username || "Utilisateur";
@@ -66,70 +68,6 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
     user?.profile_pic || user?.profilePic || user?.avatar || user?.photo;
 
   useEffect(() => {
-    if (!authenticated) {
-      setPendingOrderCount(0);
-      return undefined;
-    }
-
-    let active = true;
-    const refreshPendingOrders = async () => {
-      try {
-        let page = 1;
-        let pending = 0;
-        let hasNextPage = true;
-        while (hasNextPage) {
-          const { data } = await orderApi.list({ page });
-          const orders = Array.isArray(data) ? data : data?.results ?? [];
-          pending += orders.filter((order) => order.status === 'pending').length;
-          hasNextPage = !Array.isArray(data) && Boolean(data?.next);
-          page += 1;
-        }
-        if (active) setPendingOrderCount(pending);
-      } catch {
-        // La navigation reste utilisable si le compteur ne peut pas être chargé.
-      }
-    };
-
-    refreshPendingOrders();
-    const intervalId = window.setInterval(refreshPendingOrders, 30000);
-    window.addEventListener('focus', refreshPendingOrders);
-    return () => {
-      active = false;
-      window.clearInterval(intervalId);
-      window.removeEventListener('focus', refreshPendingOrders);
-    };
-  }, [authenticated, user?.id]);
-
-  useEffect(() => {
-    if (!authenticated) {
-      setUnreadNotificationCount(0);
-      return undefined;
-    }
-
-    let active = true;
-    const refreshNotifications = async () => {
-      try {
-        const { data } = await notificationApi.list({ is_read: false, page: 1 });
-        const unread = Array.isArray(data)
-          ? data.length
-          : Number(data?.count ?? data?.total ?? data?.results?.length ?? 0);
-        if (active) setUnreadNotificationCount(unread);
-      } catch {
-        // L'icône reste disponible même si le compteur n'est pas joignable.
-      }
-    };
-
-    refreshNotifications();
-    const intervalId = window.setInterval(refreshNotifications, 30000);
-    window.addEventListener('focus', refreshNotifications);
-    return () => {
-      active = false;
-      window.clearInterval(intervalId);
-      window.removeEventListener('focus', refreshNotifications);
-    };
-  }, [authenticated, user?.id]);
-
-  useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setMenuOpen(false);
@@ -138,6 +76,75 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Compte les commandes en attente pour l'icône « Mes commandes ».
+  useEffect(() => {
+    if (!isBuyer) {
+      setPendingOrderCount(0);
+      return undefined;
+    }
+
+    let active = true;
+    const loadPendingOrders = async () => {
+      try {
+        let page = 1;
+        let totalPages = 1;
+        let pending = 0;
+        while (page <= totalPages) {
+          const data = await apiGet(endpoints.orders.list, { page, perPage: 1000 });
+          const results = Array.isArray(data) ? data : data?.results ?? [];
+          pending += results.filter((order) => order.status === "pending").length;
+          totalPages = Array.isArray(data) ? page : Number(data?.totalPages ?? data?.total_pages ?? page);
+          page += 1;
+        }
+        if (active) setPendingOrderCount(pending);
+      } catch {
+        if (active) setPendingOrderCount(0);
+      }
+    };
+
+    loadPendingOrders();
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") loadPendingOrders();
+    }, 30000);
+
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [isBuyer, user?.id]);
+
+  // Suit les notifications non lues : les réponses du support client arrivent
+  // dans l'espace acheteur sous forme de notifications.
+  useEffect(() => {
+    if (!isBuyer) {
+      setNotificationCount(0);
+      return undefined;
+    }
+
+    let active = true;
+    const load = () => {
+      apiGet(endpoints.notifications.unreadCount)
+        .then((data) => {
+          if (active) setNotificationCount(Number(data?.count) || 0);
+        })
+        .catch(() => {
+          if (active) setNotificationCount(0);
+        });
+    };
+
+    load();
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible") load();
+    }, 30000);
+    window.addEventListener(BUYER_NOTIFICATIONS_UPDATED, load);
+
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener(BUYER_NOTIFICATIONS_UPDATED, load);
+    };
+  }, [isBuyer, user?.id]);
 
   const handleLogout = () => {
     clearTokens();
@@ -161,17 +168,23 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-base-300/70 bg-base-100/90 shadow-sm shadow-base-content/3 backdrop-blur-xl">
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-base-300/70 bg-base-100/90 shadow-sm shadow-base-content/3 backdrop-blur-xl">
       <div className="mx-auto flex min-h-18 max-w-7xl items-center gap-3 px-4 sm:gap-5 sm:px-6">
-        {/* Logo du projet — purement visuel (non cliquable) */}
-        <div className="flex shrink-0 items-center gap-2.5" aria-label="BU-Market">
+        {/* Logo du projet — retour à l'accueil */}
+        <Link
+          to={showLandingAuth ? "/" : "/accueil"}
+          onClick={closeMobile}
+          aria-label="BU-Market, retour à l'accueil"
+          className="flex shrink-0 items-center gap-2.5 rounded-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100"
+        >
           <span className="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-content shadow-md shadow-primary/20">
             <Store size={21} strokeWidth={2.2} />
           </span>
           <span className="hidden text-[17px] font-extrabold tracking-tight text-base-content sm:block">
             BU<span className="text-primary">Market</span>
           </span>
-        </div>
+        </Link>
 
         {showLandingAuth ? (
           <nav className="ml-auto flex items-center gap-1.5 sm:gap-2" aria-label="Authentification">
@@ -214,11 +227,31 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
             </nav>
 
             <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+          {isBuyer && (
+            <Link
+              to="/notifications"
+              title="Mes notifications"
+              aria-label={
+                notificationCount > 0
+                  ? `Mes notifications, ${notificationCount} non lue${notificationCount > 1 ? "s" : ""}`
+                  : "Mes notifications"
+              }
+              className="relative inline-flex size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary"
+            >
+              <Bell size={21} />
+              {notificationCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold tabular-nums text-primary-content ring-2 ring-base-100">
+                  {notificationCount > 99 ? "99+" : notificationCount}
+                </span>
+              )}
+            </Link>
+          )}
+
           <Link
             to="/favoris"
             title="Mes favoris"
             aria-label="Mes favoris"
-            className="relative inline-flex size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary"
+            className="relative hidden size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary sm:inline-flex"
           >
             <Heart size={21} className={favoriteCount > 0 ? "fill-current text-red-500" : ""} />
             {favoriteCount > 0 && !favoritesLoading && (
@@ -246,37 +279,21 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
             )}
           </Link>
 
-          {authenticated && (
+          {isBuyer && (
             <Link
               to="/commandes"
-              title="Commandes en attente"
-              aria-label={pendingOrderCount > 0
-                ? `Commandes en attente, ${pendingOrderCount}`
-                : 'Mes commandes'}
-              className="relative inline-flex size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary"
+              title="Mes commandes"
+              aria-label={
+                pendingOrderCount > 0
+                  ? `Commandes en attente, ${pendingOrderCount}`
+                  : "Mes commandes"
+              }
+              className="relative hidden size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary sm:inline-flex"
             >
               <ClipboardList size={21} />
               {pendingOrderCount > 0 && (
                 <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-warning px-1 text-[10px] font-bold text-warning-content ring-2 ring-base-100">
-                  {pendingOrderCount > 99 ? '99+' : pendingOrderCount}
-                </span>
-              )}
-            </Link>
-          )}
-
-          {authenticated && (
-            <Link
-              to="/notifications"
-              title="Mes notifications"
-              aria-label={unreadNotificationCount > 0
-                ? `Mes notifications, ${unreadNotificationCount} non lue${unreadNotificationCount > 1 ? 's' : ''}`
-                : 'Mes notifications'}
-              className="relative inline-flex size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary"
-            >
-              <Bell size={21} />
-              {unreadNotificationCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-[10px] font-bold text-error-content ring-2 ring-base-100">
-                  {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                  {pendingOrderCount > 99 ? "99+" : pendingOrderCount}
                 </span>
               )}
             </Link>
@@ -312,7 +329,7 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
               onClick={() => setMenuOpen((open) => !open)}
               aria-expanded={menuOpen}
               aria-haspopup="menu"
-              className="flex items-center gap-2 rounded-full border border-transparent p-1 pr-2 transition-colors hover:border-base-300/70 hover:bg-base-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="relative flex items-center gap-2 rounded-full border border-transparent p-1 pr-2 transition-colors hover:border-base-300/70 hover:bg-base-200/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <span className="relative flex size-9 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary ring-1 ring-primary/20">
                 {profileImage ? (
@@ -323,6 +340,12 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
                   <User size={20} />
                 )}
               </span>
+              {isBuyer && notificationCount > 0 && (
+                <span
+                  className="absolute right-1 top-0.5 size-2.5 rounded-full bg-primary ring-2 ring-base-100 lg:hidden"
+                  aria-hidden="true"
+                />
+              )}
               <span className="hidden max-w-28 truncate text-[13px] font-semibold text-base-content md:block">
                 {displayName}
               </span>
@@ -346,6 +369,42 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
                 </div>
 
                 <ul className="p-2 text-sm">
+                  {isBuyer && (
+                    <li>
+                      <Link
+                        to="/notifications"
+                        onClick={() => setMenuOpen(false)}
+                        role="menuitem"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-base-content/80 transition-colors hover:bg-base-200 hover:text-primary"
+                      >
+                        <Bell size={18} />
+                        Notifications
+                        {notificationCount > 0 && (
+                          <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold tabular-nums text-primary">
+                            {notificationCount > 99 ? "99+" : notificationCount}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  )}
+                  {isBuyer && (
+                    <li>
+                      <Link
+                        to="/commandes"
+                        onClick={() => setMenuOpen(false)}
+                        role="menuitem"
+                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-base-content/80 transition-colors hover:bg-base-200 hover:text-primary"
+                      >
+                        <Package size={18} />
+                        Mes commandes
+                        {pendingOrderCount > 0 && (
+                          <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                            {pendingOrderCount > 99 ? "99+" : pendingOrderCount}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  )}
                   <li>
                     <Link
                       to="/profil"
@@ -406,10 +465,71 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
                   </button>
                 </li>
               ))}
+              {isBuyer && (
+                <>
+                  <li className="mt-1.5 border-t border-base-300/70 pt-1.5 sm:hidden">
+                    <Link
+                      to="/favoris"
+                      onClick={closeMobile}
+                      className="flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold text-base-content/75 transition-colors hover:bg-base-200 hover:text-primary"
+                    >
+                      <Heart
+                        size={18}
+                        className={favoriteCount > 0 ? "fill-current text-red-500" : ""}
+                      />
+                      Mes favoris
+                      {favoriteCount > 0 && !favoritesLoading && (
+                        <span className="ml-auto rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-bold tabular-nums text-red-500">
+                          {favoriteCount > 99 ? "99+" : favoriteCount}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                  <li className="sm:mt-1.5 sm:border-t sm:border-base-300/70 sm:pt-1.5">
+                    <Link
+                      to="/notifications"
+                      onClick={closeMobile}
+                      className="flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold text-base-content/75 transition-colors hover:bg-base-200 hover:text-primary"
+                    >
+                      <Bell size={18} />
+                      Notifications
+                      {notificationCount > 0 && (
+                        <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold tabular-nums text-primary">
+                          {notificationCount > 99 ? "99+" : notificationCount}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/commandes"
+                      onClick={closeMobile}
+                      className="flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold text-base-content/75 transition-colors hover:bg-base-200 hover:text-primary"
+                    >
+                      <Package size={18} />
+                      Mes commandes
+                      {pendingOrderCount > 0 && (
+                        <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold tabular-nums text-primary">
+                          {pendingOrderCount > 99 ? "99+" : pendingOrderCount}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </nav>
         </div>
       )}
-    </header>
+      </header>
+
+      {!showLandingAuth && mobileOpen && (
+        <div
+          className="fixed inset-0 z-[45] backdrop-blur-md md:hidden"
+          onClick={closeMobile}
+          aria-hidden="true"
+        />
+      )}
+    </>
   );
 }

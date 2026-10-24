@@ -205,10 +205,17 @@ export function downloadMerchantReport(data) {
     change: stat.change,
   }));
 
-  const weekRows = (data.weeklySales || []).map((value, index) => [
-    ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"][index] || `J${index + 1}`,
-    `${formatNumber(value)} BIF`,
-  ]);
+  const weekRows = (data.weeklySales || []).map((value, index) => {
+    const isoDate = data.weeklySalesDates?.[index];
+    const label = isoDate
+      ? new Date(`${isoDate}T00:00:00`).toLocaleDateString("fr-FR", {
+          weekday: "long",
+          day: "2-digit",
+          month: "short",
+        })
+      : `J${index + 1}`;
+    return [label, `${formatNumber(value)} BIF`];
+  });
 
   const orderRows = (data.orders || []).slice(0, 15).map((order) => [
     `#${order.id}`,
@@ -244,10 +251,17 @@ export function downloadAdminReport(data) {
     change: stat.change,
   }));
 
-  const weekRows = (data.weeklyActivity || []).map((value, index) => [
-    ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"][index] || `J${index + 1}`,
-    String(value),
-  ]);
+  const weekRows = (data.weeklyActivity || []).map((value, index) => {
+    const isoDate = data.weeklyActivityDates?.[index];
+    const label = isoDate
+      ? new Date(`${isoDate}T00:00:00`).toLocaleDateString("fr-FR", {
+          weekday: "long",
+          day: "2-digit",
+          month: "short",
+        })
+      : `J${index + 1}`;
+    return [label, String(value)];
+  });
 
   const queueRows = (data.moderationQueue || []).slice(0, 15).map((item) => [
     item.type || "—",

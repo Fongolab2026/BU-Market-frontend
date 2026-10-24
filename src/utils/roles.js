@@ -20,3 +20,15 @@ export function resolveRole(profile) {
 }
 
 export const isAdmin = (profile) => resolveRole(profile) === "admin";
+
+/**
+ * Indique si le compte a déjà loué un espace (boutique validée).
+ *
+ * Les coordonnées personnelles (téléphone et adresse) ne sont affichées dans
+ * le profil qu'à partir de ce moment : avant, l'utilisateur est encore un
+ * simple acheteur.
+ */
+export const hasRentedSpace = (profile) =>
+  resolveRole(profile) === "merchant" ||
+  profile?.is_seller === true ||
+  profile?.shop?.status === "validated";

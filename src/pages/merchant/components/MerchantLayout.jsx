@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   AlertCircle,
   Bell,
+  ChevronRight,
   Layers,
   LayoutDashboard,
   Mail,
@@ -14,7 +15,9 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { authApi } from "../../../services/authService.js";
+import { merchantMessageService } from "../modules/messages/services/merchantMessageService.js";
 import { merchantNotificationService } from "../modules/notifications/services/merchantNotificationService.js";
+import { merchantOrderService } from "../modules/orders/services/merchantOrderService.js";
 import WorkspaceShell from "../../../components/WorkspaceShell.jsx";
 
 const initialsOf = (value) =>
@@ -30,7 +33,7 @@ export function MerchantLayout() {
   const { user } = useAuth();
   const { pathname } = useLocation();
   const [hasShop, setHasShop] = useState(null);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [badges, setBadges] = useState({ messages: 0, notifications: 0, orders: 0 });
 
   useEffect(() => {
     if (user?.role !== "merchant") return;
@@ -45,23 +48,26 @@ export function MerchantLayout() {
   useEffect(() => {
     if (user?.role !== "merchant") return undefined;
     let active = true;
-    const loadUnread = () => {
-      merchantNotificationService
-        .unreadCount()
-        .then((count) => {
-          if (active) setUnreadCount(count);
-        })
-        .catch(() => {});
+
+    const loadBadges = async () => {
+      const [messages, notifications, orders] = await Promise.all([
+        merchantMessageService.unreadCount().catch(() => 0),
+        merchantNotificationService.unreadCount().catch(() => 0),
+        merchantOrderService.pendingCount().catch(() => 0),
+      ]);
+      if (active) setBadges({ messages, notifications, orders });
     };
-    loadUnread();
+
+    loadBadges();
     const timer = setInterval(() => {
-      if (document.visibilityState === "visible") loadUnread();
+      if (document.visibilityState === "visible") loadBadges();
     }, 20000);
+
     return () => {
       active = false;
       clearInterval(timer);
     };
-  }, [user]);
+  }, [user, pathname]);
 
   const groups = [
     {
@@ -76,18 +82,28 @@ export function MerchantLayout() {
       section: "Ventes",
       items: [
         { to: "/marchand/produits", label: "Mes produits", icon: Package },
-        { to: "/marchand/commandes", label: "Commandes", icon: ShoppingCart },
+        {
+          to: "/marchand/commandes",
+          label: "Commandes",
+          icon: ShoppingCart,
+          badge: badges.orders,
+        },
       ],
     },
     {
       section: "Communication",
       items: [
-        { to: "/marchand/messages", label: "Messages", icon: Mail, dot: true },
+        {
+          to: "/marchand/messages",
+          label: "Messages",
+          icon: Mail,
+          badge: badges.messages,
+        },
         {
           to: "/marchand/notifications",
           label: "Notifications",
           icon: Bell,
-          badge: unreadCount,
+          badge: badges.notifications,
         },
       ],
     },
@@ -115,7 +131,7 @@ export function MerchantLayout() {
       groups={groups}
       homePath="/marchand/tableau-de-bord"
       notificationsPath="/marchand/notifications"
-      notificationsCount={unreadCount}
+      notificationsCount={badges.notifications}
       logoutPath="/"
       profilePath="/marchand/profil"
       profileName={displayName}
@@ -123,6 +139,25 @@ export function MerchantLayout() {
       profilePhoto={user?.profile_pic || user?.profilePic}
       profileInitials={initialsOf(displayName)}
     >
+      {pathname !== "/marchand/commandes" && badges.orders > 0 && (
+        <Link
+          to="/marchand/commandes"
+          className="flex items-center gap-3 rounded-2xl border border-primary/25 bg-primary/10 px-4 py-3 text-sm font-semibold text-primary transition hover:bg-primary/15 lg:hidden"
+        >
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-content">
+            <ShoppingCart size={18} />
+          </span>
+          <span className="min-w-0 flex-1">
+            {badges.orders === 1
+              ? "1 commande en attente"
+              : `${badges.orders} commandes en attente`}
+            <span className="mt-0.5 block text-xs font-medium text-primary/70">
+              À traiter dans vos commandes
+            </span>
+          </span>
+          <ChevronRight size={18} className="shrink-0" />
+        </Link>
+      )}
       {showAlert && (
         <div className="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           <AlertCircle size={20} className="shrink-0 text-amber-600" />
