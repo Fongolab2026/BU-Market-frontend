@@ -37,14 +37,18 @@ api.interceptors.request.use((config) => {
 
 let refreshRequest = null;
 
-// Le backend renvoie des URLs absolues (ex. http://127.0.0.1:8000/media/...),
-// qui pointent vers la machine locale et cassent les images chez les autres
-// utilisateurs. On les réécrit en chemins relatifs ("/media/...") pour qu'elles
-// soient servies par l'origine du front (proxy Vite /media), quel que soit l'hôte.
-const ABSOLUTE_MEDIA_URL = /^https?:\/\/[^/]+(\/media\/)/i;
+// Les URLs d'images doivent viser le serveur API configuré. Le backend peut
+// renvoyer une URL absolue avec un hôte local (par exemple 127.0.0.1) ; on en
+// garde le chemin /media et on le rattache à API_URL. En développement, API_URL
+// reste l'origine du front et le proxy Vite relaie /media vers Django.
+const ABSOLUTE_MEDIA_URL = /^https?:\/\/[^/]+(\/media\/.*)$/i;
 
 const rewriteMediaUrls = (data) => {
-  if (typeof data === "string") return data.replace(ABSOLUTE_MEDIA_URL, "$1");
+  if (typeof data === "string") {
+    const absoluteMediaPath = data.match(ABSOLUTE_MEDIA_URL)?.[1];
+    const mediaPath = absoluteMediaPath || (data.startsWith("/media/") ? data : null);
+    return mediaPath ? new URL(mediaPath, API_URL).toString() : data;
+  }
   if (Array.isArray(data)) return data.map(rewriteMediaUrls);
   if (data && typeof data === "object" && data.constructor === Object) {
     for (const key of Object.keys(data)) data[key] = rewriteMediaUrls(data[key]);

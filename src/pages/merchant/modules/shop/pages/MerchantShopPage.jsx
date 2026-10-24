@@ -111,7 +111,7 @@ export function MerchantShopPage() {
             </div>
             <div className="-mt-14 flex flex-col gap-5 p-6 sm:flex-row sm:items-end sm:px-6 sm:pb-6">
               <div className="relative">
-                <span className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-base-100 bg-base-100 text-brand shadow-lg">
+                <span className="grid size-24 shrink-0 place-items-center overflow-hidden rounded-2xl border-4 border-base-100 bg-base-100 text-primary shadow-lg">
                   {shop.shopImage ? <img src={shop.shopImage} alt={shop.name} className="h-full w-full object-cover" /> : <Building2 size={38} />}
                 </span>
                 {shop.status === 'validated' && (
@@ -162,15 +162,15 @@ export function MerchantShopPage() {
           </article>
 
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Statistiques de la boutique">
-            <ShopStatCard icon={Package} label="Produits publiés" value={shop.products} tone="bg-brand/10 text-brand" hint={shop.products ? 'En ligne dans votre catalogue' : 'Publiez votre premier produit'} />
-            <ShopStatCard icon={Star} label="Note moyenne" value={shop.rating ? `${shop.rating} / 5` : '—'} tone="bg-amber-50 text-amber-700" hint={shop.reviewCount ? `Basée sur ${shop.reviewCount} avis` : 'Pas encore d’avis'} />
-            <ShopStatCard icon={Eye} label="Vues ce mois" value={shop.views} tone="bg-orange-50 text-orange-700" hint={shop.views ? 'Vos clients découvrent votre boutique' : 'Partagez votre boutique pour attirer des visites'} />
-            <ShopStatCard icon={CheckCircle2} label="Avis reçus" value={shop.reviewCount} tone="bg-emerald-50 text-emerald-700" hint={shop.reviewCount ? 'Répondez pour renforcer la confiance' : 'Encouragez vos clients à laisser un avis'} />
+            <ShopStatCard icon={Package} label="Produits publiés" value={shop.products} tone="bg-primary/10 text-primary" hint={shop.products ? 'En ligne dans votre catalogue' : 'Publiez votre premier produit'} />
+            <ShopStatCard icon={Star} label="Note moyenne" value={shop.rating ? `${shop.rating} / 5` : '—'} tone="bg-warning/10 text-warning" hint={shop.reviewCount ? `Basée sur ${shop.reviewCount} avis` : 'Pas encore d’avis'} />
+            <ShopStatCard icon={Eye} label="Vues ce mois" value={shop.views} tone="bg-info/10 text-info" hint={shop.views ? 'Vos clients découvrent votre boutique' : 'Partagez votre boutique pour attirer des visites'} />
+            <ShopStatCard icon={CheckCircle2} label="Avis reçus" value={shop.reviewCount} tone="bg-success/10 text-success" hint={shop.reviewCount ? 'Répondez pour renforcer la confiance' : 'Encouragez vos clients à laisser un avis'} />
           </section>
 
           <section className="card p-6" aria-labelledby="visibility-title">
             <h3 id="visibility-title" className="font-semibold text-base-content mb-5 flex items-center gap-2">
-              <Eye size={18} className="text-brand" /> Visibilité & profil
+              <Eye size={18} className="text-primary" /> Visibilité & profil
             </h3>
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-xl bg-base-50 p-4 border border-base-200">
@@ -221,7 +221,7 @@ export function MerchantShopPage() {
 function ShopEmpty({ onCreate }) {
   return (
     <div className="card grid max-w-2xl place-items-center p-12 text-center">
-      <span className="grid size-20 place-items-center rounded-2xl bg-brand/10 text-brand">
+      <span className="grid size-20 place-items-center rounded-2xl bg-primary/10 text-primary">
         <Building2 size={40} />
       </span>
       <h2 className="mt-5 text-2xl font-bold text-base-content">Aucune boutique pour l'instant</h2>
@@ -272,7 +272,7 @@ function ShopForm({ title, subtitle, form, setFormField, submitting, onSubmit, o
           <label className="block">
             <span className="mb-1.5 block text-sm font-semibold text-base-content/80">Photo de la boutique</span>
             <div className="flex items-center gap-4">
-              <span className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-xl bg-brand/10 text-brand">
+              <span className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary/10 text-primary">
                 {form.imagePreview ? <img src={form.imagePreview} alt="Aperçu de la boutique" className="h-full w-full object-cover" /> : <ImagePlus size={26} />}
               </span>
               <input type="file" accept="image/*" onChange={handleImageChange} className="file-input file-input-bordered w-full text-sm" />

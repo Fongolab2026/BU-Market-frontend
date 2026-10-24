@@ -189,7 +189,7 @@ export function MerchantCategoriesPage() {
             <span className="px-3 py-1.5 text-xs font-semibold rounded-full bg-brand/10 text-brand">
               {categories.length} catégories
             </span>
-            <span className="px-3 py-1.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700">
+            <span className="px-3 py-1.5 text-xs font-semibold rounded-full bg-success/10 text-success">
               {activeCount} actives
             </span>
           </div>
@@ -222,7 +222,7 @@ export function MerchantCategoriesPage() {
                   .map((category) => (
                     <article
                       key={category.id}
-                      className="group rounded-2xl border border-base-200 bg-white overflow-hidden transition-all duration-300 hover:border-brand/40 hover:shadow-xl hover:-translate-y-1"
+                      className="group overflow-hidden rounded-2xl border border-base-200 bg-base-100 transition-all duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-xl"
                     >
                       <div className="aspect-square bg-linear-to-br from-brand/10 to-brand/5 flex items-center justify-center">
                         {(() => {
@@ -232,7 +232,7 @@ export function MerchantCategoriesPage() {
                             Package;
                           return (
                             <Icon
-                              className="text-brand"
+                              className="text-primary"
                               size={56}
                               strokeWidth={1.5}
                               aria-hidden="true"
@@ -261,7 +261,7 @@ export function MerchantCategoriesPage() {
                         <div className="flex items-center gap-2 pt-2 border-t border-base-100">
                           <button
                             onClick={() => toggleStatus(category)}
-                            className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition ${category.active ? "bg-base-100 text-base-content/60 hover:bg-base-200" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}
+                            className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition ${category.active ? "bg-base-100 text-base-content/60 hover:bg-base-200" : "bg-success/10 text-success hover:bg-success/20"}`}
                           >
                             {category.active ? (
                               <>

@@ -73,6 +73,16 @@ export function MerchantNotificationsPage() {
       const result = await merchantNotificationService.list()
       setNotifications(result)
       setError(false)
+      if (result.some((notification) => !isNotificationRead(notification))) {
+        try {
+          await merchantNotificationService.markAllRead()
+          setNotifications((current) =>
+            current.map((notification) => ({ ...notification, is_read: true, read: true }))
+          )
+        } catch {
+          // L'échec de marquage ne doit pas empêcher la consultation de la liste.
+        }
+      }
     } catch {
       setError(true)
     } finally {

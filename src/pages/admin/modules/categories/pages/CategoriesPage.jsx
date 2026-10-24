@@ -122,7 +122,7 @@ export function CategoriesPage() {
                 <tr key={category.id} className="align-middle">
                   <td className="py-3.5 pl-2">
                     <span className="flex items-center gap-3">
-                      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                         <Layers size={18} />
                       </span>
                       <span className="font-semibold text-base-content">{category.name}</span>
@@ -160,7 +160,7 @@ export function CategoriesPage() {
             </div>
             <label className="mt-4 block">
               <span className="mb-1.5 block text-sm font-semibold text-base-content/80">Nom de la catégorie</span>
-              <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Ex. Beauté & soins" className="h-10 w-full border border-base-300 bg-white px-3 text-sm outline-none transition placeholder:text-base-content/40 focus:border-brand focus:ring-4 focus:ring-brand/10" />
+              <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Ex. Beauté & soins" className="h-10 w-full border border-base-300 bg-base-100 px-3 text-sm text-base-content outline-none transition placeholder:text-base-content/40 focus:border-brand focus:ring-4 focus:ring-brand/10" />
             </label>
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => { setShowForm(false); setEditing(null) }} className="rounded-lg border border-base-300 px-4 py-2 text-sm font-semibold text-base-content/70 transition hover:bg-base-100">Annuler</button>

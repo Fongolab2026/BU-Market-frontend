@@ -1,5 +1,13 @@
 import api, { endpoints } from "../../../../../services/api.js";
 
+export const MERCHANT_NOTIFICATIONS_UPDATED = "merchant-notifications-updated";
+
+const notifyMerchantNotificationsUpdated = () => {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(MERCHANT_NOTIFICATIONS_UPDATED));
+  }
+};
+
 export const merchantNotificationService = {
   /** Récupère toutes les notifications de l'utilisateur connecté. */
   list: async ({ isRead, type, perPage = 100 } = {}) => {
@@ -27,11 +35,13 @@ export const merchantNotificationService = {
 
   markRead: async (id) => {
     const { data } = await api.post(endpoints.notifications.markRead(id), {});
+    notifyMerchantNotificationsUpdated();
     return data;
   },
 
   markAllRead: async () => {
     await api.post(endpoints.notifications.markAllRead, {});
+    notifyMerchantNotificationsUpdated();
   },
 
   remove: async (id) => {

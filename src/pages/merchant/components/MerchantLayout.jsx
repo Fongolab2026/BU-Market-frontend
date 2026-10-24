@@ -16,7 +16,10 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { authApi } from "../../../services/authService.js";
 import { merchantMessageService } from "../modules/messages/services/merchantMessageService.js";
-import { merchantNotificationService } from "../modules/notifications/services/merchantNotificationService.js";
+import {
+  MERCHANT_NOTIFICATIONS_UPDATED,
+  merchantNotificationService,
+} from "../modules/notifications/services/merchantNotificationService.js";
 import { merchantOrderService } from "../modules/orders/services/merchantOrderService.js";
 import WorkspaceShell from "../../../components/WorkspaceShell.jsx";
 
@@ -59,6 +62,7 @@ export function MerchantLayout() {
     };
 
     loadBadges();
+    window.addEventListener(MERCHANT_NOTIFICATIONS_UPDATED, loadBadges);
     const timer = setInterval(() => {
       if (document.visibilityState === "visible") loadBadges();
     }, 20000);
@@ -66,6 +70,7 @@ export function MerchantLayout() {
     return () => {
       active = false;
       clearInterval(timer);
+      window.removeEventListener(MERCHANT_NOTIFICATIONS_UPDATED, loadBadges);
     };
   }, [user, pathname]);
 

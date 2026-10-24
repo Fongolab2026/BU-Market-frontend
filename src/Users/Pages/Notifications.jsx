@@ -92,8 +92,23 @@ export default function Notifications() {
     if (!silent) setLoading(true);
     try {
       const data = await buyerNotificationService.list();
-      setNotifications(Array.isArray(data) ? data : []);
+      const loadedNotifications = Array.isArray(data) ? data : [];
+      setNotifications(loadedNotifications);
       setError("");
+      if (loadedNotifications.some((notification) => !isNotificationRead(notification))) {
+        try {
+          await buyerNotificationService.markAllRead();
+          setNotifications((current) =>
+            current.map((notification) => ({
+              ...notification,
+              is_read: true,
+              read: true,
+            })),
+          );
+        } catch {
+          // La liste reste visible même si le serveur n'a pas pu enregistrer la lecture.
+        }
+      }
     } catch {
       if (silent) {
         toast.error("Impossible d’actualiser les notifications.");
