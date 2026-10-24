@@ -33,6 +33,7 @@ import ProfilVendeur from "../Pages/ProfilVendeur.jsx";
 import Panier from "../Pages/Panier.jsx";
 import MesCommandes from "../Pages/MesCommandes.jsx";
 import Favoris from "../Pages/Favoris.jsx";
+import BuyerNotificationsPage from "../Pages/BuyerNotificationsPage.jsx";
 
 function RequireUser() {
   return isAuthenticated() ? <Outlet /> : <Navigate to="/" replace />;
@@ -79,6 +80,7 @@ export const protectedRoutes = [
       { path: "profil-vendeur/:id", element: <ProfilVendeur /> },
       { path: "panier", element: <Panier /> },
       { path: "commandes", element: <MesCommandes /> },
+      { path: "notifications", element: <BuyerNotificationsPage /> },
     ],
   },
   {

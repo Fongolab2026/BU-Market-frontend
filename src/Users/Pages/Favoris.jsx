@@ -26,12 +26,11 @@ export default function Favoris() {
 
   useEffect(() => {
     Promise.all([
-      favoriteApi.list({ perPage: 100 }),
+      favoriteApi.listAll(),
       categoryApi.list().catch(() => ({ data: [] })),
     ])
       .then(([favoriteResponse, categoryResponse]) => {
-        const list = favoriteResponse.data.results ?? favoriteResponse.data
-        setFavorites(Array.isArray(list) ? list : [])
+        setFavorites(Array.isArray(favoriteResponse) ? favoriteResponse : [])
 
         const catList = categoryResponse.data.results ?? categoryResponse.data
         setCategories(Array.isArray(catList) ? catList : [])

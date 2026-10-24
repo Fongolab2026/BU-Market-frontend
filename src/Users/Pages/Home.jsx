@@ -90,14 +90,10 @@ export default function Home() {
   const [initialLoading, setInitialLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const [contactForm, setContactForm] = useState({ name: '', email: '', subject: '', message: '' })
+  const [contactForm, setContactForm] = useState({ subject: '', message: '' })
   const [contactSent, setContactSent] = useState(false)
   const [contactSending, setContactSending] = useState(false)
   const [contactError, setContactError] = useState('')
-  const contactFullName =
-    [user?.firstName || user?.first_name, user?.lastName || user?.last_name]
-      .filter(Boolean)
-      .join(' ') || user?.username || ''
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   // Bannière « demande en attente » masquable à la demande du client.
   const [pendingBannerDismissed, setPendingBannerDismissed] = useState(false)
@@ -107,13 +103,13 @@ export default function Home() {
       // Les boutiques ne sont lisibles que par un admin côté backend : leur échec
       // éventuel ne doit pas empêcher l'affichage des produits.
       const [prodRes, catRes, shopRes] = await Promise.allSettled([
-        productApi.list({ status: 'active', perPage: 1000 }),
+        productApi.listAll({ status: 'active' }),
         categoryApi.list(),
         shopApi.list({ status: 'validated', perPage: 100 }),
       ])
 
       if (prodRes.status === 'fulfilled') {
-        setProducts(prodRes.value.data.results ?? prodRes.value.data)
+        setProducts(prodRes.value)
       } else {
         setError('Erreur lors du chargement des produits')
         console.error('home: produits', prodRes.reason)
@@ -136,16 +132,6 @@ export default function Home() {
     }
     load()
   }, [])
-
-  // Un client connecté voit ses coordonnées pré-remplies dans le formulaire.
-  useEffect(() => {
-    if (!user) return
-    setContactForm((form) => ({
-      ...form,
-      name: form.name || contactFullName,
-      email: form.email || user.email || '',
-    }))
-  }, [user, contactFullName])
 
   const filtered = selectedCategory
     ? products.filter((p) => p.category === selectedCategory)
@@ -186,13 +172,11 @@ export default function Home() {
     setContactError('')
     try {
       await apiPost(endpoints.messages.contact, {
-        name: contactForm.name || contactFullName,
-        email: contactForm.email || user?.email || '',
         subject: contactForm.subject,
         message: contactForm.message,
       })
       setContactSent(true)
-      setContactForm({ name: contactFullName, email: user?.email || '', subject: '', message: '' })
+      setContactForm({ subject: '', message: '' })
       setTimeout(() => setContactSent(false), 5000)
     } catch (err) {
       const detail = err.response?.data?.detail || err.response?.data?.message
@@ -716,38 +700,6 @@ export default function Home() {
                         <p className="text-sm text-error">{contactError}</p>
                       </div>
                     )}
-                    <div className="grid gap-6 sm:grid-cols-2">
-                      <div className="mb-4">
-                        <label htmlFor="contact-name" className="mb-2 block text-sm font-semibold text-base-content">
-                          Nom complet <span className="text-error" aria-hidden="true">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          id="contact-name"
-                          required
-                          value={contactForm.name}
-                          onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                          className="input input-bordered w-full h-12 px-4 text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20 transition-colors"
-                          placeholder="Votre nom complet"
-                          autoComplete="name"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <label htmlFor="contact-email" className="mb-2 block text-sm font-semibold text-base-content">
-                          Adresse e-mail <span className="text-error" aria-hidden="true">*</span>
-                        </label>
-                        <input
-                          type="email"
-                          id="contact-email"
-                          required
-                          value={contactForm.email}
-                          onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                          className="input input-bordered w-full h-12 px-4 text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20 transition-colors"
-                          placeholder="votre@email.com"
-                          autoComplete="email"
-                        />
-                      </div>
-                    </div>
                     <div className="mb-4">
                       <label htmlFor="contact-subject" className="mb-2 block text-sm font-semibold text-base-content">
                         Sujet <span className="text-error" aria-hidden="true">*</span>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CheckCheck, MailOpen, MessageSquareText, Search, Send, Store } from 'lucide-react'
+import { ArrowLeft, CheckCheck, MailOpen, MessageSquareText, Search, Send, Store } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { merchantMessageService } from '../services/merchantMessageService.js'
 import { PageHeader } from '../../../components/ui.jsx'
@@ -81,8 +81,8 @@ export function MerchantMessagesPage() {
         }
       />
 
-      <div className="card mt-5 flex flex-col gap-4 p-4 lg:flex-row lg:items-stretch">
-        <div className="w-full lg:max-w-sm lg:shrink-0">
+      <div className="card mt-5 flex min-h-[70vh] flex-col gap-4 p-3 sm:p-4 lg:h-[calc(100vh-13rem)] lg:min-h-[560px] lg:flex-row lg:items-stretch">
+        <div className={`${selected ? 'hidden lg:flex' : 'flex'} w-full min-h-0 flex-col lg:max-w-sm lg:shrink-0`}>
           <div className="relative mb-3">
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40" />
             <input
@@ -101,7 +101,7 @@ export function MerchantMessagesPage() {
               </button>
             )}
           </div>
-          <div className="mt-2 max-h-[480px] space-y-1.5 overflow-y-auto pr-1">
+          <div className="mt-2 min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1">
             {loading ? (
               <ConversationListSkeleton rows={6} className="space-y-1.5" />
             ) : filtered.length === 0 ? (
@@ -112,7 +112,7 @@ export function MerchantMessagesPage() {
                   key={conversation.id}
                   type="button"
                   onClick={() => openConversation(conversation)}
-                  className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${selectedId === conversation.id ? 'border-brand bg-brand/5' : 'border-transparent hover:bg-base-100'}`}
+                  className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${selectedId === conversation.id ? 'border-brand/40 bg-brand/5' : 'border-transparent hover:bg-base-200/70'}`}
                 >
                   <Avatar
                     src={conversation.avatar}
@@ -136,11 +136,14 @@ export function MerchantMessagesPage() {
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col rounded-2xl border border-base-200 bg-base-50">
+        <div className={`${selected ? 'flex' : 'hidden lg:flex'} min-h-[65vh] min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-base-300 bg-base-200/40 lg:min-h-0`}>
           {selected ? (
             <>
-              <div className="flex items-center justify-between gap-3 border-b border-base-200 p-5">
+              <div className="flex items-center justify-between gap-3 border-b border-base-300 bg-(--surface) p-3 sm:p-4">
                 <div className="flex items-center gap-3">
+                  <button type="button" onClick={() => setSelectedId(null)} aria-label="Retour aux conversations" className="grid size-9 shrink-0 place-items-center rounded-full text-base-content/65 transition hover:bg-base-200 hover:text-primary lg:hidden">
+                    <ArrowLeft size={19} />
+                  </button>
                   <Avatar
                     src={selected.avatar}
                     name={selected.sender}
@@ -157,18 +160,18 @@ export function MerchantMessagesPage() {
                 </span>
               </div>
 
-              <div className="flex-1 space-y-4 overflow-y-auto p-5">
+              <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-3 sm:p-5">
                 {selected.thread.map((item, index) => (
                   <div key={index} className={`flex ${item.from === 'me' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${item.from === 'me' ? 'rounded-br-sm bg-brand text-white' : 'rounded-bl-sm border border-base-200 bg-white'}`}>
-                      <p className="text-sm leading-6">{item.content}</p>
-                      <p className={`mt-1 text-[11px] ${item.from === 'me' ? 'text-white/60' : 'text-base-content/40'}`}>{item.time}</p>
+                    <div className={`max-w-[88%] break-words rounded-2xl px-4 py-2.5 shadow-sm sm:max-w-[75%] ${item.from === 'me' ? 'rounded-br-sm bg-brand text-white' : 'rounded-bl-sm border border-base-300 bg-(--surface) text-base-content'}`}>
+                      <p className="whitespace-pre-wrap text-sm leading-6">{item.content}</p>
+                      <p className={`mt-1 text-right text-[11px] ${item.from === 'me' ? 'text-white/65' : 'text-base-content/45'}`}>{item.time}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <form onSubmit={sendReply} className="flex items-end gap-2 border-t border-base-200 bg-white p-3">
+              <form onSubmit={sendReply} className="flex items-end gap-2 border-t border-base-300 bg-(--surface) p-3">
                 <textarea
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}

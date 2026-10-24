@@ -6,6 +6,7 @@ export const orderApi = {
   create: (data) => api.post("/orders/orders/", data),
   update: (id, data) => api.put(`/orders/orders/${id}/`, data),
   partialUpdate: (id, data) => api.patch(`/orders/orders/${id}/`, data),
+  setStatus: (id, status) => api.patch(`/orders/orders/${id}/status/`, { status }),
   remove: (id) => api.delete(`/orders/orders/${id}/`),
 };
 

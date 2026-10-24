@@ -227,10 +227,10 @@ export default function ProfileSettingsPage({ logoutPath = "/" }) {
     try {
       let updated = user;
       const { data } = await api.patch(endpoints.users.me, {
-        first_name: form.firstName,
-        last_name: form.lastName,
+        firstName: form.firstName,
+        lastName: form.lastName,
         phone: form.phone,
-        adresse: form.adresse,
+        location: form.adresse,
       });
       updated = { ...updated, ...data };
       if (profileFile) {

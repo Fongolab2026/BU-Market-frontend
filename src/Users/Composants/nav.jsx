@@ -1,5 +1,7 @@
 import {
   ChevronDown,
+  ClipboardList,
+  Bell,
   Heart,
   LogOut,
   Menu,
@@ -19,6 +21,7 @@ import { useAuth } from "../../context/AuthContext.jsx";
 import { useCart } from "../../context/CartContext.jsx";
 import { useTheme } from "../../context/ThemeContext.jsx";
 import { useFavorites } from "../../hooks/useFavorites";
+import { notificationApi, orderApi } from "../../services";
 import { clearTokens, isAuthenticated } from "../../services/api";
 
 const NAV_LINKS = [
@@ -32,6 +35,8 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
   const navigate = useNavigate();
   const menuRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pendingOrderCount, setPendingOrderCount] = useState(0);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
   const [internalMobileOpen, setInternalMobileOpen] = useState(false);
   const mobileOpen = controlledOpen ?? internalMobileOpen;
   const toggleMobile = () => {
@@ -59,6 +64,70 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
     "U";
   const profileImage =
     user?.profile_pic || user?.profilePic || user?.avatar || user?.photo;
+
+  useEffect(() => {
+    if (!authenticated) {
+      setPendingOrderCount(0);
+      return undefined;
+    }
+
+    let active = true;
+    const refreshPendingOrders = async () => {
+      try {
+        let page = 1;
+        let pending = 0;
+        let hasNextPage = true;
+        while (hasNextPage) {
+          const { data } = await orderApi.list({ page });
+          const orders = Array.isArray(data) ? data : data?.results ?? [];
+          pending += orders.filter((order) => order.status === 'pending').length;
+          hasNextPage = !Array.isArray(data) && Boolean(data?.next);
+          page += 1;
+        }
+        if (active) setPendingOrderCount(pending);
+      } catch {
+        // La navigation reste utilisable si le compteur ne peut pas être chargé.
+      }
+    };
+
+    refreshPendingOrders();
+    const intervalId = window.setInterval(refreshPendingOrders, 30000);
+    window.addEventListener('focus', refreshPendingOrders);
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshPendingOrders);
+    };
+  }, [authenticated, user?.id]);
+
+  useEffect(() => {
+    if (!authenticated) {
+      setUnreadNotificationCount(0);
+      return undefined;
+    }
+
+    let active = true;
+    const refreshNotifications = async () => {
+      try {
+        const { data } = await notificationApi.list({ is_read: false, page: 1 });
+        const unread = Array.isArray(data)
+          ? data.length
+          : Number(data?.count ?? data?.total ?? data?.results?.length ?? 0);
+        if (active) setUnreadNotificationCount(unread);
+      } catch {
+        // L'icône reste disponible même si le compteur n'est pas joignable.
+      }
+    };
+
+    refreshNotifications();
+    const intervalId = window.setInterval(refreshNotifications, 30000);
+    window.addEventListener('focus', refreshNotifications);
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshNotifications);
+    };
+  }, [authenticated, user?.id]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -129,13 +198,13 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
               className="hidden flex-1 justify-center md:flex"
               aria-label="Navigation principale"
             >
-              <ul className="flex items-center gap-1 rounded-full border border-base-300/70 bg-base-200/55 p-1">
+              <ul className="flex items-center gap-7">
                 {NAV_LINKS.map(({ label, path }) => (
                   <li key={label}>
                     <button
                       type="button"
                       onClick={() => handleNavLink(path)}
-                      className="rounded-full px-4 py-2 text-[13px] font-semibold text-base-content/65 transition-colors hover:bg-base-100 hover:text-primary hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      className="relative px-0 py-2 text-[13px] font-semibold text-base-content/70 transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-center after:scale-x-0 after:bg-primary after:transition-transform hover:text-primary hover:after:scale-x-100 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                     >
                       {label}
                     </button>
@@ -176,6 +245,42 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
               </span>
             )}
           </Link>
+
+          {authenticated && (
+            <Link
+              to="/commandes"
+              title="Commandes en attente"
+              aria-label={pendingOrderCount > 0
+                ? `Commandes en attente, ${pendingOrderCount}`
+                : 'Mes commandes'}
+              className="relative inline-flex size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary"
+            >
+              <ClipboardList size={21} />
+              {pendingOrderCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-warning px-1 text-[10px] font-bold text-warning-content ring-2 ring-base-100">
+                  {pendingOrderCount > 99 ? '99+' : pendingOrderCount}
+                </span>
+              )}
+            </Link>
+          )}
+
+          {authenticated && (
+            <Link
+              to="/notifications"
+              title="Mes notifications"
+              aria-label={unreadNotificationCount > 0
+                ? `Mes notifications, ${unreadNotificationCount} non lue${unreadNotificationCount > 1 ? 's' : ''}`
+                : 'Mes notifications'}
+              className="relative inline-flex size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary"
+            >
+              <Bell size={21} />
+              {unreadNotificationCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-error px-1 text-[10px] font-bold text-error-content ring-2 ring-base-100">
+                  {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                </span>
+              )}
+            </Link>
+          )}
 
           <Button
             type="button"

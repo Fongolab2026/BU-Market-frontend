@@ -242,7 +242,7 @@ export function MerchantOrdersPage() {
                     <td className="py-3.5"><StatusBadge status={order.status} label={statusLabels[order.status]} /></td>
                     <td className="py-3.5 text-sm text-base-content/55">{formatDateTime(order.date)}</td>
                     <td className="py-3.5">
-                      <select
+                      {order.can_update_status ? <select
                         value={order.status}
                         onChange={(event) => updateStatus(order, event.target.value)}
                         className="select select-bordered min-w-32 text-sm font-medium focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -250,7 +250,7 @@ export function MerchantOrdersPage() {
                         {statusOptions.map((option) => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
-                      </select>
+                      </select> : <span className="text-xs text-base-content/55" title="Commande composée d’articles de plusieurs boutiques">Statut géré par l’administration</span>}
                     </td>
                   </tr>
                 );

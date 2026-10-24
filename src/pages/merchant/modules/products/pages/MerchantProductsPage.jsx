@@ -127,8 +127,10 @@ export function MerchantProductsPage() {
     setSubmitting(true)
     try {
       if (modal === 'create') {
-        await merchantProductService.create(form, selectedFiles)
-        toast.success('Votre produit a été publié.')
+        const created = await merchantProductService.create(form, selectedFiles)
+        toast.success(created.status === 'inactive'
+          ? 'Demande envoyée à l’équipe de modération.'
+          : 'Votre produit a été publié.')
       } else {
         await merchantProductService.update(modal, form)
         if (selectedFiles.length > 0) {
@@ -154,8 +156,10 @@ export function MerchantProductsPage() {
   const toggleStatus = async (product) => {
     const nextStatus = product.status === 'active' ? 'inactive' : 'active'
     try {
-      await merchantProductService.updateStatus(product.id, nextStatus)
-      toast.success(product.status === 'active' ? 'Produit mis en brouillon.' : 'Produit publié.')
+      const updated = await merchantProductService.updateStatus(product.id, nextStatus)
+      toast.success(updated.publication_pending
+        ? 'Demande envoyée à l’équipe de modération.'
+        : product.status === 'active' ? 'Produit mis en brouillon.' : 'Produit publié.')
       await reload()
     } catch (error) {
       toast.error(getApiErrorMessage(error, 'Impossible de changer le statut du produit.'))

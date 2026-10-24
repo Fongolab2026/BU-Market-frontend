@@ -353,6 +353,9 @@
     --react-international-phone-border-color: var(--color-base-300);
     --react-international-phone-country-selector-border-color: var(--color-base-300);
     --react-international-phone-background-color: var(--surface);
+    --react-international-phone-country-selector-background-color: var(--surface);
+    --react-international-phone-text-color: var(--color-base-content);
+    color: var(--color-base-content);
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
   }
 
@@ -379,6 +382,7 @@
 
   .phone-input .react-international-phone-country-selector-button {
     background-color: var(--surface);
+    color: var(--color-base-content);
     border-radius: var(--radius-field) 0 0 var(--radius-field);
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
   }
@@ -388,6 +392,8 @@
   }
 
   .phone-input .react-international-phone__input {
+    background-color: var(--surface);
+    color: var(--color-base-content);
     border-radius: 0 var(--radius-field) var(--radius-field) 0;
     transition: border-color 0.2s ease;
   }

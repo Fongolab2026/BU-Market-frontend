@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CheckCheck, Mail, MailOpen, MessageSquareText, Search, Store } from 'lucide-react'
+import { CheckCheck, Mail, MailOpen, MessageSquareText, Search, Send, Store } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { messagesService } from '../services/messagesService.js'
 import { PageHeader } from '../../../components/ui.jsx'
@@ -10,6 +10,9 @@ export function MessagesPage() {
   const [conversations, setConversations] = useState([])
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState(null)
+  const [thread, setThread] = useState([])
+  const [reply, setReply] = useState('')
+  const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -29,9 +32,38 @@ export function MessagesPage() {
 
   const openConversation = async (conversation) => {
     setSelectedId(conversation.id)
-    if (conversation.unread > 0) {
-      const updated = await messagesService.markRead(conversation.id)
-      setConversations((current) => current.map((item) => (item.id === updated.id ? { ...item, unread: 0, status: 'closed' } : item)))
+    setReply('')
+    try {
+      const [messages] = await Promise.all([
+        messagesService.thread(conversation.id),
+        conversation.unread > 0 ? messagesService.markRead(conversation.id) : Promise.resolve(),
+      ])
+      setThread(messages)
+      if (conversation.unread > 0) {
+        setConversations((current) => current.map((item) => (item.id === conversation.id ? { ...item, unread: 0, status: 'closed' } : item)))
+      }
+    } catch {
+      toast.error('Impossible de charger cette conversation.')
+    }
+  }
+
+  const sendReply = async (event) => {
+    event.preventDefault()
+    if (!selected || !reply.trim()) return
+    setSending(true)
+    try {
+      await messagesService.send(selected.id, reply.trim())
+      const updatedThread = await messagesService.thread(selected.id)
+      setThread(updatedThread)
+      setReply('')
+      setConversations((current) => current.map((item) => item.id === selected.id
+        ? { ...item, message: reply.trim(), time: "À l'instant" }
+        : item))
+      toast.success('Réponse envoyée. L’utilisateur recevra une notification.')
+    } catch {
+      toast.error("Impossible d'envoyer la réponse.")
+    } finally {
+      setSending(false)
     }
   }
 
@@ -111,10 +143,10 @@ export function MessagesPage() {
           </div>
         </div>
 
-        <div className="min-w-0 flex-1 rounded-2xl border border-base-200 bg-base-50 p-6">
+        <div className="flex min-h-[560px] min-w-0 flex-1 flex-col rounded-2xl border border-base-300 bg-base-200/40 p-4 sm:p-5">
           {selected ? (
             <>
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-3 border-b border-base-300 pb-4">
                 <div className="flex items-center gap-3">
                   <Avatar
                     src={selected.avatar}
@@ -135,11 +167,30 @@ export function MessagesPage() {
                   {selected.unread > 0 ? 'Non lu' : 'Lu'}
                 </span>
               </div>
-              <div className="mt-6 rounded-2xl bg-white p-4 shadow-sm">
-                <p className="text-sm leading-6 text-base-content/80">{selected.message}</p>
-                <p className="mt-2 text-xs text-base-content/40">{selected.time}</p>
+              <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-5">
+                {thread.map((message) => (
+                  <div key={message.id} className={`flex ${message.from === 'me' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[85%] break-words rounded-2xl px-4 py-3 shadow-sm ${message.from === 'me' ? 'rounded-br-sm bg-brand text-white' : 'rounded-bl-sm border border-base-300 bg-(--surface) text-base-content'}`}>
+                      <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
+                      <p className={`mt-1 text-right text-[11px] ${message.from === 'me' ? 'text-white/65' : 'text-base-content/45'}`}>{message.time}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="mt-6 text-sm text-base-content/55">La réponse sera transmise à ce commerçant depuis l’interface de gestion.</p>
+              <form onSubmit={sendReply} className="flex items-end gap-2 border-t border-base-300 pt-4">
+                <textarea
+                  value={reply}
+                  onChange={(event) => setReply(event.target.value)}
+                  rows={2}
+                  maxLength={5000}
+                  placeholder="Écrivez votre réponse…"
+                  aria-label="Votre réponse"
+                  className="textarea textarea-bordered min-h-12 flex-1 resize-y bg-(--surface) text-sm text-base-content placeholder:text-base-content/45"
+                />
+                <button type="submit" disabled={!reply.trim() || sending} className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand px-4 text-sm font-semibold text-white transition hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50">
+                  <Send size={16} /> <span className="hidden sm:inline">Répondre</span>
+                </button>
+              </form>
             </>
           ) : (
             <div className="grid h-full min-h-64 place-items-center text-center">

@@ -118,7 +118,7 @@ function Field({ label, name, value, onChange, type = 'text', required = false, 
           readOnly={readOnly}
           aria-readonly={readOnly ? 'true' : undefined}
           aria-invalid={error ? 'true' : undefined}
-          className={`input input-bordered w-full bg-base-100 ${error ? 'input-error' : ''} ${readOnly ? 'cursor-not-allowed opacity-70' : ''}`}
+          className={`input input-bordered w-full bg-[var(--surface)] text-base-content placeholder:text-base-content/45 ${error ? 'input-error' : ''} ${readOnly ? 'cursor-not-allowed opacity-70' : ''}`}
         />
       )}
       {error && <p className="text-xs text-error">{[].concat(error).join(' ')}</p>}
@@ -275,8 +275,11 @@ export default function LouerEspace() {
     setFeedback(null)
     setErrors({})
     try {
-      await api.post(endpoints.boutiques.create, form)
-      toast.success('Votre demande de location est en attente de confirmation.')
+      const { data } = await api.post(endpoints.boutiques.create, form)
+      window.dispatchEvent(new Event('bu-market:space-request-updated'))
+      toast.success(data?.status === 'validated'
+        ? 'Votre espace marchand est activé 🎉'
+        : 'Votre demande de location est en attente de confirmation.')
       // Retour à l'accueil client : la demande reste « pending » et le hook
       // global `useSellerUpgrade` basculera vers l'espace marchand dès la
       // validation par l'admin.
@@ -431,7 +434,7 @@ export default function LouerEspace() {
                       <Field label="Nom de l’entreprise" name="companyName" value={form.companyName} error={errors.companyName} onChange={updateField} required placeholder="Ex. Atelier du Burundi" />
                       <Field label="Nom du propriétaire" name="ownerName" value={form.ownerName} error={errors.ownerName} onChange={updateField} required readOnly placeholder="Nom du compte connecté" />
                       <Field label="Industrie" name="industry" error={errors.industry} required>
-                        <select id="industry" name="industry" value={form.industry} onChange={updateField} required className="select select-bordered w-full bg-base-100">
+                        <select id="industry" name="industry" value={form.industry} onChange={updateField} required className="select select-bordered w-full bg-[var(--surface)] text-base-content">
                           <option value="" disabled>Sélectionner une industrie</option>
                           {industries.map((industry) => <option key={industry} value={industry}>{industry}</option>)}
                         </select>
@@ -475,19 +478,19 @@ export default function LouerEspace() {
                     </div>
                     <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
                       <Field label="Province" name="province" error={errors.province} required>
-                        <select id="province" name="province" value={form.province} onChange={handleProvinceChange} required className="select select-bordered w-full bg-base-100">
+                        <select id="province" name="province" value={form.province} onChange={handleProvinceChange} required className="select select-bordered w-full bg-[var(--surface)] text-base-content">
                           <option value="" disabled>Sélectionner une province</option>
                           {Object.keys(locations).map((province) => <option key={province} value={province}>{province}</option>)}
                         </select>
                       </Field>
                       <Field label="Commune" name="commune" error={errors.commune} required>
-                        <select id="commune" name="commune" value={form.commune} onChange={handleCommuneChange} required disabled={!form.province} className="select select-bordered w-full bg-base-100 disabled:opacity-50">
+                        <select id="commune" name="commune" value={form.commune} onChange={handleCommuneChange} required disabled={!form.province} className="select select-bordered w-full bg-[var(--surface)] text-base-content disabled:opacity-50">
                           <option value="" disabled>{form.province ? 'Sélectionner une commune' : 'Choisir d’abord une province'}</option>
                           {communes.map((commune) => <option key={commune} value={commune}>{commune}</option>)}
                         </select>
                       </Field>
                       <Field label="Quartier" name="neighborhood" error={errors.neighborhood} required>
-                        <select id="neighborhood" name="neighborhood" value={form.neighborhood} onChange={updateField} required disabled={!form.commune} className="select select-bordered w-full bg-base-100 disabled:opacity-50">
+                        <select id="neighborhood" name="neighborhood" value={form.neighborhood} onChange={updateField} required disabled={!form.commune} className="select select-bordered w-full bg-[var(--surface)] text-base-content disabled:opacity-50">
                           <option value="" disabled>{form.commune ? 'Sélectionner un quartier' : 'Choisir d’abord une commune'}</option>
                           {neighborhoodOptions.map((neighborhood) => <option key={neighborhood} value={neighborhood}>{neighborhood}</option>)}
                         </select>

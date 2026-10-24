@@ -21,8 +21,14 @@ const MERCHANT_ROLES = ['merchant', 'seller']
 export function useSellerUpgrade({ pollMs = 8000 } = {}) {
   const { user, signIn } = useAuth()
   const navigate = useNavigate()
-  const { status } = useSpaceRequest(user, { pollMs })
+  const { status, refresh } = useSpaceRequest(user, { pollMs })
   const upgraded = useRef(false)
+
+  useEffect(() => {
+    const refreshAfterRequest = () => refresh().catch(() => {})
+    window.addEventListener('bu-market:space-request-updated', refreshAfterRequest)
+    return () => window.removeEventListener('bu-market:space-request-updated', refreshAfterRequest)
+  }, [refresh])
 
   useEffect(() => {
     if (upgraded.current) return

@@ -16,8 +16,7 @@ export function useFavorites() {
     if (!isAuthenticated()) return
     setLoading(true)
     try {
-      const { data } = await favoriteApi.list({ perPage: 1000 })
-      const results = Array.isArray(data) ? data : data?.results ?? []
+      const results = await favoriteApi.listAll()
       setFavoriteIds(new Set(results.map((f) => f.product)))
     } catch (err) {
       setError(err.message || 'Impossible de charger les favoris')
@@ -45,8 +44,7 @@ export function useFavorites() {
         // Retirer des favoris
         setLoading(true)
         try {
-          const { data } = await favoriteApi.list({ perPage: 1000 })
-          const results = Array.isArray(data) ? data : data?.results ?? []
+          const results = await favoriteApi.listAll()
           const fav = results.find((f) => f.product === productId)
           if (fav?.id) {
             await favoriteApi.remove(fav.id)

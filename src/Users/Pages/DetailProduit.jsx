@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, BadgeCheck, Globe2, Heart, Mail, MapPin, Phone, ShieldCheck, ShoppingBag, Store, Truck } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BadgeCheck, Globe2, Heart, Mail, MapPin, Phone, ShieldCheck, ShoppingBag, Star, Store, Truck } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { productApi, categoryApi, isAuthenticated } from '../../services'
+import { productApi, categoryApi, reviewApi, isAuthenticated } from '../../services'
 import { useFavorites } from '../../hooks/useFavorites'
 import { useCart } from '../../context/CartContext.jsx'
 import { ProductDetailSkeleton } from '../../components/skeletons'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 export default function DetailProduit() {
   const { id } = useParams()
@@ -17,7 +18,14 @@ export default function DetailProduit() {
   const [selectedImage, setSelectedImage] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [reviews, setReviews] = useState([])
+  const [reviewNote, setReviewNote] = useState('5')
+  const [reviewComment, setReviewComment] = useState('')
+  const [reviewLoading, setReviewLoading] = useState(true)
+  const [reviewSubmitting, setReviewSubmitting] = useState(false)
+  const [reportedReviewIds, setReportedReviewIds] = useState([])
 
+  const { user } = useAuth()
   const { isFavorite, toggleFavorite } = useFavorites()
   const { addItem } = useCart()
   const liked = product ? isFavorite(product.id) : false
@@ -53,6 +61,22 @@ export default function DetailProduit() {
     }
   }, [id])
 
+  useEffect(() => {
+    let active = true
+    setReviewLoading(true)
+    setReportedReviewIds([])
+    reviewApi.list({ product: id, perPage: 100 }).then(({ data }) => {
+      if (!active) return
+      const result = Array.isArray(data) ? data : data?.results ?? []
+      setReviews(Array.isArray(result) ? result : [])
+    }).catch(() => {
+      if (active) setReviews([])
+    }).finally(() => {
+      if (active) setReviewLoading(false)
+    })
+    return () => { active = false }
+  }, [id])
+
   const categoryName =
     categories.find((c) => c.id === product?.category)?.name ?? 'Produit'
 
@@ -78,6 +102,47 @@ export default function DetailProduit() {
       navigate('/panier')
     } catch (err) {
       toast.error(err.response?.data?.quantity?.[0] || err.response?.data?.detail || "Impossible d'ajouter ce produit au panier")
+    }
+  }
+
+  const handleReviewSubmit = async (event) => {
+    event.preventDefault()
+    if (!isAuthenticated()) {
+      toast.error('Connectez-vous pour laisser un avis')
+      return
+    }
+    setReviewSubmitting(true)
+    try {
+      const { data } = await reviewApi.create({
+        product: Number(id),
+        note: Number(reviewNote),
+        comment: reviewComment.trim(),
+      })
+      setReviews((current) => [data, ...current])
+      setReviewComment('')
+      toast.success('Votre avis a été publié.')
+    } catch (err) {
+      const detail = err.response?.data?.detail || err.response?.data?.non_field_errors?.[0]
+      toast.error(detail || 'Impossible de publier votre avis.')
+    } finally {
+      setReviewSubmitting(false)
+    }
+  }
+
+  const handleReportReview = async (review) => {
+    if (!isAuthenticated()) {
+      toast.error('Connectez-vous pour signaler un avis.')
+      return
+    }
+    try {
+      const { data } = await reviewApi.report(review.id)
+      setReportedReviewIds((current) => [...current, review.id])
+      if (data.hidden) {
+        setReviews((current) => current.filter((item) => item.id !== review.id))
+      }
+      toast.success('Avis signalé à notre équipe.')
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Impossible de signaler cet avis.')
     }
   }
 
@@ -234,6 +299,48 @@ export default function DetailProduit() {
             </div>
           </div>
         </div>
+        <section className="mx-auto mt-12 max-w-4xl border-t border-base-300 px-4 pt-8 sm:px-0" aria-labelledby="reviews-title">
+          <div className="mb-6 flex items-center gap-2">
+            <Star size={20} className="fill-amber-400 text-amber-400" aria-hidden="true" />
+            <h2 id="reviews-title" className="text-xl font-bold text-base-content">Avis clients</h2>
+            <span className="text-sm text-base-content/55">({reviews.length})</span>
+          </div>
+          <form onSubmit={handleReviewSubmit} className="mb-8 grid gap-3 rounded-2xl border border-base-300 bg-[var(--surface)] p-4 sm:grid-cols-[150px_1fr_auto] sm:items-end">
+            <label className="form-control gap-1 text-sm font-medium">
+              Votre note
+              <select className="select select-bordered" value={reviewNote} onChange={(event) => setReviewNote(event.target.value)}>
+                {[5, 4, 3, 2, 1].map((value) => <option key={value} value={value}>{value} / 5</option>)}
+              </select>
+            </label>
+            <label className="form-control gap-1 text-sm font-medium">
+              Votre commentaire
+              <textarea className="textarea textarea-bordered min-h-12" value={reviewComment} onChange={(event) => setReviewComment(event.target.value)} maxLength={2000} placeholder="Partagez votre expérience" rows={2} />
+            </label>
+            <button type="submit" className="btn btn-primary" disabled={reviewSubmitting}>
+              {reviewSubmitting ? 'Publication…' : 'Publier'}
+            </button>
+          </form>
+          {reviewLoading ? <p className="text-sm text-base-content/60">Chargement des avis…</p> : reviews.length === 0 ? (
+            <p className="rounded-xl bg-base-200/50 p-4 text-sm text-base-content/60">Aucun avis pour ce produit. Soyez le premier à partager votre expérience.</p>
+          ) : (
+            <div className="space-y-4">
+              {reviews.map((review) => (
+                <article key={review.id} className="rounded-xl border border-base-300 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold text-base-content">{review.author}</p>
+                    <span className="text-sm font-semibold text-amber-600">{'★'.repeat(Number(review.note) || 0)}{'☆'.repeat(5 - (Number(review.note) || 0))} <span className="text-base-content/60">{review.note}/5</span></span>
+                  </div>
+                  {review.comment && <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-base-content/70">{review.comment}</p>}
+                  {user?.id !== review.authorId && !reportedReviewIds.includes(review.id) && (
+                    <button type="button" onClick={() => handleReportReview(review)} className="mt-3 text-xs font-semibold text-base-content/50 underline-offset-2 hover:text-error hover:underline">
+                      Signaler cet avis
+                    </button>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
         </div>
       </main>
       <Footer />
