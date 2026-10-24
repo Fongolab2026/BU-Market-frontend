@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "primereact/button";
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useCart } from "../../context/CartContext.jsx";
 import { useTheme } from "../../context/ThemeContext.jsx";
@@ -34,6 +34,7 @@ const NAV_LINKS = [
 
 export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMobile, onCloseMobile }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const menuRef = useRef(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [internalMobileOpen, setInternalMobileOpen] = useState(false);
@@ -57,6 +58,17 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
   const authenticated = isAuthenticated();
   const showLandingAuth = variant === "landing";
   const isBuyer = authenticated && !showLandingAuth && user?.role === "client";
+  const isCurrentRoute = (path) => location.pathname === path;
+  const isCurrentNavLink = (path) => {
+    const [base, section] = path.split("#");
+    if (section) {
+      return (
+        (location.pathname === base && location.hash === `#${section}`) ||
+        (section === "produits" && location.pathname.startsWith("/produit/"))
+      );
+    }
+    return location.pathname === base && !location.hash;
+  };
 
   const displayName =
     user?.firstName || user?.first_name || user?.username || "Utilisateur";
@@ -157,7 +169,7 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
     closeMobile();
     const [base, id] = path.split("#");
     if (id) {
-      navigate(base || "/accueil", { replace: false });
+      navigate(`${base || "/accueil"}#${id}`, { replace: false });
       setTimeout(() => {
         const el = document.getElementById(id);
         if (el) el.scrollIntoView({ behavior: "smooth" });
@@ -217,7 +229,8 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
                     <button
                       type="button"
                       onClick={() => handleNavLink(path)}
-                      className="relative px-0 py-2 text-[13px] font-semibold text-base-content/70 transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-center after:scale-x-0 after:bg-primary after:transition-transform hover:text-primary hover:after:scale-x-100 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      aria-current={isCurrentNavLink(path) ? "page" : undefined}
+                      className={`relative px-0 py-2 text-[13px] font-semibold transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:origin-center after:bg-primary after:transition-transform hover:text-primary hover:after:scale-x-100 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isCurrentNavLink(path) ? "text-primary after:scale-x-100" : "text-base-content/70 after:scale-x-0"}`}
                     >
                       {label}
                     </button>
@@ -236,7 +249,8 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
                   ? `Mes notifications, ${notificationCount} non lue${notificationCount > 1 ? "s" : ""}`
                   : "Mes notifications"
               }
-              className="relative inline-flex size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary"
+              aria-current={isCurrentRoute("/notifications") ? "page" : undefined}
+              className={`relative inline-flex size-10 items-center justify-center rounded-full transition-colors hover:bg-base-200 hover:text-primary ${isCurrentRoute("/notifications") ? "bg-primary/10 text-primary" : "text-base-content/65"}`}
             >
               <Bell size={21} />
               {notificationCount > 0 && (
@@ -251,7 +265,8 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
             to="/favoris"
             title="Mes favoris"
             aria-label="Mes favoris"
-            className="relative hidden size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary sm:inline-flex"
+            aria-current={isCurrentRoute("/favoris") ? "page" : undefined}
+            className={`relative hidden size-10 items-center justify-center rounded-full transition-colors hover:bg-base-200 hover:text-primary sm:inline-flex ${isCurrentRoute("/favoris") ? "bg-primary/10 text-primary" : "text-base-content/65"}`}
           >
             <Heart size={21} className={favoriteCount > 0 ? "fill-current text-red-500" : ""} />
             {favoriteCount > 0 && !favoritesLoading && (
@@ -269,7 +284,8 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
                 ? `Mon panier, ${cartCount} article${cartCount > 1 ? "s" : ""}`
                 : "Mon panier"
             }
-            className="relative inline-flex size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary"
+            aria-current={isCurrentRoute("/panier") ? "page" : undefined}
+            className={`relative inline-flex size-10 items-center justify-center rounded-full transition-colors hover:bg-base-200 hover:text-primary ${isCurrentRoute("/panier") ? "bg-primary/10 text-primary" : "text-base-content/65"}`}
           >
             <ShoppingCart size={21} />
             {cartCount > 0 && (
@@ -288,7 +304,8 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
                   ? `Commandes en attente, ${pendingOrderCount}`
                   : "Mes commandes"
               }
-              className="relative hidden size-10 items-center justify-center rounded-full text-base-content/65 transition-colors hover:bg-base-200 hover:text-primary sm:inline-flex"
+              aria-current={isCurrentRoute("/commandes") ? "page" : undefined}
+              className={`relative hidden size-10 items-center justify-center rounded-full transition-colors hover:bg-base-200 hover:text-primary sm:inline-flex ${isCurrentRoute("/commandes") ? "bg-primary/10 text-primary" : "text-base-content/65"}`}
             >
               <ClipboardList size={21} />
               {pendingOrderCount > 0 && (
@@ -459,7 +476,8 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
                   <button
                     type="button"
                     onClick={() => handleNavLink(path)}
-                    className="w-full rounded-lg px-4 py-3 text-left text-sm font-semibold text-base-content/75 transition-colors hover:bg-base-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    aria-current={isCurrentNavLink(path) ? "page" : undefined}
+                    className={`w-full rounded-lg px-4 py-3 text-left text-sm font-semibold transition-colors hover:bg-base-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isCurrentNavLink(path) ? "bg-primary/10 text-primary" : "text-base-content/75"}`}
                   >
                     {label}
                   </button>
@@ -471,7 +489,8 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
                     <Link
                       to="/favoris"
                       onClick={closeMobile}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold text-base-content/75 transition-colors hover:bg-base-200 hover:text-primary"
+                      aria-current={isCurrentRoute("/favoris") ? "page" : undefined}
+                      className={`flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold transition-colors hover:bg-base-200 hover:text-primary ${isCurrentRoute("/favoris") ? "bg-primary/10 text-primary" : "text-base-content/75"}`}
                     >
                       <Heart
                         size={18}
@@ -489,7 +508,8 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
                     <Link
                       to="/notifications"
                       onClick={closeMobile}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold text-base-content/75 transition-colors hover:bg-base-200 hover:text-primary"
+                      aria-current={isCurrentRoute("/notifications") ? "page" : undefined}
+                      className={`flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold transition-colors hover:bg-base-200 hover:text-primary ${isCurrentRoute("/notifications") ? "bg-primary/10 text-primary" : "text-base-content/75"}`}
                     >
                       <Bell size={18} />
                       Notifications
@@ -504,7 +524,8 @@ export default function NavBar({ variant, mobileOpen: controlledOpen, onToggleMo
                     <Link
                       to="/commandes"
                       onClick={closeMobile}
-                      className="flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold text-base-content/75 transition-colors hover:bg-base-200 hover:text-primary"
+                      aria-current={isCurrentRoute("/commandes") ? "page" : undefined}
+                      className={`flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold transition-colors hover:bg-base-200 hover:text-primary ${isCurrentRoute("/commandes") ? "bg-primary/10 text-primary" : "text-base-content/75"}`}
                     >
                       <Package size={18} />
                       Mes commandes
