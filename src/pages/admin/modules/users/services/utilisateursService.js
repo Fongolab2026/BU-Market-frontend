@@ -29,36 +29,64 @@ const roleToLabel = {
   buyer: "buyer",
 };
 
-const mapUser = (user) => ({
-  ...user,
-  firstName: user.firstName || user.username || "Sans nom",
-  initials: initialsOf(user.firstName || user.username),
-  role: roleToLabel[user.role] || "buyer",
-  phone: user.phone || "",
-  location: user.location || "Non précisée",
-  joinedAt: formatDate(user.joinedAt),
-  lastActive: user.lastActive ? formatRelative(user.lastActive) : "Jamais",
-  shop: user.shop
-    ? { ...user.shop, name: user.shop.name || user.username, status: user.shop.status }
-    : null,
-  timeline: (user.timeline || []).map((entry) => ({
-    ...entry,
-    date: formatDateTime(entry.date),
-  })),
+const mapUser = (user) => {
+  const apiRole = user.apiRole || user.role || "buyer";
+  return {
+    ...user,
+    // Role brut conserve pour ne pas retrograder un superadmin lors d'une
+    // simple modification de son profil.
+    apiRole,
+    isSuperAdmin: apiRole === "superadmin",
+    firstName: user.firstName || user.username || "Sans nom",
+    initials: initialsOf(user.firstName || user.username),
+    role: roleToLabel[apiRole] || "buyer",
+    phone: user.phone || "",
+    location: user.location || "Non précisée",
+    joinedAt: formatDate(user.joinedAt),
+    lastActive: user.lastActive ? formatRelative(user.lastActive) : "Jamais",
+    shop: user.shop
+      ? { ...user.shop, name: user.shop.name || user.username, status: user.shop.status }
+      : null,
+    timeline: (user.timeline || []).map((entry) => ({
+      ...entry,
+      date: formatDateTime(entry.date),
+    })),
+  };
+};
+
+const mapPage = (page) => ({
+  ...page,
+  results: page.results.map(mapUser),
 });
 
-const toPayload = (input) => ({
-  firstName: (input.firstName || "").trim(),
-  email: (input.email || "").trim(),
-  phone: (input.phone || "").trim(),
-  location: (input.location || "").trim(),
-  role: roleToApi[input.role] || input.role,
-});
+const toPayload = (input) => {
+  const phone = (input.phone || "").trim();
+  const payload = {
+    username: (input.username || "").trim(),
+    firstName: (input.firstName || "").trim(),
+    lastName: (input.lastName || "").trim(),
+    email: (input.email || "").trim(),
+    phone: phone === "+257" ? "" : phone,
+    location: (input.location || "").trim(),
+    role: roleToApi[input.role] || input.role,
+  };
+
+  // Le formulaire ne propose pas de role « superadmin » distinct : on
+  // conserve le role d'origine si l'administrateur n'a pas change la valeur.
+  if (input.apiRole === "superadmin" && payload.role === "admin") {
+    payload.role = "superadmin";
+  }
+
+  const password = (input.password || "").trim();
+  if (password) payload.password = password;
+
+  return payload;
+};
 
 export const utilisateursService = {
   list: async ({ query = "", role = "all", status = "all", page = 1, perPage = 5 } = {}) => {
     const params = cleanFilters({ search: query, role, status, page, perPage });
-    return toPage(await apiGet(utilisateurEndpoints.list, params), perPage);
+    return mapPage(toPage(await apiGet(utilisateurEndpoints.list, params), perPage));
   },
   detail: async (id) => {
     const user = await apiGet(utilisateurEndpoints.detail(id));
