@@ -311,6 +311,8 @@ function ShopDetailView({ shop, products, loading, onCompare }) {
       </div>
     </section>
   )
+}
+
 /** Comparaison côte à côte : produits du concurrent vs mes produits. */
 function ComparisonView({ shop, competitorProducts, myProducts, loading, onCloseComparison }) {
   return (
@@ -396,5 +398,4 @@ function ComparisonView({ shop, competitorProducts, myProducts, loading, onClose
       </div>
     </section>
   )
-}
 }

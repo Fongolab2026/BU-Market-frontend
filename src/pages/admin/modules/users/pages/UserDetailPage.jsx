@@ -11,7 +11,7 @@ import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
 import Avatar from '../../../../../components/Avatar.jsx'
 import { ProfileSkeleton } from '../../../../../components/skeletons'
 
-const roleLabel = { admin: 'Gestionnaire', merchant: 'Commerçant', client: 'Client' }
+const roleLabel = { admin: 'Gestionnaire', merchant: 'Commerçant', buyer: 'Client' }
 
 const timelineStyle = {
   account: { icon: UserPlus, className: 'bg-brand/10 text-brand' },
@@ -43,7 +43,13 @@ export function UserDetailPage() {
     await utilisateursService.updateStatus(user.id, status)
     await reload()
     setBusy(false)
-    toast.success(status === 'active' ? 'Le compte et la boutique ont été validés.' : 'Le compte a été suspendu.')
+    toast.success(
+      status === 'active'
+        ? user.shop
+          ? 'Le compte et la boutique ont été validés.'
+          : 'Le compte a été validé.'
+        : 'Le compte a été suspendu.',
+    )
   }
 
   const updatePhoto = async (event) => {
@@ -113,22 +119,24 @@ export function UserDetailPage() {
 
       <IdentityCard user={user} onPhotoChange={updatePhoto} photoBusy={photoBusy} />
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="min-w-0 space-y-4">
-          {user.shop && <ShopCard shop={user.shop} />}
-          {user.shop && <ProductsCard shop={user.shop} busy={busy} onToggle={toggleProduct} />}
-          {user.shop && <ReviewsCard shop={user.shop} busy={busy} onToggle={toggleReview} />}
-          {!user.shop && (
-            <section className="card p-6 text-center">
-              <p className="font-semibold text-base-content">Aucune boutique associée à ce compte.</p>
-            </section>
-          )}
+      {user.shop ? (
+        <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0 space-y-4">
+            <ShopCard shop={user.shop} />
+            <ProductsCard shop={user.shop} busy={busy} onToggle={toggleProduct} />
+            <ReviewsCard shop={user.shop} busy={busy} onToggle={toggleReview} />
+          </div>
+          <aside className="space-y-4">
+            <ActionsCard user={user} busy={busy} onValidate={() => updateStatus('active')} onSuspend={() => updateStatus('suspended')} />
+            <DangerZone shopName={user.shop.name} busy={busy} onDeleteShop={() => setConfirm('shop')} onDeleteUser={() => setConfirm('user')} />
+          </aside>
         </div>
-        <aside className="space-y-4">
+      ) : (
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <ActionsCard user={user} busy={busy} onValidate={() => updateStatus('active')} onSuspend={() => updateStatus('suspended')} />
-          <DangerZone shopName={user.shop?.name} busy={busy} onDeleteShop={() => setConfirm('shop')} onDeleteUser={() => setConfirm('user')} />
-        </aside>
-      </div>
+          <DangerZone busy={busy} onDeleteUser={() => setConfirm('user')} />
+        </div>
+      )}
 
       <HistoryCard timeline={user.timeline} />
 
@@ -181,7 +189,7 @@ function IdentityCard({ user, onPhotoChange, photoBusy }) {
               <UserRoundCheck size={19} className="text-brand" aria-label="Compte vérifié" />
             </div>
             <div className="mt-1.5 flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-semibold text-brand">{roleLabel[user.role]}</span>
+              <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-semibold text-brand">{user.isSuperAdmin ? 'Super admin' : roleLabel[user.role] || user.role}</span>
               <StatusBadge status={user.status} />
             </div>
             <p className="mt-1.5 flex items-center gap-1.5 text-sm text-base-content/55">
@@ -378,7 +386,11 @@ function ActionsCard({ user, busy, onValidate, onSuspend }) {
   return (
     <section className="card p-5">
       <h2 className="font-semibold text-base-content">Actions de gestion</h2>
-      <p className="mt-1 text-sm leading-5 text-base-content/55">Choisissez l’état du compte et de sa boutique.</p>
+      <p className="mt-1 text-sm leading-5 text-base-content/55">
+        {user.shop
+          ? 'Choisissez l’état du compte et de sa boutique.'
+          : 'Choisissez l’état du compte.'}
+      </p>
       <div className="mt-4 space-y-2">
         {user.status !== 'active' && (
           <button disabled={busy} onClick={onValidate} className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-soft disabled:opacity-60">

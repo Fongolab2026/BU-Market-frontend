@@ -207,11 +207,11 @@ export const endpoints = {
     itemDetail: (id) => `/carts/cart-items/${id}/`,
   },
   admin: {
-    stats: "/admin/admin/stats/",
-    activity: "/admin/admin/activity/",
-    moderationQueue: "/admin/admin/moderation-queue/",
-    meta: "/admin/admin/meta/",
-    settings: "/admin/admin/settings/",
+    stats: "/admin/stats/",
+    activity: "/admin/activity/",
+    moderationQueue: "/admin/moderation-queue/",
+    meta: "/admin/meta/",
+    settings: "/admin/settings/",
   },
 };
 

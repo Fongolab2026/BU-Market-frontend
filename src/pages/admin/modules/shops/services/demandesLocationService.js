@@ -31,7 +31,9 @@ export const demandesLocationService = {
     return boutiques.map(mapBoutique);
   },
   validate: async (id) => {
-    const boutique = await apiPatch(demandesLocationEndpoints.validate(id), {});
+    const response = await apiPatch(demandesLocationEndpoints.validate(id), {});
+    // Le backend renvoie maintenant { boutique, user }
+    const boutique = response.boutique || response;
     return mapBoutique(boutique);
   },
   reject: async (id) => mapBoutique(await apiPatch(demandesLocationEndpoints.reject(id), {})),
