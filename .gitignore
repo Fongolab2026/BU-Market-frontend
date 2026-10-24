@@ -24,3 +24,6 @@ dist-ssr
 
 # Dépendances
 node_modules/
+
+# QR code generated locally
+qr-codes/landing-qr.png
