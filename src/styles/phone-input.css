@@ -1,0 +1,150 @@
+@layer components {
+  /* ---------- Champ téléphone international ---------- */
+  .phone-input {
+    width: 100%;
+    --react-international-phone-border-radius: var(--radius-field);
+    --react-international-phone-border-color: var(--color-base-300);
+    --react-international-phone-country-selector-border-color: var(--color-base-300);
+    --react-international-phone-background-color: var(--surface);
+    --react-international-phone-text-color: var(--color-base-content);
+    --react-international-phone-country-selector-background-color: var(--surface);
+    --react-international-phone-country-selector-background-color-hover: color-mix(
+      in srgb,
+      var(--color-primary) 8%,
+      var(--surface)
+    );
+    --react-international-phone-country-selector-arrow-color: var(--color-base-content);
+    --react-international-phone-dropdown-item-background-color: var(--surface);
+    --react-international-phone-dropdown-item-text-color: var(--color-base-content);
+    --react-international-phone-dropdown-item-dial-code-color: color-mix(
+      in srgb,
+      var(--color-base-content) 60%,
+      transparent
+    );
+    --react-international-phone-selected-dropdown-item-background-color: color-mix(
+      in srgb,
+      var(--color-primary) 16%,
+      var(--surface)
+    );
+    --react-international-phone-selected-dropdown-item-text-color: var(--color-base-content);
+    --react-international-phone-selected-dropdown-item-dial-code-color: color-mix(
+      in srgb,
+      var(--color-base-content) 60%,
+      transparent
+    );
+    color: var(--color-base-content);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .phone-input:hover {
+    --react-international-phone-border-color: color-mix(
+      in srgb,
+      var(--color-primary) 45%,
+      var(--color-base-300)
+    );
+    --react-international-phone-country-selector-border-color: color-mix(
+      in srgb,
+      var(--color-primary) 45%,
+      var(--color-base-300)
+    );
+  }
+
+  /* Halo de focus sur l'ensemble du champ (pays + numéro). */
+  .phone-input:focus-within {
+    --react-international-phone-border-color: var(--color-primary);
+    --react-international-phone-country-selector-border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px
+      color-mix(in srgb, var(--color-primary) 15%, transparent);
+  }
+
+  .phone-input .react-international-phone-country-selector-button {
+    background-color: var(--surface);
+    color: var(--color-base-content);
+    border-radius: var(--radius-field) 0 0 var(--radius-field);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .phone-input .react-international-phone-country-selector-button:hover {
+    background-color: color-mix(in srgb, var(--color-primary) 8%, var(--surface));
+  }
+
+  .phone-input .react-international-phone-input {
+    border-radius: 0 var(--radius-field) var(--radius-field) 0;
+    background-color: var(--surface);
+    color: var(--color-base-content);
+    caret-color: var(--color-base-content);
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .phone-input .react-international-phone-input::placeholder {
+    color: color-mix(in srgb, var(--color-base-content) 40%, transparent);
+  }
+
+  .phone-input .react-international-phone-input:focus {
+    outline: none;
+  }
+
+  /* Évite le fond blanc imposé par l'autocomplétion du navigateur. */
+  .phone-input .react-international-phone-input:-webkit-autofill,
+  .phone-input .react-international-phone-input:-webkit-autofill:hover,
+  .phone-input .react-international-phone-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-base-content);
+    -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+    caret-color: var(--color-base-content);
+  }
+
+  /* État d'erreur : bordure rouge, halo rouge discret au focus. */
+  .phone-input[data-error='true'] {
+    --react-international-phone-border-color: var(--color-error);
+    --react-international-phone-country-selector-border-color: var(--color-error);
+  }
+
+  .phone-input[data-error='true']:focus-within {
+    --react-international-phone-border-color: var(--color-error);
+    --react-international-phone-country-selector-border-color: var(--color-error);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-error) 18%, transparent);
+  }
+
+  /* Liste des pays */
+  .phone-input .react-international-phone-country-selector-dropdown {
+    background-color: var(--surface);
+    border: 1px solid var(--color-base-300);
+    border-radius: var(--radius-field);
+    box-shadow: 0 12px 28px rgb(0 0 0 / var(--shadow-strong, 0.14));
+    color: var(--color-base-content);
+  }
+
+  .phone-input
+    .react-international-phone-country-selector-dropdown__list-item {
+    color: var(--color-base-content);
+  }
+
+  .phone-input
+    .react-international-phone-country-selector-dropdown__list-item-dial-code {
+    color: color-mix(in srgb, var(--color-base-content) 60%, transparent);
+  }
+
+  .phone-input
+    .react-international-phone-country-selector-dropdown__list-item:hover,
+  .phone-input
+    .react-international-phone-country-selector-dropdown__list-item--focused,
+  .phone-input
+    .react-international-phone-country-selector-dropdown__list-item--selected {
+    background-color: color-mix(in srgb, var(--color-primary) 16%, var(--surface));
+    color: var(--color-base-content);
+  }
+
+  .phone-input
+    .react-international-phone-country-selector-dropdown__list-item--focused
+    .react-international-phone-country-selector-dropdown__list-item-dial-code,
+  .phone-input
+    .react-international-phone-country-selector-dropdown__list-item--selected
+    .react-international-phone-country-selector-dropdown__list-item-dial-code {
+    color: color-mix(in srgb, var(--color-base-content) 60%, transparent);
+  }
+
+  .phone-input
+    .react-international-phone-country-selector-dropdown__preferred-list-divider {
+    background: var(--color-base-300);
+  }
+}

@@ -71,8 +71,8 @@ Message prêt à envoyer aux devs backend.
 | Méthode | Endpoint | Attendu |
 | --- | --- | --- |
 | GET | `/api/categories/` | `[{id, name, count}]` |
-| POST | `/api/categories/` | créer une catégorie |
-| PATCH | `/api/categories/:id/` | renommer une catégorie |
+| POST | `/api/categories/` | créer une catégorie (multipart si `image`) |
+| PATCH | `/api/categories/:id/` | renommer, changer l'image (`image`, `remove_image: true` pour l'enlever) |
 | DELETE | `/api/categories/:id/` | supprimer une catégorie |
 
 ## 6. Commandes
@@ -92,12 +92,28 @@ Message prêt à envoyer aux devs backend.
 
 ## 8. Avis
 
+Deux familles d'avis, même forme de réponse :
+`{id, product|shop, author, authorAvatar, authorId, note[1-5], comment,
+date, status[visible|hidden], shopId, shopName}`. Un seul avis par couple
+(auteur, cible), commentaire de 3 signes minimum ; l'auteur d'un produit ou
+d'une boutique ne peut pas noter sa propre cible.
+
 | Méthode | Endpoint | Attendu |
 | --- | --- | --- |
-| GET | `/api/reviews/` | avis : `{id, author, note, comment, date, status[visible\|hidden], shopId, shopName}` |
-| DELETE | `/api/reviews/:id/` | supprimer un avis |
-| PATCH | `/api/reviews/:id/hide/` | masquer un avis |
-| PATCH | `/api/reviews/:id/reveal/` | réafficher un avis |
+| GET | `/api/favorites/reviews/?product=:id` | avis d'un produit (public si `?product=`) |
+| POST | `/api/favorites/reviews/` | déposer un avis produit `{product, note, comment}` |
+| PATCH | `/api/favorites/reviews/:id/` | modifier son avis (auteur uniquement) |
+| DELETE | `/api/favorites/reviews/:id/` | supprimer son avis (auteur uniquement) |
+| POST | `/api/favorites/reviews/:id/report/` | signaler → notification admin, avis non masqué |
+| PATCH | `/api/favorites/reviews/:id/hide/` | masquer (admin) |
+| PATCH | `/api/favorites/reviews/:id/reveal/` | réafficher (admin) |
+| GET | `/api/shops/shop-reviews/?shop=:id` | avis d'une boutique (public) |
+| POST | `/api/shops/shop-reviews/` | déposer un avis boutique `{shop, note, comment}` |
+| PATCH | `/api/shops/shop-reviews/:id/` | modifier son avis (auteur uniquement) |
+| DELETE | `/api/shops/shop-reviews/:id/` | supprimer son avis (auteur uniquement) |
+| POST | `/api/shops/shop-reviews/:id/report/` | signaler → notification admin |
+| PATCH | `/api/shops/shop-reviews/:id/hide/` | masquer (admin) |
+| PATCH | `/api/shops/shop-reviews/:id/reveal/` | réafficher (admin) |
 
 ## 9. Messages (conversations admin ↔ commerçant)
 

@@ -5,6 +5,7 @@ import { ShopSkeleton } from '../../components/skeletons'
 import NavBar from '../Composants/nav'
 import Footer from '../Composants/Footer'
 import ZoomableImage from '../Composants/ZoomableImage.jsx'
+import ReviewSection from '../../components/reviews/ReviewSection.jsx'
 import { shopApi } from '../../services'
 
 export default function ProfilVendeur() {
@@ -112,6 +113,14 @@ export default function ProfilVendeur() {
                 ))}
               </div>
               {!shop.productList?.length && <p className="mt-4 text-base-content/60">Aucun produit publié.</p>}
+            </section>
+
+            <section className="mt-10 rounded-3xl border border-base-300 bg-[var(--surface)] p-6 shadow-sm sm:p-8">
+              <ReviewSection
+                targetType="shop"
+                targetId={shop.ownerId ?? id}
+                ownerId={shop.ownerId ?? id}
+              />
             </section>
           </>
         )}

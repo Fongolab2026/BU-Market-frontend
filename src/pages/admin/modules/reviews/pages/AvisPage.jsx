@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Eye, EyeOff, Search, Star, Store, Trash2 } from 'lucide-react'
+import { Eye, EyeOff, Package, Search, Star, Store, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { avisService } from '../services/avisService.js'
@@ -45,15 +45,15 @@ export function AvisPage() {
 
   const toggleReview = async (review) => {
     const nextStatus = review.status === 'visible' ? 'hidden' : 'visible'
-    await avisService.updateStatus(review.id, nextStatus)
-    setReviews((current) => current.map((item) => (item.id === review.id ? { ...item, status: nextStatus } : item)))
+    await avisService.updateStatus(review, nextStatus)
+    setReviews((current) => current.map((item) => (item.id === review.id && item.type === review.type ? { ...item, status: nextStatus } : item)))
     toast.success(nextStatus === 'visible' ? 'L’avis est de nouveau visible.' : 'L’avis a été masqué.')
   }
 
   const handleDelete = async () => {
     if (!deleteTarget) return
-    await avisService.remove(deleteTarget.id)
-    setReviews((current) => current.filter((item) => item.id !== deleteTarget.id))
+    await avisService.remove(deleteTarget)
+    setReviews((current) => current.filter((item) => !(item.id === deleteTarget.id && item.type === deleteTarget.type)))
     setDeleteTarget(null)
     toast.success('L’avis a été supprimé.')
   }
@@ -114,7 +114,7 @@ export function AvisPage() {
           </div>
         ) : (
           visible.map((review) => (
-            <article key={review.id} className="card flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
+            <article key={`${review.type}-${review.id}`} className="card flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex min-w-0 gap-3">
                 <Avatar src={review.avatar} name={review.author} alt="" className="size-10 shrink-0 rounded-full bg-brand/10 text-xs font-semibold text-brand" />
                 <div className="min-w-0">
@@ -122,6 +122,14 @@ export function AvisPage() {
                     <p className="text-sm font-semibold text-base-content">{review.author}</p>
                     <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700">
                       <Star size={12} className="fill-amber-500 text-amber-500" /> {review.note}/5
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${
+                        review.type === 'shop' ? 'bg-sky-50 text-sky-700' : 'bg-base-200 text-base-content/70'
+                      }`}
+                    >
+                      {review.type === 'shop' ? <Store size={12} /> : <Package size={12} />}
+                      {review.type === 'shop' ? 'Boutique' : 'Produit'}
                     </span>
                     <StatusBadge status={review.status} label={review.status === 'visible' ? 'Visible' : 'Masqué'} />
                   </div>

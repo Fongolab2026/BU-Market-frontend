@@ -21,6 +21,7 @@ import CardProducts from '../products/ui/cardProduct'
 import { productApi } from '../../services'
 import HeroSlideshow from '../../components/HeroSlideshow.jsx'
 import { ProductGridSkeleton } from '../../components/skeletons'
+import Reveal from '../../components/Reveal.jsx'
 
 const STATS = [
   { value: '10 000+', label: 'Clients satisfaits', icon: Users },
@@ -207,10 +208,10 @@ export default function Landing() {
         </section>
 
         {/* ---------- Stats ---------- */}
-        <section className="border-b border-base-300/70 bg-base-200/50">
+        <Reveal as="section" className="border-b border-base-300/70 bg-base-200/50">
           <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-10 sm:gap-6 sm:px-6 sm:py-12 lg:grid-cols-4">
-            {STATS.map(({ value, label, icon: Icon }) => (
-              <div key={label} className="flex items-center gap-3 sm:gap-4">
+            {STATS.map(({ value, label, icon: Icon }, index) => (
+              <Reveal key={label} delay={index * 70} className="flex items-center gap-3 sm:gap-4">
                 <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary sm:size-12">
                   <Icon size={24} aria-hidden="true" />
                 </span>
@@ -218,14 +219,14 @@ export default function Landing() {
                   <p className="text-xl font-extrabold text-base-content sm:text-2xl">{value}</p>
                   <p className="text-xs text-base-content/60 sm:text-sm">{label}</p>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
-        </section>
+        </Reveal>
 
         {/* ---------- Fonctionnalités ---------- */}
-        <section id="fonctionnalites" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
+        <Reveal as="section" id="fonctionnalites" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6">
+          <Reveal className="mx-auto mb-12 max-w-2xl text-center">
             <span className="badge badge-accent badge-sm mb-3 uppercase tracking-widest">Fonctionnalités</span>
             <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">
               Tout ce qu'il vous faut pour acheter et vendre
@@ -233,12 +234,13 @@ export default function Landing() {
             <p className="mt-4 text-base-content/65">
               Une plateforme pensée pour simplifier vos achats et booster vos ventes.
             </p>
-          </div>
+          </Reveal>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {FEATURES.map(({ icon: Icon, title, text }) => (
-              <div
+            {FEATURES.map(({ icon: Icon, title, text }, index) => (
+              <Reveal
                 key={title}
+                delay={index * 80}
                 className="group rounded-2xl border border-base-300/70 bg-[var(--surface)] p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
               >
                 <span className="mb-4 grid size-12 place-items-center rounded-xl bg-accent/20 text-base-content transition-colors group-hover:bg-primary group-hover:text-primary-content">
@@ -246,15 +248,15 @@ export default function Landing() {
                 </span>
                 <h3 className="mb-2 text-lg font-bold">{title}</h3>
                 <p className="text-sm leading-relaxed text-base-content/65">{text}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
-        </section>
+        </Reveal>
 
         {/* ---------- Comment ça marche ---------- */}
-        <section className="bg-base-200/50">
+        <Reveal as="section" className="bg-base-200/50">
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-            <div className="mx-auto mb-12 max-w-2xl text-center">
+            <Reveal className="mx-auto mb-12 max-w-2xl text-center">
               <span className="badge badge-accent badge-sm mb-3 uppercase tracking-widest">Simple et rapide</span>
               <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">
                 Comment ça marche ?
@@ -262,12 +264,13 @@ export default function Landing() {
               <p className="mt-4 text-base-content/65">
                 Trois étapes suffisent pour passer votre première commande.
               </p>
-            </div>
+            </Reveal>
 
             <div className="grid gap-6 md:grid-cols-3">
-              {STEPS.map(({ icon: Icon, step, title, text }) => (
-                <div
+              {STEPS.map(({ icon: Icon, step, title, text }, index) => (
+                <Reveal
                   key={step}
+                  delay={index * 90}
                   className="relative rounded-2xl border border-base-300/70 bg-[var(--surface)] p-7 shadow-sm"
                 >
                   <span className="absolute -top-4 left-6 grid size-9 place-items-center rounded-full bg-primary text-sm font-extrabold text-primary-content shadow-md shadow-primary/25">
@@ -278,22 +281,22 @@ export default function Landing() {
                   </span>
                   <h3 className="mb-2 text-lg font-bold">{title}</h3>
                   <p className="text-sm leading-relaxed text-base-content/65">{text}</p>
-                </div>
+                </Reveal>
               ))}
             </div>
 
-            <div className="mt-12 flex justify-center">
+            <Reveal delay={120} className="mt-12 flex justify-center">
               <Link to="/inscription" className="btn btn-primary gap-2 px-8 text-base">
                 Commencer maintenant
                 <ArrowRight size={18} aria-hidden="true" />
               </Link>
-            </div>
+            </Reveal>
           </div>
-        </section>
+        </Reveal>
 
         {/* ---------- Produits publiés ---------- */}
-        <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-          <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+        <Reveal as="section" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
+          <Reveal className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <span className="badge badge-accent badge-sm mb-2 uppercase tracking-widest">Catalogue</span>
               <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">Produits publiés</h2>
@@ -304,7 +307,7 @@ export default function Landing() {
             <Link to="/connexion" className="text-sm font-semibold text-primary transition hover:underline">
               Tout voir →
             </Link>
-          </div>
+          </Reveal>
 
           {loading ? (
             <ProductGridSkeleton count={8} />
@@ -312,27 +315,31 @@ export default function Landing() {
             <p className="text-center text-base-content/60">Aucun produit publié pour le moment.</p>
           ) : (
             <div className="grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {featured.map((product) => (
-                <CardProducts key={product.id} product={product} />
+              {featured.map((product, index) => (
+                <Reveal key={product.id} delay={(index % 4) * 70} className="w-full">
+                  <CardProducts product={product} />
+                </Reveal>
               ))}
             </div>
           )}
-        </section>
+        </Reveal>
 
         {/* ---------- Témoignages ---------- */}
-        <section className="bg-base-200/50">
+        <Reveal as="section" className="bg-base-200/50">
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-            <div className="mx-auto mb-12 max-w-2xl text-center">
+            <Reveal className="mx-auto mb-12 max-w-2xl text-center">
               <span className="badge badge-accent badge-sm mb-3 uppercase tracking-widest">Témoignages</span>
               <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">
                 Ils nous font confiance
               </h2>
-            </div>
+            </Reveal>
 
             <div className="grid gap-6 md:grid-cols-3">
-              {TESTIMONIALS.map(({ name, role, text, rating }) => (
-                <figure
+              {TESTIMONIALS.map(({ name, role, text, rating }, index) => (
+                <Reveal
+                  as="figure"
                   key={name}
+                  delay={index * 90}
                   className="flex flex-col gap-4 rounded-2xl border border-base-300/70 bg-[var(--surface)] p-7 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
                 >
                   <Quote size={28} className="text-accent" aria-hidden="true" />
@@ -346,25 +353,27 @@ export default function Landing() {
                     <p className="font-bold">{name}</p>
                     <p className="text-xs text-base-content/50">{role}</p>
                   </figcaption>
-                </figure>
+                </Reveal>
               ))}
             </div>
           </div>
-        </section>
+        </Reveal>
 
         {/* ---------- FAQ ---------- */}
-        <section className="mx-auto max-w-3xl px-4 py-20 sm:px-6">
-          <div className="mb-12 text-center">
+        <Reveal as="section" className="mx-auto max-w-3xl px-4 py-20 sm:px-6">
+          <Reveal className="mb-12 text-center">
             <span className="badge badge-accent badge-sm mb-3 uppercase tracking-widest">FAQ</span>
             <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">
               Questions fréquentes
             </h2>
-          </div>
+          </Reveal>
 
           <div className="space-y-3">
-            {FAQ.map(({ question, answer }) => (
-              <details
+            {FAQ.map(({ question, answer }, index) => (
+              <Reveal
+                as="details"
                 key={question}
+                delay={index * 60}
                 className="group rounded-xl border border-base-300/70 bg-[var(--surface)] p-5 shadow-sm open:border-primary/30 open:shadow-md"
               >
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold marker:hidden [&::-webkit-details-marker]:hidden">
@@ -376,14 +385,14 @@ export default function Landing() {
                   </span>
                 </summary>
                 <p className="mt-3 text-sm leading-relaxed text-base-content/65">{answer}</p>
-              </details>
+              </Reveal>
             ))}
           </div>
-        </section>
+        </Reveal>
 
         {/* ---------- CTA ---------- */}
-        <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
-          <div className="home-hero relative overflow-hidden rounded-3xl px-6 py-16 text-center text-primary-content shadow-xl md:px-16 md:py-20">
+        <Reveal as="section" className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
+          <Reveal variant="zoom" className="home-hero relative overflow-hidden rounded-3xl px-6 py-16 text-center text-primary-content shadow-xl md:px-16 md:py-20">
             <div className="absolute -left-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
             <div className="absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-accent/25 blur-3xl" aria-hidden="true" />
 
@@ -411,8 +420,8 @@ export default function Landing() {
                 </Link>
               </div>
             </div>
-          </div>
-        </section>
+          </Reveal>
+        </Reveal>
       </main>
 
       <Footer />

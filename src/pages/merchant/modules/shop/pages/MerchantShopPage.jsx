@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { merchantShopService } from '../services/merchantShopService.js'
 import { PageHeader, StatusBadge } from '../../../components/ui.jsx'
 import { ShopSkeleton } from '../../../../../components/skeletons'
+import ReviewSection from '../../../../../components/reviews/ReviewSection.jsx'
 
 const shopCategories = ['Alimentation', 'Mode & accessoires', 'Artisanat', 'Maison & décoration', 'Beauté & soins', 'Électronique']
 
@@ -199,6 +200,15 @@ export function MerchantShopPage() {
                 </Link>
               </div>
             </div>
+          </section>
+
+          <section className="card p-6" aria-label="Avis reçus">
+            <ReviewSection
+              targetType="shop"
+              targetId={shop.id}
+              ownerId={shop.id}
+              title="Avis reçus par ma boutique"
+            />
           </section>
         </div>
       )}

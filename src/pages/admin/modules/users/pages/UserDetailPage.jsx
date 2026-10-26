@@ -85,7 +85,7 @@ export function UserDetailPage() {
   const toggleReview = async (review) => {
     const nextStatus = review.status === 'visible' ? 'hidden' : 'visible'
     setBusy(true)
-    await avisService.updateStatus(review.id, nextStatus)
+    await avisService.updateStatus(review, nextStatus)
     await reload()
     setBusy(false)
     toast.success(nextStatus === 'visible' ? 'L’avis est de nouveau visible.' : 'L’avis a été masqué.')

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./theme.css";
+@import "./styles/phone-input.css";
 @import "primeicons/primeicons.css";
 @import "primereact/resources/primereact.min.css";
 @import "primereact/resources/themes/lara-light-amber/theme.css";
@@ -28,6 +29,34 @@ button:not(:disabled), select, input[type="checkbox"] { cursor: pointer; }
 .animate-step-in { animation: step-in 0.32s cubic-bezier(0.22, 1, 0.36, 1); }
 .animate-fade-up { animation: fade-up 0.4s ease-out both; }
 
+/* ---------- Apparition au défilement (scroll reveal) ---------- */
+[data-reveal] {
+  --reveal-delay: 0ms;
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay);
+  will-change: opacity, transform;
+}
+
+[data-reveal="down"] { transform: translate3d(0, -24px, 0); }
+[data-reveal="left"] { transform: translate3d(-32px, 0, 0); }
+[data-reveal="right"] { transform: translate3d(32px, 0, 0); }
+[data-reveal="zoom"] { transform: scale(0.96); }
+
+[data-reveal-visible="true"] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-step-in, .animate-fade-up { animation: none; }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

@@ -26,5 +26,16 @@ export const favoriteApi = {
 export const reviewApi = {
   list: (params) => api.get("/favorites/reviews/", { params }),
   create: (data) => api.post("/favorites/reviews/", data),
+  update: (id, data) => api.patch(`/favorites/reviews/${id}/`, data),
+  remove: (id) => api.delete(`/favorites/reviews/${id}/`),
   report: (id) => api.post(`/favorites/reviews/${id}/report/`),
+};
+
+/** Avis déposés sur une boutique entière (`/api/shops/shop-reviews/`). */
+export const shopReviewApi = {
+  list: (params) => api.get("/shops/shop-reviews/", { params }),
+  create: (data) => api.post("/shops/shop-reviews/", data),
+  update: (id, data) => api.patch(`/shops/shop-reviews/${id}/`, data),
+  remove: (id) => api.delete(`/shops/shop-reviews/${id}/`),
+  report: (id) => api.post(`/shops/shop-reviews/${id}/report/`),
 };

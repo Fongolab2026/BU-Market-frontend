@@ -174,9 +174,18 @@ export const endpoints = {
   reviews: {
     list: "/favorites/reviews/",
     detail: (id) => `/favorites/reviews/${id}/`,
+    report: (id) => `/favorites/reviews/${id}/report/`,
     hide: (id) => `/favorites/reviews/${id}/hide/`,
     reveal: (id) => `/favorites/reviews/${id}/reveal/`,
     delete: (id) => `/favorites/reviews/${id}/`,
+  },
+  shopReviews: {
+    list: "/shops/shop-reviews/",
+    detail: (id) => `/shops/shop-reviews/${id}/`,
+    report: (id) => `/shops/shop-reviews/${id}/report/`,
+    hide: (id) => `/shops/shop-reviews/${id}/hide/`,
+    reveal: (id) => `/shops/shop-reviews/${id}/reveal/`,
+    delete: (id) => `/shops/shop-reviews/${id}/`,
   },
   shops: {
     list: "/shops/shops/",

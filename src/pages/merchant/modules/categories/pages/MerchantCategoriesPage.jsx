@@ -1,164 +1,200 @@
-import {
-  Apple,
-  BookOpen,
-  Edit,
-  Eye,
-  EyeOff,
-  Gamepad2,
-  House,
-  Package,
-  Palette,
-  Plus,
-  Search,
-  Shirt,
-  Smartphone,
-  Sparkles,
-  Sprout,
-  Trash2,
-  TreePine,
-  Wrench,
-  X,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { ConfirmDialog } from "../../../components/ConfirmDialog.jsx";
-import { CardGridSkeleton } from "../../../../../components/skeletons";
-import { PageHeader, StatusBadge } from "../../../components/ui.jsx";
-import { merchantCategoryService } from "../services/merchantCategoryService.js";
+import { EyeOff, Layers, Package, Plus, Search, Sparkles, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
+import { ConfirmDialog } from '../../../components/ConfirmDialog.jsx'
+import { CardGridSkeleton } from '../../../../../components/skeletons'
+import { PageHeader } from '../../../components/ui.jsx'
+import CategoryCard from '../components/CategoryCard.jsx'
+import CategoryFormModal from '../components/CategoryFormModal.jsx'
+import { resolveCategoryVisual } from '../components/categoryVisuals.js'
+import { merchantCategoryService } from '../services/merchantCategoryService.js'
 
-const categoryIcons = {
-  Alimentation: Apple,
-  "Mode & accessoires": Shirt,
-  Artisanat: Wrench,
-  "Maison & décoration": House,
-  "Beauté & soins": Sparkles,
-  Électronique: Smartphone,
-};
+const STATUS_FILTERS = [
+  { key: 'all', label: 'Toutes' },
+  { key: 'active', label: 'Actives' },
+  { key: 'inactive', label: 'Inactives' },
+]
 
-const iconOptions = [
-  { key: "apple", label: "Alimentation", Icon: Apple },
-  { key: "shirt", label: "Mode", Icon: Shirt },
-  { key: "wrench", label: "Artisanat", Icon: Wrench },
-  { key: "house", label: "Maison", Icon: House },
-  { key: "sparkles", label: "Beauté", Icon: Sparkles },
-  { key: "smartphone", label: "Électronique", Icon: Smartphone },
-  { key: "book-open", label: "Livres", Icon: BookOpen },
-  { key: "gamepad-2", label: "Loisirs", Icon: Gamepad2 },
-  { key: "palette", label: "Création", Icon: Palette },
-  { key: "tree-pine", label: "Nature", Icon: TreePine },
-  { key: "sprout", label: "Jardin", Icon: Sprout },
-];
+const EMPTY_FORM = {
+  name: '',
+  description: '',
+  icon: 'package',
+  active: true,
+  image: null,
+  imageFile: null,
+  removeImage: false,
+  imagePreview: '',
+}
 
-const iconByKey = Object.fromEntries(
-  iconOptions.map((option) => [option.key, option.Icon]),
-);
+const normalize = (value = '') =>
+  String(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 
 export function MerchantCategoriesPage() {
-  const [categories, setCategories] = useState([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [modal, setModal] = useState(null);
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    icon: "package",
-    active: true,
-  });
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [categories, setCategories] = useState([])
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [loading, setLoading] = useState(true)
+  const [modal, setModal] = useState(null)
+  const [form, setForm] = useState(EMPTY_FORM)
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    merchantCategoryService.list().then((result) => {
-      setCategories(result);
-      setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-      toast.error("Impossible de charger les catégories.");
-    });
-  }, []);
+    merchantCategoryService
+      .list()
+      .then((result) => {
+        setCategories(result)
+        setLoading(false)
+      })
+      .catch(() => {
+        setLoading(false)
+        toast.error('Impossible de charger les catégories.')
+      })
+  }, [])
 
-  const reload = () => merchantCategoryService
-    .list()
-    .then(setCategories)
-    .catch(() => toast.error("Impossible d'actualiser les catégories."));
+  const reload = () =>
+    merchantCategoryService
+      .list()
+      .then(setCategories)
+      .catch(() => toast.error("Impossible d'actualiser les catégories."))
 
   const openCreate = () => {
-    setForm({ name: "", description: "", icon: "package", active: true });
-    setModal("create");
-  };
+    setForm(EMPTY_FORM)
+    setModal('create')
+  }
+
   const openEdit = (category) => {
+    // Une catégorie héritée porte l'icône générique « Divers » : on propose
+    // directement celle que la carte affiche réellement (déduite du nom).
+    const icon =
+      category.icon && category.icon !== 'package'
+        ? category.icon
+        : resolveCategoryVisual(category).iconKey
     setForm({
       name: category.name,
-      description: category.description,
-      icon: category.icon,
-      active: category.active,
-    });
-    setModal(category.id);
-  };
+      description: category.description || '',
+      icon,
+      active: category.active !== false,
+      image: category.image || null,
+      imageFile: null,
+      removeImage: false,
+      imagePreview: '',
+    })
+    setModal(category.id)
+  }
+
+  const setFormField = (name, value) =>
+    setForm((current) => ({ ...current, [name]: value }))
+
+  const handleImageChange = (file) =>
+    setForm((current) => ({
+      ...current,
+      imageFile: file,
+      removeImage: false,
+      imagePreview: URL.createObjectURL(file),
+    }))
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!form.name.trim()) return;
-    setSubmitting(true);
+    event.preventDefault()
+    if (!form.name.trim()) return
+    setSubmitting(true)
     try {
-      if (modal === "create") {
-        await merchantCategoryService.create({
-          name: form.name,
-          description: form.description,
-          icon: form.icon,
-        });
-        toast.success("Catégorie ajoutée.");
-      } else {
-        await merchantCategoryService.update(modal, {
-          name: form.name,
-          description: form.description,
-          icon: form.icon,
-        });
-        toast.success("Catégorie mise à jour.");
+      const input = {
+        name: form.name.trim(),
+        description: form.description,
+        icon: form.icon,
+        active: form.active,
+        imageFile: form.imageFile,
+        removeImage: form.removeImage,
       }
-      setModal(null);
-      await reload();
+      if (modal === 'create') {
+        await merchantCategoryService.create(input)
+        toast.success('Catégorie ajoutée.')
+      } else {
+        await merchantCategoryService.update(modal, input)
+        toast.success('Catégorie mise à jour.')
+      }
+      setModal(null)
+      await reload()
     } catch (error) {
-      toast.error(error.response?.data?.name?.[0] || "Impossible d'enregistrer la catégorie.");
+      toast.error(
+        error.response?.data?.name?.[0] ||
+          error.response?.data?.detail ||
+          "Impossible d'enregistrer la catégorie.",
+      )
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   const toggleStatus = async (category) => {
-    const nextActive = !category.active;
     try {
-      await merchantCategoryService.update(category.id, { active: nextActive });
-      toast.success(
-        category.active ? "Catégorie désactivée." : "Catégorie activée.",
-      );
-      await reload();
+      await merchantCategoryService.update(category.id, {
+        active: category.active === false,
+      })
+      toast.success(category.active ? 'Catégorie masquée.' : 'Catégorie activée.')
+      await reload()
     } catch {
-      toast.error("Impossible de modifier le statut de la catégorie.");
+      toast.error('Impossible de modifier le statut de la catégorie.')
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!deleteTarget) return;
+    if (!deleteTarget) return
     try {
-      await merchantCategoryService.remove(deleteTarget.id);
-      setDeleteTarget(null);
-      toast.success("Catégorie supprimée.");
-      await reload();
+      await merchantCategoryService.remove(deleteTarget.id)
+      setDeleteTarget(null)
+      toast.success('Catégorie supprimée.')
+      await reload()
     } catch (error) {
-      setDeleteTarget(null);
-      toast.error(error.response?.data?.detail || "Impossible de supprimer la catégorie.");
+      setDeleteTarget(null)
+      toast.error(
+        error.response?.data?.detail || 'Impossible de supprimer la catégorie.',
+      )
     }
-  };
+  }
 
-  const activeCount = categories.filter((c) => c.active).length;
+  const stats = useMemo(() => {
+    const active = categories.filter((category) => category.active !== false)
+    return {
+      total: categories.length,
+      active: active.length,
+      inactive: categories.length - active.length,
+      products: categories.reduce(
+        (sum, category) => sum + Number(category.count || 0),
+        0,
+      ),
+    }
+  }, [categories])
+
+  const visibleCategories = useMemo(() => {
+    const query = normalize(search.trim())
+    return categories.filter((category) => {
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'active' && category.active !== false) ||
+        (statusFilter === 'inactive' && category.active === false)
+      const matchesQuery =
+        !query ||
+        normalize(category.name).includes(query) ||
+        normalize(category.description || '').includes(query)
+      return matchesStatus && matchesQuery
+    })
+  }, [categories, search, statusFilter])
+
+  const statItems = [
+    { label: 'Catégories', value: stats.total, icon: Layers, tone: 'text-brand bg-brand/10' },
+    { label: 'Actives', value: stats.active, icon: Sparkles, tone: 'text-success bg-success/10' },
+    { label: 'Masquées', value: stats.inactive, icon: EyeOff, tone: 'text-base-content/60 bg-base-200' },
+    { label: 'Produits classés', value: stats.products, icon: Package, tone: 'text-warning bg-warning/10' },
+  ]
 
   return (
     <div className="space-y-4">
       <PageHeader
         eyebrow="Espace vendeur"
         title="Catégories"
-        description="Gérez les catégories de produits disponibles sur la plateforme."
+        description="Structurez votre catalogue : une catégorie, un visuel, une icône de repli."
         action={
           <button
             type="button"
@@ -169,6 +205,22 @@ export function MerchantCategoriesPage() {
           </button>
         }
       />
+
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {statItems.map(({ label, value, icon: Icon, tone }) => (
+          <article key={label} className="card p-4">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-sm font-medium text-base-content/60">{label}</p>
+              <span className={`grid size-9 place-items-center ${tone}`}>
+                <Icon size={18} />
+              </span>
+            </div>
+            <p className="mt-3 text-2xl font-bold tracking-tight text-base-content">
+              {value}
+            </p>
+          </article>
+        ))}
+      </section>
 
       <section className="card">
         <div className="flex flex-col gap-3 border-b border-base-200 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -185,256 +237,111 @@ export function MerchantCategoriesPage() {
               className="input input-bordered w-full pl-10 pr-3 text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20"
             />
           </label>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-3 py-1.5 text-xs font-semibold rounded-full bg-brand/10 text-brand">
-              {categories.length} catégories
-            </span>
-            <span className="px-3 py-1.5 text-xs font-semibold rounded-full bg-success/10 text-success">
-              {activeCount} actives
+
+          <div className="flex items-center gap-2">
+            <div className="flex rounded-lg border border-base-300 p-1">
+              {STATUS_FILTERS.map((filter) => (
+                <button
+                  key={filter.key}
+                  type="button"
+                  onClick={() => setStatusFilter(filter.key)}
+                  className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                    statusFilter === filter.key
+                      ? 'bg-brand text-white'
+                      : 'text-base-content/60 hover:text-base-content'
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+            <span className="hidden rounded-full bg-brand/10 px-3 py-1.5 text-xs font-semibold text-brand sm:inline-block">
+              {visibleCategories.length} affichée
+              {visibleCategories.length > 1 ? 's' : ''}
             </span>
           </div>
         </div>
 
         <div className="p-4">
           {loading ? (
-            <CardGridSkeleton count={8} height="h-72" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" />
+            <CardGridSkeleton
+              count={8}
+              height="h-64"
+              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            />
           ) : categories.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="mx-auto w-20 h-20 rounded-full bg-base-100 flex items-center justify-center mb-4">
-                <Package className="text-base-content/30" size={28} />
+              <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-brand/10">
+                <Layers className="text-brand" size={28} />
               </div>
-              <p className="font-bold text-base-content">Aucune catégorie</p>
+              <p className="mt-4 font-bold text-base-content">Aucune catégorie</p>
               <p className="mt-1 text-sm text-base-content/45">
-                Créez votre première catégorie.
+                Créez votre première catégorie pour structurer votre catalogue.
               </p>
+              <button
+                type="button"
+                onClick={openCreate}
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-soft"
+              >
+                <Plus size={16} /> Nouvelle catégorie
+              </button>
+            </div>
+          ) : visibleCategories.length === 0 ? (
+            <div className="p-10 text-center">
+              <p className="font-semibold text-base-content">
+                Aucune catégorie ne correspond à votre recherche.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch('')
+                  setStatusFilter('all')
+                }}
+                className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:underline"
+              >
+                <X size={15} /> Réinitialiser les filtres
+              </button>
             </div>
           ) : (
-            <>
-              <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {categories
-                  .filter(
-                    (c) =>
-                      !search.trim() ||
-                      c.name
-                        .toLowerCase()
-                        .includes(search.trim().toLowerCase()),
-                  )
-                  .map((category) => (
-                    <article
-                      key={category.id}
-                      className="group overflow-hidden rounded-2xl border border-base-200 bg-base-100 transition-all duration-300 hover:-translate-y-1 hover:border-brand/40 hover:shadow-xl"
-                    >
-                      <div className="aspect-square bg-linear-to-br from-brand/10 to-brand/5 flex items-center justify-center">
-                        {(() => {
-                          const Icon =
-                            iconByKey[category.icon] ||
-                            categoryIcons[category.name] ||
-                            Package;
-                          return (
-                            <Icon
-                              className="text-primary"
-                              size={56}
-                              strokeWidth={1.5}
-                              aria-hidden="true"
-                            />
-                          );
-                        })()}
-                      </div>
-                      <div className="p-4 space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="min-w-0">
-                            <p className="truncate font-semibold text-base-content">
-                              {category.name}
-                            </p>
-                            <p className="mt-0.5 text-xs text-base-content/50 flex items-center gap-1">
-                              <Package size={12} /> {category.count} produits
-                            </p>
-                          </div>
-                          <StatusBadge
-                            status={category.active ? "active" : "inactive"}
-                            label={category.active ? "Active" : "Inactive"}
-                          />
-                        </div>
-                        <p className="text-sm text-base-content/60 line-clamp-2">
-                          {category.description || "Aucune description"}
-                        </p>
-                        <div className="flex items-center gap-2 pt-2 border-t border-base-100">
-                          <button
-                            onClick={() => toggleStatus(category)}
-                            className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition ${category.active ? "bg-base-100 text-base-content/60 hover:bg-base-200" : "bg-success/10 text-success hover:bg-success/20"}`}
-                          >
-                            {category.active ? (
-                              <>
-                                {" "}
-                                <EyeOff size={14} /> Désactiver{" "}
-                              </>
-                            ) : (
-                              <>
-                                {" "}
-                                <Eye size={14} /> Activer{" "}
-                              </>
-                            )}
-                          </button>
-                          <button
-                            onClick={() => openEdit(category)}
-                            className="rounded-lg p-2 text-base-content/40 transition hover:bg-brand/10 hover:text-brand"
-                            aria-label={`Modifier ${category.name}`}
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={() => setDeleteTarget(category)}
-                            className="rounded-lg p-2 text-base-content/40 transition hover:bg-rose-50 hover:text-rose-600"
-                            aria-label={`Supprimer ${category.name}`}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-              </section>
-
-              <ConfirmDialog
-                open={Boolean(deleteTarget)}
-                title="Supprimer la catégorie"
-                message={
-                  deleteTarget
-                    ? `La catégorie « ${deleteTarget.name} » sera supprimée.`
-                    : ""
-                }
-                confirmLabel="Supprimer"
-                onConfirm={handleDelete}
-                onCancel={() => setDeleteTarget(null)}
-              />
-
-              {modal && (
-                <CategoryForm
-                  isCreate={modal === "create"}
-                  form={form}
-                  setFormField={(name, value) =>
-                    setForm((current) => ({ ...current, [name]: value }))
-                  }
-                  submitting={submitting}
-                  onSubmit={handleSubmit}
-                  onClose={() => setModal(null)}
+            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {visibleCategories.map((category) => (
+                <CategoryCard
+                  key={category.id}
+                  category={category}
+                  onEdit={openEdit}
+                  onToggle={toggleStatus}
+                  onDelete={setDeleteTarget}
                 />
-              )}
-            </>
+              ))}
+            </section>
           )}
         </div>
       </section>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Supprimer la catégorie"
+        message={
+          deleteTarget
+            ? `La catégorie « ${deleteTarget.name} » sera supprimée. Ses produits restent en ligne mais perdent leur classement.`
+            : ''
+        }
+        confirmLabel="Supprimer"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+
+      {modal && (
+        <CategoryFormModal
+          isCreate={modal === 'create'}
+          form={form}
+          setFormField={setFormField}
+          onImageChange={handleImageChange}
+          submitting={submitting}
+          onSubmit={handleSubmit}
+          onClose={() => setModal(null)}
+        />
+      )}
     </div>
-  );
-}
-
-function CategoryForm({
-  isCreate,
-  form,
-  setFormField,
-  submitting,
-  onSubmit,
-  onClose,
-}) {
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4 animate-in fade-in zoom-in-95 duration-200">
-      <form onSubmit={onSubmit} className="card w-full max-w-lg p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-bold text-base-content">
-              {isCreate ? "Nouvelle catégorie" : "Modifier la catégorie"}
-            </h2>
-            <p className="mt-1 text-sm text-base-content/55">
-              {isCreate
-                ? "Cette catégorie sera disponible pour vos produits."
-                : "Mettez à jour les informations de la catégorie."}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-2 text-base-content/50 transition hover:bg-base-100"
-            aria-label="Fermer"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="mt-4 grid gap-3">
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-base-content/80">
-              Nom de la catégorie
-            </span>
-            <input
-              value={form.name}
-              onChange={(event) => setFormField("name", event.target.value)}
-              placeholder="Ex : Alimentation"
-              className="input input-bordered w-full text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-base-content/80">
-              Description
-            </span>
-            <textarea
-              value={form.description}
-              onChange={(event) =>
-                setFormField("description", event.target.value)
-              }
-              placeholder="Description courte..."
-              rows={3}
-              className="textarea textarea-bordered w-full text-sm placeholder:text-base-content/40 focus:border-brand focus:ring-2 focus:ring-brand/20 resize-none"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-base-content/80">
-              Icône
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {iconOptions.map(({ key, label, Icon }) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setFormField("icon", key)}
-                  title={label}
-                  aria-label={`Choisir l'icône ${label}`}
-                  className={`flex size-10 items-center justify-center rounded-xl border-2 transition ${form.icon === key ? "border-brand bg-brand/10 text-brand" : "border-base-200 text-base-content/50 hover:border-brand/50"}`}
-                >
-                  <Icon size={20} />
-                </button>
-              ))}
-            </div>
-          </label>
-          <label className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={form.active}
-              onChange={(event) => setFormField("active", event.target.checked)}
-              className="checkbox checkbox-primary"
-            />
-            <span className="text-sm font-medium text-base-content/80">
-              Catégorie active
-            </span>
-          </label>
-        </div>
-
-        <div className="mt-5 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg border border-base-300 px-4 py-2 text-sm font-semibold text-base-content/70 transition hover:bg-base-100"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            disabled={!form.name.trim() || submitting}
-            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {submitting ? "Enregistrement…" : isCreate ? "Créer" : "Modifier"}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
+  )
 }
