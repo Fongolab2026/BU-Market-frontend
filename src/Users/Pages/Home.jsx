@@ -12,7 +12,6 @@ import HomeCatalog from './home/HomeCatalog.jsx'
 import HomeShops from './home/HomeShops.jsx'
 import HomeAbout from './home/HomeAbout.jsx'
 import HomeTestimonials from './home/HomeTestimonials.jsx'
-import HomeCta from './home/HomeCta.jsx'
 import HomeContact from './home/HomeContact.jsx'
 import useHomeCatalog from './home/useHomeCatalog.js'
 
@@ -63,7 +62,6 @@ export default function Home() {
         />
         <HomeAbout />
         <HomeTestimonials />
-        <HomeCta />
         <HomeContact />
       </main>
 

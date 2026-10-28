@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom'
-import { ArrowRight, Award, Globe, Sparkles, Star, Users } from 'lucide-react'
+import { ArrowRight, Award, Globe, Mail, ShoppingBag, Star, Users } from 'lucide-react'
 import Reveal from '../../../components/Reveal.jsx'
 
 const HIGHLIGHTS = [
@@ -32,11 +31,18 @@ export default function HomeAbout() {
               référencé sur notre plateforme.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/inscription" className="btn btn-primary gap-2">
-                <Sparkles size={18} aria-hidden="true" />
-                Rejoignez-nous
+              <a href="#produits" className="btn btn-primary gap-2">
+                <ShoppingBag size={18} aria-hidden="true" />
+                Explorer le catalogue
                 <ArrowRight size={16} aria-hidden="true" />
-              </Link>
+              </a>
+              <a
+                href="#contact"
+                className="btn gap-2 border border-base-300 bg-[var(--surface)] text-base-content hover:bg-base-200"
+              >
+                <Mail size={18} aria-hidden="true" />
+                Nous contacter
+              </a>
             </div>
           </Reveal>
 
