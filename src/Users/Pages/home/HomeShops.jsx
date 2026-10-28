@@ -4,9 +4,10 @@ import { AlertTriangle, Globe, Mail, MapPin, Phone, Store, Users, X } from 'luci
 import { shopApi } from '../../../services'
 import ZoomableImage from '../../Composants/ZoomableImage.jsx'
 import Reveal from '../../../components/Reveal.jsx'
+import { CardGridSkeleton } from '../../../components/skeletons'
 import ReviewSection from '../../../components/reviews/ReviewSection.jsx'
 
-export default function HomeShops({ shops, loadError = false }) {
+export default function HomeShops({ shops, loading = false, loadError = false }) {
   const [selectedShop, setSelectedShop] = useState(null)
 
   const openShop = async (shopId) => {
@@ -30,11 +31,13 @@ export default function HomeShops({ shops, loadError = false }) {
           </div>
           <p className="text-sm text-base-content/60">
             Découvrez les boutiques validées de la marketplace
-            {shops.length > 0 && ` · ${shops.length > 100 ? '100+' : shops.length}`}
+            {!loading && shops.length > 0 && ` · ${shops.length > 100 ? '100+' : shops.length}`}
           </p>
         </Reveal>
 
-        {shops.length === 0 ? (
+        {loading ? (
+          <CardGridSkeleton count={6} height="h-36" />
+        ) : shops.length === 0 ? (
           loadError ? (
             <p
               role="status"
@@ -60,7 +63,13 @@ export default function HomeShops({ shops, loadError = false }) {
                   <div className="flex items-start gap-4">
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 text-primary">
                       {shop.shopImage ? (
-                        <img src={shop.shopImage} alt={shop.name} className="h-full w-full object-cover" />
+                        <img
+                          src={shop.shopImage}
+                          alt={shop.name}
+                          loading="lazy"
+                          decoding="async"
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
                         <Store size={23} aria-hidden="true" />
                       )}

@@ -3,7 +3,7 @@ import { TRUST_POINTS } from './homeData.js'
 
 export default function HomeTrustStrip() {
   return (
-    <Reveal as="section" id="garanties" className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
+    <Reveal as="section" id="garanties" className="relative z-10 mx-auto max-w-7xl scroll-mt-24 px-4 sm:px-6">
       <div className="grid grid-cols-2 gap-4 -mt-8 lg:grid-cols-4">
         {TRUST_POINTS.map(({ icon: Icon, title, text }, index) => (
           <Reveal

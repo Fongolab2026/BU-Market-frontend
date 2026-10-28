@@ -141,7 +141,7 @@ export default function Landing() {
 
   useEffect(() => {
     productApi
-      .list()
+      .list({ status: 'active', page: 1, perPage: 8 })
       .then((response) => {
         const items = response.data.results ?? response.data
         setFeatured(Array.isArray(items) ? items.slice(0, 8) : [])
@@ -317,7 +317,7 @@ export default function Landing() {
             <div className="grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {featured.map((product, index) => (
                 <Reveal key={product.id} delay={(index % 4) * 70} className="w-full">
-                  <CardProducts product={product} />
+                  <CardProducts product={product} priority={index < 4} />
                 </Reveal>
               ))}
             </div>

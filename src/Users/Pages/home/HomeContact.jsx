@@ -24,7 +24,7 @@ export default function HomeContact() {
   } = useContactForm(user)
 
   return (
-    <Reveal as="section" id="contact" className="bg-base-200/60">
+    <Reveal as="section" id="contact" className="scroll-mt-24 bg-base-200/60">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-2">
           <Reveal variant="left">

@@ -44,7 +44,7 @@ export default function Home() {
 
       <main
         onClick={() => setMobileNavOpen(false)}
-        className={mobileNavOpen ? 'blur-sm md:blur-none' : ''}
+        className={mobileNavOpen ? 'blur-sm lg:blur-none' : ''}
       >
         <HomeHero
           pendingHeight={pendingBannerHeight}
@@ -56,7 +56,11 @@ export default function Home() {
         <HomeValues />
         <Divider />
         <HomeCatalog catalog={catalog} />
-        <HomeShops shops={catalog.shops} loadError={catalog.shopsError} />
+        <HomeShops
+          shops={catalog.shops}
+          loading={catalog.shopsLoading}
+          loadError={catalog.shopsError}
+        />
         <HomeAbout />
         <HomeTestimonials />
         <HomeCta />

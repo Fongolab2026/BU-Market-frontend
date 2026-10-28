@@ -1,5 +1,4 @@
 import { Moon, Sun } from 'lucide-react'
-import { Button } from 'primereact/button'
 import { useTheme } from '../../../context/ThemeContext.jsx'
 
 /** Bouton clair/sombre partagé par la navigation publique et connectée. */
@@ -8,15 +7,14 @@ export default function ThemeToggleButton() {
   const label = isDark ? 'Activer le mode clair' : 'Activer le mode sombre'
 
   return (
-    <Button
+    <button
       type="button"
       onClick={toggleTheme}
-      icon={isDark ? <Sun size={21} /> : <Moon size={21} />}
       title={label}
       aria-label={label}
-      text
-      rounded
-      className="flex! size-10! items-center! justify-center! text-base-content/65! transition-colors hover:bg-base-200! hover:text-primary!"
-    />
+      className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl text-base-content/60 transition-colors hover:bg-base-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    >
+      {isDark ? <Sun size={20} /> : <Moon size={20} />}
+    </button>
   )
 }

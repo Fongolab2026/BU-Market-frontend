@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import { isAuthenticated } from '../../../services'
 import { useFavorites } from '../../../hooks/useFavorites'
 
-export default function CardProducts({ product, categoryName, onToggle }) {
+export default function CardProducts({ product, categoryName, onToggle, priority = false }) {
   const { isFavorite, toggleFavorite, loading } = useFavorites()
   const liked = isFavorite(product.id)
   // Les visiteurs non connectés sont redirigés vers l'inscription plutôt que
@@ -39,7 +39,9 @@ export default function CardProducts({ product, categoryName, onToggle }) {
           <img
             src={product.main_image}
             alt={product.name}
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            decoding="async"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (

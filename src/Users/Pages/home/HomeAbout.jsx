@@ -11,7 +11,7 @@ const HIGHLIGHTS = [
 
 export default function HomeAbout() {
   return (
-    <Reveal as="section" id="a-propos" className="bg-base-200/60">
+    <Reveal as="section" id="a-propos" className="scroll-mt-24 bg-base-200/60">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <Reveal variant="left">

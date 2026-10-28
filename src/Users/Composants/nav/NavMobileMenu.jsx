@@ -1,6 +1,37 @@
 import { Link } from 'react-router-dom'
-import { Bell, Heart, Package } from 'lucide-react'
+import { Bell, Heart, Package, Settings } from 'lucide-react'
 import { NAV_LINKS } from './navLinks.js'
+
+function MobileLink({ to, onClick, active, icon: Icon, children, badge, badgeClassName }) {
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      aria-current={active ? 'page' : undefined}
+      className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-colors ${
+        active
+          ? 'bg-primary/10 text-primary'
+          : 'text-base-content/70 hover:bg-base-200 hover:text-primary'
+      }`}
+    >
+      <span
+        className={`grid size-8 shrink-0 place-items-center rounded-lg ${
+          active ? 'bg-primary text-primary-content' : 'bg-base-200/80 text-base-content/55'
+        }`}
+      >
+        <Icon size={17} aria-hidden="true" />
+      </span>
+      <span className="flex-1">{children}</span>
+      {badge > 0 && (
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${badgeClassName}`}
+        >
+          {badge > 99 ? '99+' : badge}
+        </span>
+      )}
+    </Link>
+  )
+}
 
 /** Panneau de navigation mobile (sous la barre supérieure). */
 export default function NavMobileMenu({
@@ -18,94 +49,94 @@ export default function NavMobileMenu({
   if (!open) return null
 
   return (
-    <div className="absolute inset-x-0 top-full z-40 border-t border-base-300/70 bg-base-100/95 px-4 py-4 shadow-lg shadow-base-content/10 backdrop-blur-xl md:hidden">
+    <div className="absolute inset-x-0 top-full z-40 max-h-[calc(100vh-4.5rem)] overflow-y-auto border-t border-base-300/60 bg-base-100/95 px-3 py-3 shadow-2xl shadow-base-content/10 backdrop-blur-xl lg:hidden">
       <nav className="mx-auto max-w-7xl" aria-label="Navigation mobile">
-        <ul className="flex flex-col gap-1.5">
-          {NAV_LINKS.map(({ label, path }) => (
+        <p className="px-3 pb-1.5 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-base-content/40">
+          Navigation
+        </p>
+        <ul className="grid gap-0.5 sm:grid-cols-2">
+          {NAV_LINKS.map(({ label, path, icon: Icon }) => (
             <li key={label}>
               <button
                 type="button"
                 onClick={() => onNavLink(path)}
                 aria-current={isCurrentNavLink(path) ? 'page' : undefined}
-                className={`w-full rounded-lg px-4 py-3 text-left text-sm font-semibold transition-colors hover:bg-base-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-colors ${
                   isCurrentNavLink(path)
                     ? 'bg-primary/10 text-primary'
-                    : 'text-base-content/75'
+                    : 'text-base-content/70 hover:bg-base-200 hover:text-primary'
                 }`}
               >
+                <span
+                  className={`grid size-8 shrink-0 place-items-center rounded-lg ${
+                    isCurrentNavLink(path)
+                      ? 'bg-primary text-primary-content'
+                      : 'bg-base-200/80 text-base-content/55'
+                  }`}
+                >
+                  <Icon size={17} aria-hidden="true" />
+                </span>
                 {label}
               </button>
             </li>
           ))}
+        </ul>
 
-          {isBuyer && (
-            <>
-              <li className="mt-1.5 border-t border-base-300/70 pt-1.5 sm:hidden">
-                <Link
+        {isBuyer && (
+          <>
+            <p className="mt-4 border-t border-base-300/60 px-3 pb-1.5 pt-3 text-[10px] font-bold uppercase tracking-[0.18em] text-base-content/40">
+              Mon compte
+            </p>
+            <ul className="grid gap-0.5 sm:grid-cols-2">
+              <li>
+                <MobileLink
                   to="/favoris"
                   onClick={onClose}
-                  aria-current={isCurrentRoute('/favoris') ? 'page' : undefined}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold transition-colors hover:bg-base-200 hover:text-primary ${
-                    isCurrentRoute('/favoris')
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-base-content/75'
-                  }`}
+                  active={isCurrentRoute('/favoris')}
+                  icon={Heart}
+                  badge={favoritesLoading ? 0 : favoriteCount}
+                  badgeClassName="bg-red-500/10 text-red-500"
                 >
-                  <Heart
-                    size={18}
-                    className={favoriteCount > 0 ? 'fill-current text-red-500' : ''}
-                  />
                   Mes favoris
-                  {favoriteCount > 0 && !favoritesLoading && (
-                    <span className="ml-auto rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-bold tabular-nums text-red-500">
-                      {favoriteCount > 99 ? '99+' : favoriteCount}
-                    </span>
-                  )}
-                </Link>
-              </li>
-              <li className="sm:mt-1.5 sm:border-t sm:border-base-300/70 sm:pt-1.5">
-                <Link
-                  to="/notifications"
-                  onClick={onClose}
-                  aria-current={isCurrentRoute('/notifications') ? 'page' : undefined}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold transition-colors hover:bg-base-200 hover:text-primary ${
-                    isCurrentRoute('/notifications')
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-base-content/75'
-                  }`}
-                >
-                  <Bell size={18} />
-                  Notifications
-                  {notificationCount > 0 && (
-                    <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold tabular-nums text-primary">
-                      {notificationCount > 99 ? '99+' : notificationCount}
-                    </span>
-                  )}
-                </Link>
+                </MobileLink>
               </li>
               <li>
-                <Link
+                <MobileLink
+                  to="/notifications"
+                  onClick={onClose}
+                  active={isCurrentRoute('/notifications')}
+                  icon={Bell}
+                  badge={notificationCount}
+                  badgeClassName="bg-primary/10 text-primary"
+                >
+                  Notifications
+                </MobileLink>
+              </li>
+              <li>
+                <MobileLink
                   to="/commandes"
                   onClick={onClose}
-                  aria-current={isCurrentRoute('/commandes') ? 'page' : undefined}
-                  className={`flex w-full items-center gap-2.5 rounded-lg px-4 py-3 text-left text-sm font-semibold transition-colors hover:bg-base-200 hover:text-primary ${
-                    isCurrentRoute('/commandes')
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-base-content/75'
-                  }`}
+                  active={isCurrentRoute('/commandes')}
+                  icon={Package}
+                  badge={pendingOrderCount}
+                  badgeClassName="bg-warning/15 text-warning"
                 >
-                  <Package size={18} />
                   Mes commandes
-                  {pendingOrderCount > 0 && (
-                    <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold tabular-nums text-primary">
-                      {pendingOrderCount > 99 ? '99+' : pendingOrderCount}
-                    </span>
-                  )}
-                </Link>
+                </MobileLink>
               </li>
-            </>
-          )}
-        </ul>
+              <li>
+                <MobileLink
+                  to="/profil"
+                  onClick={onClose}
+                  active={isCurrentRoute('/profil')}
+                  icon={Settings}
+                >
+                  Paramètres du profil
+                </MobileLink>
+              </li>
+            </ul>
+          </>
+        )}
       </nav>
     </div>
   )

@@ -15,6 +15,7 @@ export default function HomeCatalog({ catalog }) {
     visibleProducts,
     searchedProducts,
     initialLoading,
+    catalogLoading,
     error,
     searchQuery,
     setSearchQuery,
@@ -24,7 +25,7 @@ export default function HomeCatalog({ catalog }) {
     <Reveal as="section" className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:pb-16">
       <Reveal
         id="produits"
-        className="mb-7 flex flex-col items-center gap-3 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left"
+        className="mb-7 flex scroll-mt-24 flex-col items-center gap-3 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left"
       >
         <div>
           <span className="badge badge-accent badge-sm mb-2 uppercase tracking-widest">Catalogue</span>
@@ -33,9 +34,15 @@ export default function HomeCatalog({ catalog }) {
           </h2>
         </div>
         {!initialLoading && (
-          <p className="text-sm text-base-content/60">
+          <p className="text-sm text-base-content/60" aria-live="polite">
             {searchedProducts.length} produit{searchedProducts.length > 1 ? 's' : ''} disponible
             {searchQuery ? ` pour « ${searchQuery} »` : selectedCategory ? ' dans cette catégorie' : ''}
+            {catalogLoading && (
+              <span className="ml-2 inline-flex items-center gap-1.5 text-xs text-base-content/45">
+                <span className="loading loading-spinner loading-xs" aria-hidden="true" />
+                catalogue en cours de chargement
+              </span>
+            )}
           </p>
         )}
       </Reveal>
@@ -88,6 +95,7 @@ export default function HomeCatalog({ catalog }) {
             <Reveal key={product.id} delay={(index % 4) * 70} className="w-full">
               <CardProducts
                 product={product}
+                priority={index < 4}
                 categoryName={categories.find((category) => category.id === product.category)?.name}
               />
             </Reveal>

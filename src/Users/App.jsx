@@ -32,6 +32,10 @@ const router = createBrowserRouter([
 ])
 
 const STARTUP_SEEN_KEY = 'bu-market-startup-seen'
+// Durée maximale de l'écran de démarrage. Au-delà, on ne retarde plus
+// inutilement l'affichage du catalogue (l'ancienne valeur de 2,8 s se
+// cumulait au chargement des produits).
+const STARTUP_MAX_DELAY = 900
 
 export default function App() {
   const [booted, setBooted] = useState(() =>
@@ -42,7 +46,7 @@ export default function App() {
     if (booted) return
 
     sessionStorage.setItem(STARTUP_SEEN_KEY, 'true')
-    const t = setTimeout(() => setBooted(true), 2800)
+    const t = setTimeout(() => setBooted(true), STARTUP_MAX_DELAY)
     return () => clearTimeout(t)
   }, [booted])
 
