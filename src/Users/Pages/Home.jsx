@@ -32,7 +32,7 @@ export default function Home() {
   const showSeller = isMerchant || isSellerByRequest
 
   return (
-    <div className="min-h-screen bg-base-100">
+    <div className="home-page min-h-screen overflow-x-clip bg-base-100">
       <NavBar
         mobileOpen={mobileNavOpen}
         onToggleMobile={() => setMobileNavOpen((open) => !open)}
@@ -52,9 +52,9 @@ export default function Home() {
           hasOpenRequest={hasOpenRequest}
         />
         <HomeTrustStrip />
+        <HomeCatalog catalog={catalog} />
         <HomeValues />
         <Divider />
-        <HomeCatalog catalog={catalog} />
         <HomeShops
           shops={catalog.shops}
           loading={catalog.shopsLoading}

@@ -25,7 +25,7 @@ export default function HomeShops({ shops, loading = false, loadError = false })
         <Reveal className="mb-7 flex flex-col items-center gap-3 text-center sm:flex-row sm:items-end sm:justify-between sm:text-left">
           <div>
             <span className="badge badge-accent badge-sm mb-2 uppercase tracking-widest">Vendeurs</span>
-            <h2 id="boutiques-title" className="text-3xl font-bold tracking-tight text-base-content md:text-4xl">
+            <h2 id="boutiques-title" className="text-2xl font-bold tracking-tight text-base-content sm:text-3xl md:text-4xl">
               Nos boutiques
             </h2>
           </div>
@@ -75,7 +75,7 @@ export default function HomeShops({ shops, loading = false, loadError = false })
                       )}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <h3 className="truncate text-lg font-bold text-base-content group-hover:text-primary">{shop.name}</h3>
+                      <h3 className="truncate text-base font-bold text-base-content group-hover:text-primary sm:text-lg">{shop.name}</h3>
                       <p className="mt-1 text-sm text-base-content/60">{shop.category || 'Boutique'}</p>
                     </div>
                   </div>
@@ -108,7 +108,7 @@ function ShopDetail({ shop, onClose }) {
             <div className="flex items-center gap-3">
               {shop.shopImage && <ZoomableImage src={shop.shopImage} alt={shop.name} className="size-12 rounded-xl" />}
               {shop.creatorPhoto && <ZoomableImage src={shop.creatorPhoto} alt={shop.creatorName || shop.owner} className="size-10 rounded-full" />}
-              <h2 id="shop-detail-title" className="mt-1 text-3xl font-extrabold text-base-content">{shop.name}</h2>
+              <h2 id="shop-detail-title" className="mt-1 text-2xl font-extrabold text-base-content sm:text-3xl">{shop.name}</h2>
             </div>
             <p className="mt-1 text-sm text-base-content/60">
               {shop.category || 'Catégorie non renseignée'} · Vendeur : {shop.creatorName || shop.owner}

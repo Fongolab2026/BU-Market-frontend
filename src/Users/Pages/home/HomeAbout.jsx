@@ -15,16 +15,16 @@ export default function HomeAbout() {
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <Reveal variant="left">
             <span className="badge badge-accent badge-sm mb-3 uppercase tracking-widest">À propos</span>
-            <h2 className="text-3xl font-bold tracking-tight text-base-content md:text-4xl">
+            <h2 className="text-2xl font-bold tracking-tight text-base-content sm:text-3xl md:text-4xl">
               BU-Market, votre marketplace de confiance
             </h2>
-            <p className="mt-4 leading-7 text-base-content/75">
+            <p className="mt-4 text-sm leading-6 text-base-content/75 sm:text-base sm:leading-7">
               Fondée avec la mission de simplifier l’accès aux produits de qualité,
               BU-Market rassemble des vendeurs vérifiés et des acheteurs exigeants.
               Notre plateforme vous offre une expérience d’achat fluide,
               sécurisée et agréable.
             </p>
-            <p className="mt-4 leading-7 text-base-content/75">
+            <p className="mt-4 text-sm leading-6 text-base-content/75 sm:text-base sm:leading-7">
               Nous croyons que chaque utilisateur mérite de trouver des produits
               qui correspondent à ses attentes, au prix juste. C’est pourquoi
               nous sélectionnons soigneusement chaque vendeur et chaque produit

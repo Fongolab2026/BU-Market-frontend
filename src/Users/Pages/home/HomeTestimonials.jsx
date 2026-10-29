@@ -7,7 +7,7 @@ export default function HomeTestimonials() {
     <Reveal as="section" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
       <Reveal className="mb-10 text-center">
         <span className="badge badge-accent badge-sm mb-2 uppercase tracking-widest">Témoignages</span>
-        <h2 className="text-3xl font-bold tracking-tight text-base-content md:text-4xl">
+        <h2 className="text-2xl font-bold tracking-tight text-base-content sm:text-3xl md:text-4xl">
           Ce que nos clients disent
         </h2>
       </Reveal>

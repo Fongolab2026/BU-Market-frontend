@@ -29,7 +29,7 @@ export default function HomeCatalog({ catalog }) {
       >
         <div>
           <span className="badge badge-accent badge-sm mb-2 uppercase tracking-widest">Catalogue</span>
-          <h2 className="text-3xl font-bold tracking-tight text-base-content md:text-4xl">
+          <h2 className="text-2xl font-bold tracking-tight text-base-content sm:text-3xl md:text-4xl">
             Nos produits
           </h2>
         </div>

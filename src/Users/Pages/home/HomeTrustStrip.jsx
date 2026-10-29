@@ -17,7 +17,7 @@ export default function HomeTrustStrip() {
             <div className="min-w-0">
               {/* Sur mobile la carte fait 2 colonnes : on autorise le retour
                   à la ligne plutôt que la troncature « Livraison… ». */}
-              <p className="line-clamp-2 font-semibold leading-snug text-base-content">{title}</p>
+              <p className="line-clamp-2 text-sm font-normal leading-snug text-base-content sm:text-base sm:font-semibold">{title}</p>
               <p className="mt-0.5 line-clamp-2 text-xs text-base-content/60">{text}</p>
             </div>
           </Reveal>

@@ -39,6 +39,7 @@ export default function CategoryCard({ category, onEdit, onToggle, onDelete }) {
         </p>
 
         <div className="mt-auto flex items-center gap-2 border-t border-base-200 pt-3">
+          {category.canManage ? <>
           <button
             type="button"
             onClick={() => onToggle(category)}
@@ -67,6 +68,7 @@ export default function CategoryCard({ category, onEdit, onToggle, onDelete }) {
           >
             <Trash2 size={16} />
           </button>
+          </> : <span className="text-xs text-base-content/55">Catégorie partagée · lecture seule</span>}
         </div>
       </div>
     </article>

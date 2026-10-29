@@ -32,13 +32,19 @@ export default function Reveal({
       return undefined
     }
 
+    // `threshold: 0` déclenche dès qu'une partie du bloc entre dans l'écran.
+    // Un seuil en pourcentage (0.12 auparavant) ne se déclenche jamais pour
+    // les blocs plus hauts que ~8 fois la fenêtre : sur mobile, la section
+    // « Nos produits » (20 cartes empilées, > 11 000 px) restait donc invisible
+    // (opacity: 0). Le décalage négatif en bas garde l'apparition un peu avant
+    // le bord de l'écran.
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return
         setVisible(true)
         observer.disconnect()
       },
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+      { threshold: 0, rootMargin: '0px 0px -8% 0px' },
     )
 
     observer.observe(node)

@@ -2,17 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ClipboardCheck, MapPin, Package, Search, ShoppingBag, RefreshCw, Radio } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { merchantOrderService } from '../services/merchantOrderService.js'
+import { ORDER_STATUS_LABELS, getOrderStatusOptions } from '../../../../../services/orderStatuses.js'
 import { PageHeader, StatusBadge } from '../../../components/ui.jsx'
 import { TableSkeleton } from '../../../../../components/skeletons'
 
-const statusOptions = [
-  { value: 'pending', label: 'En attente' },
-  { value: 'confirmed', label: 'Confirmée' },
-  { value: 'shipped', label: 'Expédiée' },
-  { value: 'completed', label: 'Livrée' },
-  { value: 'cancelled', label: 'Annulée' },
-]
-const statusLabels = { pending: 'En attente', confirmed: 'Confirmée', shipped: 'Expédiée', completed: 'Livrée', cancelled: 'Annulée' }
+const statusLabels = ORDER_STATUS_LABELS
+const statusOptions = Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => ({ value, label }))
 
 /** Intervalle de rechargement automatique (nouvelles commandes du client). */
 const POLL_INTERVAL_MS = 15000
@@ -117,7 +112,10 @@ export function MerchantOrdersPage() {
       setOrders((current) => current.map((item) => (item.id === updated.id ? { ...item, status: updated.status } : item)))
       toast.success(`Commande #${order.id} marquée « ${statusLabels[nextStatus]} ».`)
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Impossible de mettre à jour le statut.')
+      const apiError = error.response?.data
+      toast.error(
+        apiError?.detail || apiError?.status || 'Impossible de mettre à jour le statut.',
+      )
     }
   }
 
@@ -245,9 +243,10 @@ export function MerchantOrdersPage() {
                       {order.can_update_status ? <select
                         value={order.status}
                         onChange={(event) => updateStatus(order, event.target.value)}
+                        disabled={getOrderStatusOptions(order.status).length === 1}
                         className="select select-bordered min-w-32 text-sm font-medium focus:border-brand focus:ring-2 focus:ring-brand/20"
                       >
-                        {statusOptions.map((option) => (
+                        {getOrderStatusOptions(order.status).map((option) => (
                           <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
                       </select> : <span className="text-xs text-base-content/55" title="Commande composée d’articles de plusieurs boutiques">Statut géré par l’administration</span>}

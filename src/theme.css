@@ -197,6 +197,13 @@
   *::-webkit-scrollbar-button {
     display: none;
   }
+
+  @media (max-width: 639px) {
+    *::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+  }
 }
 
 /* Barres latérales : le pouce de défilement n'apparaît qu'au survol de l'aside. */

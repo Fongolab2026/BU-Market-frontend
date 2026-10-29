@@ -29,10 +29,10 @@ export default function HomeContact() {
         <div className="grid gap-12 lg:grid-cols-2">
           <Reveal variant="left">
             <span className="badge badge-accent badge-sm mb-3 uppercase tracking-widest">Contact</span>
-            <h2 className="text-3xl font-bold tracking-tight text-base-content md:text-4xl">
+            <h2 className="text-2xl font-bold tracking-tight text-base-content sm:text-3xl md:text-4xl">
               Nous contacter
             </h2>
-            <p className="mt-4 leading-7 text-base-content/75">
+            <p className="mt-4 text-sm leading-6 text-base-content/75 sm:text-base sm:leading-7">
               Une question, une suggestion ou un problème ? Notre équipe est là
               pour vous aider. Nous vous répondrons dans les plus brefs délais.
             </p>
@@ -56,7 +56,7 @@ export default function HomeContact() {
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <Headphones size={32} aria-hidden="true" />
                 </div>
-                <h3 className="text-xl font-bold text-base-content">
+                <h3 className="text-lg font-bold text-base-content sm:text-xl">
                   Connectez-vous pour nous écrire
                 </h3>
                 <p className="text-sm text-base-content/60">
@@ -71,7 +71,7 @@ export default function HomeContact() {
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/10 text-success">
                   <Send size={32} aria-hidden="true" />
                 </div>
-                <h3 className="text-xl font-bold text-base-content">Message envoyé !</h3>
+                <h3 className="text-lg font-bold text-base-content sm:text-xl">Message envoyé !</h3>
                 <p className="text-sm text-base-content/60">
                   Notre équipe vous répondra dans les plus brefs délais.
                 </p>

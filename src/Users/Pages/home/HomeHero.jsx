@@ -13,19 +13,19 @@ export default function HomeHero({ pendingHeight, showPendingBanner, showSeller,
         className="relative mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 pb-16 pt-16 transition-[padding] duration-300 ease-out motion-reduce:transition-none sm:px-6 md:pb-24 md:pt-24"
         style={showPendingBanner && pendingHeight ? { paddingTop: `${pendingHeight + 24}px` } : undefined}
       >
-        <span className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-sm font-medium backdrop-blur">
+        <span className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-medium backdrop-blur sm:text-sm">
           <Sparkles size={16} className="text-accent" aria-hidden="true" />
           Nouvelle collection disponible
         </span>
 
         <h1
-          className="animate-fade-up max-w-2xl text-4xl font-extrabold leading-tight tracking-tight md:text-5xl"
+          className="animate-fade-up max-w-2xl text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl md:text-5xl"
           style={{ animationDelay: '80ms' }}
         >
           Trouvez le produit <span className="text-accent">parfait</span>, au prix juste.
         </h1>
         <p
-          className="animate-fade-up max-w-xl text-lg text-primary-content/80"
+          className="animate-fade-up max-w-xl text-base text-primary-content/80 sm:text-lg"
           style={{ animationDelay: '160ms' }}
         >
           Mode, maison, high-tech et plus encore — une sélection soignée de vendeurs de

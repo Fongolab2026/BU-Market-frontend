@@ -101,7 +101,7 @@ export function SettingsPage() {
             <div className="divide-y divide-base-200">
               <Toggle label="Valider les nouvelles boutiques" description="Toute nouvelle boutique doit être validée avant publication." checked={settings.moderation.requireShopApproval} onChange={(value) => update('moderation.requireShopApproval', value)} />
               <Toggle label="Valider les nouveaux produits" description="Les produits sont soumis à validation avant affichage." checked={settings.moderation.requireProductApproval} onChange={(value) => update('moderation.requireProductApproval', value)} />
-              <Toggle label="Masquer les avis signalés" description="Un avis signalé est masqué tant qu’il n’est pas vérifié." checked={settings.moderation.hideReportedReviews} onChange={(value) => update('moderation.hideReportedReviews', value)} />
+              <Toggle label="Masquer les avis signalés" description="Masquer automatiquement après 3 signalements distincts." checked={settings.moderation.hideReportedReviews} onChange={(value) => update('moderation.hideReportedReviews', value)} />
             </div>
           </SettingsCard>
         </div>

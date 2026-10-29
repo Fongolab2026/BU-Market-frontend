@@ -2,18 +2,16 @@ import { useEffect, useState } from 'react'
 import { ClipboardCheck, MapPin, Package, Search, ShoppingBag } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { commandesService } from '../services/commandesService.js'
+import { ORDER_STATUS_LABELS, ORDER_STATUS_OPTIONS, getOrderStatusOptions } from '../../../../../services/orderStatuses.js'
 import { PageHeader, Pagination, StatusBadge } from '../../../components/ui.jsx'
 import { TableSkeleton } from '../../../../../components/skeletons'
 
 const PAGE_SIZE = 6
 const statusOptions = [
   { value: 'all', label: 'Tous les statuts' },
-  { value: 'pending', label: 'En attente' },
-  { value: 'shipped', label: 'Expédiées' },
-  { value: 'completed', label: 'Livrées' },
-  { value: 'cancelled', label: 'Annulées' },
+  ...ORDER_STATUS_OPTIONS,
 ]
-const statusLabels = { pending: 'En attente', shipped: 'Expédiée', completed: 'Livrée', cancelled: 'Annulée' }
+const statusLabels = ORDER_STATUS_LABELS
 
 export function CommandesPage() {
   const [orders, setOrders] = useState([])
@@ -46,9 +44,16 @@ export function CommandesPage() {
 
   const updateStatus = async (order, nextStatus) => {
     if (nextStatus === order.status) return
-    const updated = await commandesService.updateStatus(order.id, nextStatus)
-    setOrders((current) => current.map((item) => (item.id === updated.id ? { ...item, status: updated.status } : item)))
-    toast.success(`Commande ${order.id} marquée « ${statusLabels[nextStatus]} ».`)
+    try {
+      const updated = await commandesService.updateStatus(order.id, nextStatus)
+      setOrders((current) => current.map((item) => (item.id === updated.id ? { ...item, status: updated.status } : item)))
+      toast.success(`Commande ${order.id} marquée « ${statusLabels[nextStatus]} ».`)
+    } catch (error) {
+      const apiError = error.response?.data
+      toast.error(
+        apiError?.detail || apiError?.status || 'Impossible de mettre à jour le statut.',
+      )
+    }
   }
 
   return (
@@ -142,9 +147,10 @@ export function CommandesPage() {
                     <select
                       value={order.status}
                       onChange={(event) => updateStatus(order, event.target.value)}
+                      disabled={getOrderStatusOptions(order.status).length === 1}
                       className="h-9 w-full min-w-32 rounded-lg border border-base-300 bg-white px-2 text-sm font-medium outline-none focus:border-brand focus:ring-4 focus:ring-brand/10"
                     >
-                      {statusOptions.filter((option) => option.value !== 'all').map((option) => (
+                      {getOrderStatusOptions(order.status).map((option) => (
                         <option key={option.value} value={option.value}>{option.label}</option>
                       ))}
                     </select>
