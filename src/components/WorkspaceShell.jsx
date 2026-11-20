@@ -7,7 +7,6 @@ import {
   Menu,
   Moon,
   Settings,
-  Store,
   Sun,
   X,
 } from "lucide-react";
@@ -174,9 +173,7 @@ export default function WorkspaceShell({
 
             {/* Logo du projet — purement visuel (non cliquable) */}
             <div className="flex min-w-0 items-center gap-3" aria-label="BU-Marché">
-              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-content shadow-sm">
-                <Store className="size-5" />
-              </span>
+              <img src="/images/BM-logo.jpg" alt="" className="size-9 shrink-0 rounded-lg object-contain" />
               <span className="hidden min-w-0 items-center gap-1 sm:flex">
                 <span className="text-lg font-extrabold tracking-tight text-base-content">BU-</span>
                 <span className="text-lg font-medium text-base-content/60">Marché</span>

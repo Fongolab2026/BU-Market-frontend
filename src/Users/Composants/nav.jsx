@@ -152,9 +152,7 @@ export default function NavBar({
             aria-label="BU-Market, retour à l'accueil"
             className="flex shrink-0 items-center gap-2.5 rounded-2xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100"
           >
-            <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-primary-content shadow-md shadow-primary/25 ring-1 ring-white/15">
-              <Store size={21} strokeWidth={2.2} />
-            </span>
+            <img src="/images/BM-logo.jpg" alt="" className="size-10 shrink-0 rounded-xl object-contain" />
             <span className="hidden flex-col leading-none sm:flex">
               <span className="text-[17px] font-extrabold tracking-tight text-base-content">
                 BU<span className="text-primary">Market</span>

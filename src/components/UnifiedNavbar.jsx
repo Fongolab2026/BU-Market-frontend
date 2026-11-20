@@ -8,7 +8,6 @@ import {
   Package,
   Repeat,
   Settings,
-  Store,
   Sun,
   User,
 } from "lucide-react";
@@ -65,9 +64,7 @@ export default function UnifiedNavbar({ onOpenMenu }) {
 
         {/* Logo + titre — purement visuel (non cliquable) */}
         <div className="flex shrink-0 items-center gap-2" aria-label="BU-Market">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-content shadow-md">
-            <Store size={22} />
-          </span>
+          <img src="/images/BM-logo.jpg" alt="" className="size-10 shrink-0 rounded-lg object-contain" />
           <span className="hidden text-lg font-bold tracking-tight text-base-content sm:block">
             BU-<span className="text-primary">Market</span>
           </span>

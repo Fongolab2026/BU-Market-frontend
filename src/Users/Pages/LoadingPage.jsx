@@ -1,11 +1,9 @@
-import { ShoppingBag } from 'lucide-react'
-
 export default function LoadingPage() {
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-10 bg-gradient-to-b from-[#c2410c] via-[#9a3412] to-[#7c2d12]">
       <div className="flex flex-col items-center gap-6">
         <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/25 backdrop-blur">
-          <ShoppingBag className="h-10 w-10 text-white" />
+          <img src="/images/BM-logo.jpg" alt="" className="size-full rounded-2xl object-contain" />
         </div>
         <div className="text-center">
           <h1 className="text-3xl font-extrabold tracking-tight text-white">

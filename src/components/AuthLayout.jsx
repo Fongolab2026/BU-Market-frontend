@@ -93,7 +93,7 @@ export default function AuthLayout({
               className="inline-flex w-fit items-center gap-3 text-xl font-bold tracking-tight text-white"
             >
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25">
-                {brand.mark}
+                <img src="/images/BM-logo.jpg" alt="" className="size-full rounded-lg object-contain" />
               </span>
               {brand.label}
             </Link>
@@ -127,7 +127,7 @@ export default function AuthLayout({
               className="mb-8 inline-flex items-center gap-2 text-lg font-bold text-base-content lg:hidden"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-content">
-                {brand.mark}
+                <img src="/images/BM-logo.jpg" alt="" className="size-full rounded-lg object-contain" />
               </span>
               {brand.label}
             </Link>
